@@ -90,6 +90,33 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
     
+    // Rate limits table
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS rate_limits (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ip_address VARCHAR(45) NOT NULL,
+            action VARCHAR(50) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_ip_action (ip_address, action),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+    
+    // Audit log table
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            action VARCHAR(100) NOT NULL,
+            details TEXT,
+            ip_address VARCHAR(45),
+            user_agent TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_action (action),
+            INDEX idx_ip_address (ip_address),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+    
     // Insert default settings
     $pdo->exec("
         INSERT IGNORE INTO settings (setting_key, setting_value) VALUES
@@ -100,6 +127,10 @@ try {
         ('data_retention_days', '90'),
         ('anonymize_ips', 'false'),
         ('google_maps_api_key', ''),
+        ('admin_email', 'it@keizai-tech.com'),
+        ('email_notifications_enabled', 'true'),
+        ('notify_on_link_click', 'true'),
+        ('notify_on_new_link', 'true'),
         ('privacy_policy', 'This tool respects your privacy and complies with applicable data protection laws.'),
         ('terms_of_service', 'By using this service, you agree to our terms of service.'),
         ('installation_date', NOW())
@@ -224,7 +255,7 @@ if (!is_dir('assets/js')) {
                             </div>
                             <div class="col-md-6">
                                 <p><strong>Database:</strong> <?php echo DB_NAME; ?></p>
-                                <p><strong>Tables Created:</strong> 3 (links, targets, settings)</p>
+                                <p><strong>Tables Created:</strong> 5 (links, targets, settings, rate_limits, audit_log)</p>
                                 <p><strong>Sample Data:</strong> 2 links, 2 targets</p>
                             </div>
                         </div>

@@ -410,6 +410,241 @@ function isAjaxRequest() {
 }
 
 /**
+ * Send email notification
+ */
+function sendEmailNotification($to, $subject, $message, $htmlMessage = null) {
+    if (!EMAIL_NOTIFICATIONS_ENABLED) {
+        return false;
+    }
+    
+    // Use PHPMailer if available, otherwise fallback to mail()
+    if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        return sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage);
+    } else {
+        return sendEmailWithMail($to, $subject, $message, $htmlMessage);
+    }
+}
+
+/**
+ * Send email using PHPMailer (recommended)
+ */
+function sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage = null) {
+    try {
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = SMTP_HOST;
+        $mail->SMTPAuth = true;
+        $mail->Username = SMTP_USERNAME;
+        $mail->Password = SMTP_PASSWORD;
+        $mail->SMTPSecure = SMTP_SECURE;
+        $mail->Port = SMTP_PORT;
+        
+        // Recipients
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        $mail->addAddress($to);
+        
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $htmlMessage ?: $message;
+        $mail->AltBody = $message;
+        
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Send email using PHP mail() function (fallback)
+ */
+function sendEmailWithMail($to, $subject, $message, $htmlMessage = null) {
+    $headers = [];
+    $headers[] = 'From: ' . SMTP_FROM_NAME . ' <' . SMTP_FROM_EMAIL . '>';
+    $headers[] = 'Reply-To: ' . SMTP_FROM_EMAIL;
+    $headers[] = 'X-Mailer: IP Logger System';
+    
+    if ($htmlMessage) {
+        $headers[] = 'MIME-Version: 1.0';
+        $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        $message = $htmlMessage;
+    } else {
+        $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+    }
+    
+    return mail($to, $subject, $message, implode("\r\n", $headers));
+}
+
+/**
+ * Send link click notification
+ */
+function sendLinkClickNotification($linkId, $targetData) {
+    global $conn;
+    
+    if (!NOTIFY_ON_LINK_CLICK) {
+        return false;
+    }
+    
+    // Get link details
+    $stmt = $conn->prepare("SELECT * FROM links WHERE id = ?");
+    $stmt->execute([$linkId]);
+    $link = $stmt->fetch();
+    
+    if (!$link) {
+        return false;
+    }
+    
+    // Get admin email from settings
+    $adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+    
+    $subject = "Link Clicked: " . $link['short_code'];
+    $message = "Your IP Logger link has been clicked!\n\n";
+    $message .= "Short Code: " . $link['short_code'] . "\n";
+    $message .= "Original URL: " . $link['original_url'] . "\n";
+    $message .= "Clicked At: " . formatDate($targetData['clicked_at']) . "\n\n";
+    $message .= "Visitor Information:\n";
+    $message .= "IP Address: " . $targetData['ip_address'] . "\n";
+    $message .= "Country: " . ($targetData['country'] ?? 'Unknown') . "\n";
+    $message .= "City: " . ($targetData['city'] ?? 'Unknown') . "\n";
+    $message .= "Device: " . $targetData['device_type'] . "\n";
+    $message .= "ISP: " . ($targetData['isp'] ?? 'Unknown') . "\n";
+    
+    $htmlMessage = createEmailHTML($subject, $message, $link, $targetData);
+    
+    return sendEmailNotification($adminEmail, $subject, $message, $htmlMessage);
+}
+
+/**
+ * Send new link creation notification
+ */
+function sendNewLinkNotification($linkId) {
+    global $conn;
+    
+    if (!NOTIFY_ON_NEW_LINK) {
+        return false;
+    }
+    
+    // Get link details
+    $stmt = $conn->prepare("SELECT * FROM links WHERE id = ?");
+    $stmt->execute([$linkId]);
+    $link = $stmt->fetch();
+    
+    if (!$link) {
+        return false;
+    }
+    
+    // Get admin email from settings
+    $adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+    
+    $subject = "New Link Created: " . $link['short_code'];
+    $message = "A new IP Logger link has been created!\n\n";
+    $message .= "Short Code: " . $link['short_code'] . "\n";
+    $message .= "Original URL: " . $link['original_url'] . "\n";
+    $message .= "Created At: " . formatDate($link['created_at']) . "\n";
+    $message .= "Expires: " . ($link['expiry_date'] ? formatDate($link['expiry_date']) : 'Never') . "\n";
+    
+    $htmlMessage = createEmailHTML($subject, $message, $link);
+    
+    return sendEmailNotification($adminEmail, $subject, $message, $htmlMessage);
+}
+
+/**
+ * Test email functionality
+ */
+function testEmailFunctionality() {
+    $adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+    
+    $subject = "IP Logger Email Test";
+    $message = "This is a test email from your IP Logger system.\n\n";
+    $message .= "If you receive this email, your email configuration is working correctly.\n";
+    $message .= "Test sent at: " . date('Y-m-d H:i:s') . "\n";
+    $message .= "SMTP Host: " . SMTP_HOST . "\n";
+    $message .= "SMTP Port: " . SMTP_PORT . "\n";
+    $message .= "From Email: " . SMTP_FROM_EMAIL . "\n";
+    
+    $htmlMessage = createEmailHTML($subject, $message);
+    
+    $result = sendEmailNotification($adminEmail, $subject, $message, $htmlMessage);
+    
+    return [
+        'success' => $result,
+        'email' => $adminEmail,
+        'message' => $result ? 'Test email sent successfully!' : 'Failed to send test email. Check your SMTP configuration.'
+    ];
+}
+
+/**
+ * Create HTML email template
+ */
+function createEmailHTML($subject, $textMessage, $link = null, $targetData = null) {
+    $html = '<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>' . htmlspecialchars($subject) . '</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #007bff; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background: #f8f9fa; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+            .info-box { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #007bff; }
+            .highlight { background: #e3f2fd; padding: 10px; border-radius: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>IP Logger Notification</h1>
+            </div>
+            <div class="content">';
+    
+    // Convert text message to HTML
+    $html .= '<p>' . nl2br(htmlspecialchars($textMessage)) . '</p>';
+    
+    if ($link) {
+        $html .= '<div class="info-box">
+            <h3>Link Details</h3>
+            <p><strong>Short URL:</strong> <a href="' . BASE_URL . $link['short_code'] . '">' . BASE_URL . $link['short_code'] . '</a></p>
+            <p><strong>Original URL:</strong> <a href="' . htmlspecialchars($link['original_url']) . '">' . htmlspecialchars($link['original_url']) . '</a></p>
+            <p><strong>Created:</strong> ' . formatDate($link['created_at']) . '</p>';
+        
+        if ($link['expiry_date']) {
+            $html .= '<p><strong>Expires:</strong> ' . formatDate($link['expiry_date']) . '</p>';
+        }
+        
+        $html .= '</div>';
+    }
+    
+    if ($targetData) {
+        $html .= '<div class="info-box">
+            <h3>Visitor Information</h3>
+            <p><strong>IP Address:</strong> ' . htmlspecialchars($targetData['ip_address']) . '</p>
+            <p><strong>Location:</strong> ' . htmlspecialchars($targetData['city'] ?? 'Unknown') . ', ' . htmlspecialchars($targetData['country'] ?? 'Unknown') . '</p>
+            <p><strong>Device:</strong> ' . htmlspecialchars($targetData['device_type']) . '</p>
+            <p><strong>ISP:</strong> ' . htmlspecialchars($targetData['isp'] ?? 'Unknown') . '</p>
+            <p><strong>Time:</strong> ' . formatDate($targetData['clicked_at']) . '</p>
+        </div>';
+    }
+    
+    $html .= '</div>
+            <div class="footer">
+                <p>This is an automated notification from IP Logger System</p>
+                <p>© ' . date('Y') . ' IP Logger. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>';
+    
+    return $html;
+}
+
+/**
  * Send JSON response
  */
 function sendJsonResponse($data, $statusCode = 200) {

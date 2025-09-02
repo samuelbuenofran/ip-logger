@@ -30,139 +30,34 @@ define('MAX_LINKS_PER_HOUR', 10);
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'it@keizai-tech.com');
-define('SMTP_PASSWORD', 'your-app-password');
+define('SMTP_PASSWORD', 'your-app-password'); // Replace with your actual app password
+define('SMTP_FROM_EMAIL', 'it@keizai-tech.com');
+define('SMTP_FROM_NAME', 'IP Logger System');
+define('SMTP_SECURE', 'tls'); // Use 'ssl' for port 465, 'tls' for port 587
+
+// Email notification settings
+define('EMAIL_NOTIFICATIONS_ENABLED', true);
+define('NOTIFY_ON_LINK_CLICK', true);
+define('NOTIFY_ON_NEW_LINK', true);
+define('NOTIFY_ON_LINK_EXPIRY', true);
 
 // Geolocation API Configuration
 define('GEOLOCATION_API_URL', 'http://ip-api.com/json/');
 define('GEOLOCATION_TIMEOUT', 5);
 
-// Function to generate short codes
-function generateShortCode($length = SHORT_CODE_LENGTH) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $shortCode = '';
-    
-    for ($i = 0; $i < $length; $i++) {
-        $shortCode .= $characters[rand(0, strlen($characters) - 1)];
-    }
-    
-    return $shortCode;
-}
+// Function to generate short codes - moved to includes/functions.php to avoid duplication
 
-// Function to get client IP address
-function getClientIP() {
-    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-    
-    foreach ($ipKeys as $key) {
-        if (array_key_exists($key, $_SERVER) === true) {
-            foreach (explode(',', $_SERVER[$key]) as $ip) {
-                $ip = trim($ip);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                    return $ip;
-                }
-            }
-        }
-    }
-    
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-}
+// Function to get client IP address - moved to includes/functions.php to avoid duplication
 
-// Function to get geolocation data
-function getGeolocationData($ip) {
-    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-        return null;
-    }
-    
-    $url = GEOLOCATION_API_URL . $ip;
-    $context = stream_context_create([
-        'http' => [
-            'timeout' => GEOLOCATION_TIMEOUT,
-            'user_agent' => 'IP Logger Tool'
-        ]
-    ]);
-    
-    $response = @file_get_contents($url, false, $context);
-    
-    if ($response === false) {
-        return null;
-    }
-    
-    $data = json_decode($response, true);
-    
-    if ($data && $data['status'] === 'success') {
-        return [
-            'ip' => $data['query'],
-            'country' => $data['country'],
-            'country_code' => $data['countryCode'],
-            'region' => $data['regionName'],
-            'city' => $data['city'],
-            'zip' => $data['zip'],
-            'lat' => $data['lat'],
-            'lon' => $data['lon'],
-            'timezone' => $data['timezone'],
-            'isp' => $data['isp'],
-            'org' => $data['org'],
-            'as' => $data['as']
-        ];
-    }
-    
-    return null;
-}
+// Function to get geolocation data - moved to includes/functions.php to avoid duplication
 
-// Function to detect device type
-function getDeviceType() {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    
-    if (preg_match('/(android|iphone|ipad|mobile)/i', $userAgent)) {
-        return 'mobile';
-    }
-    
-    return 'desktop';
-}
+// Function to detect device type - moved to includes/functions.php to avoid duplication
 
-// Function to validate URL
-function isValidUrl($url) {
-    return filter_var($url, FILTER_VALIDATE_URL) !== false;
-}
-
-// Function to sanitize input
-function sanitizeInput($input) {
-    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
-}
-
-// Function to check if link is expired
-function isLinkExpired($expiryDate) {
-    if ($expiryDate === null) {
-        return false;
-    }
-    
-    return strtotime($expiryDate) < time();
-}
-
-// Function to format date
-function formatDate($date, $format = 'M j, Y H:i') {
-    return date($format, strtotime($date));
-}
-
-// Function to get time ago
-function timeAgo($datetime) {
-    $time = time() - strtotime($datetime);
-    
-    if ($time < 60) {
-        return 'Just now';
-    } elseif ($time < 3600) {
-        $minutes = floor($time / 60);
-        return $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ago';
-    } elseif ($time < 86400) {
-        $hours = floor($time / 3600);
-        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
-    } elseif ($time < 2592000) {
-        $days = floor($time / 86400);
-        return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
-    } else {
-        $months = floor($time / 2592000);
-        return $months . ' month' . ($months > 1 ? 's' : '') . ' ago';
-    }
-}
+// Function to validate URL - moved to includes/functions.php to avoid duplication
+// Function to sanitize input - moved to includes/functions.php to avoid duplication
+// Function to check if link is expired - moved to includes/functions.php to avoid duplication
+// Function to format date - moved to includes/functions.php to avoid duplication
+// Function to get time ago - moved to includes/functions.php to avoid duplication
 
 // Error reporting
 error_reporting(E_ALL);

@@ -36,6 +36,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     $stmt = $conn->prepare("INSERT INTO links (original_url, short_code, password, expiry_date, created_at) VALUES (?, ?, ?, ?, NOW())");
     $stmt->execute([$original_url, $short_code, $hashed_password, $expiry_date]);
     
+    // Get the link ID for email notification
+    $linkId = $conn->lastInsertId();
+    
+    // Send email notification for new link creation
+    sendNewLinkNotification($linkId);
+    
     redirectWithMessage('index.php', 'Link created successfully! Short URL: ' . BASE_URL . $short_code, 'success');
 }
 
@@ -85,6 +91,11 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <li class="nav-item">
                             <a class="nav-link" href="targets.php">
                                 <i class="fas fa-map-marker-alt"></i> Targets
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="email_settings.php">
+                                <i class="fas fa-envelope"></i> Email Settings
                             </a>
                         </li>
                         <li class="nav-item">
