@@ -48,7 +48,7 @@ $conn = $db->getConnection();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="targets.php">
+                            <a class="nav-link" href="view_targets.php">
                                 <i class="fas fa-map-marker-alt"></i> Targets
                             </a>
                         </li>
