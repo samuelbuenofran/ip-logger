@@ -98,6 +98,11 @@ $hasNotificationEmail = $notificationEmail && $notificationEmail !== 'NO_NOTIFIC
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="analytics.php">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link active" href="email_settings.php">
                                 <i class="fas fa-envelope"></i> Email Settings
                             </a>

@@ -73,6 +73,11 @@ $activeLinks = count(array_filter($links, function($link) {
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="analytics.php">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="email_settings.php">
                                 <i class="fas fa-envelope"></i> Email Settings
                             </a>

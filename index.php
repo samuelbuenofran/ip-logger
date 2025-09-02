@@ -94,6 +94,11 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="analytics.php">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="email_settings.php">
                                 <i class="fas fa-envelope"></i> Email Settings
                             </a>
@@ -112,9 +117,9 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createLinkModal">
+                        <a href="create_link.php" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Create New Link
-                        </button>
+                        </a>
                     </div>
                 </div>
 

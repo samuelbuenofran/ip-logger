@@ -53,6 +53,11 @@ $conn = $db->getConnection();
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="analytics.php">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link active" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
                             </a>

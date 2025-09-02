@@ -702,4 +702,223 @@ function displayMessage() {
     
     return '';
 }
+
+/**
+ * Enhanced geolocation data with additional tracking features
+ */
+function getEnhancedGeolocationData($ip) {
+    $basicData = getGeolocationData($ip);
+    
+    // Add enhanced detection
+    $proxyInfo = detectProxyVPN($ip);
+    $basicData = array_merge($basicData, $proxyInfo);
+    
+    return $basicData;
+}
+
+/**
+ * Get detailed browser and OS information
+ */
+function getDetailedBrowserInfo($userAgent) {
+    $browser = 'Unknown';
+    $browserVersion = '';
+    $os = 'Unknown';
+    $osVersion = '';
+    
+    // Browser detection
+    if (preg_match('/Chrome\/([0-9.]+)/', $userAgent, $matches)) {
+        $browser = 'Chrome';
+        $browserVersion = $matches[1];
+    } elseif (preg_match('/Firefox\/([0-9.]+)/', $userAgent, $matches)) {
+        $browser = 'Firefox';
+        $browserVersion = $matches[1];
+    } elseif (preg_match('/Safari\/([0-9.]+)/', $userAgent, $matches)) {
+        $browser = 'Safari';
+        $browserVersion = $matches[1];
+    } elseif (preg_match('/Edge\/([0-9.]+)/', $userAgent, $matches)) {
+        $browser = 'Edge';
+        $browserVersion = $matches[1];
+    } elseif (preg_match('/MSIE ([0-9.]+)/', $userAgent, $matches)) {
+        $browser = 'Internet Explorer';
+        $browserVersion = $matches[1];
+    }
+    
+    // OS detection
+    if (preg_match('/Windows NT ([0-9.]+)/', $userAgent, $matches)) {
+        $os = 'Windows';
+        $osVersion = $matches[1];
+    } elseif (preg_match('/Mac OS X ([0-9._]+)/', $userAgent, $matches)) {
+        $os = 'macOS';
+        $osVersion = $matches[1];
+    } elseif (preg_match('/Linux/', $userAgent)) {
+        $os = 'Linux';
+    } elseif (preg_match('/Android ([0-9.]+)/', $userAgent, $matches)) {
+        $os = 'Android';
+        $osVersion = $matches[1];
+    } elseif (preg_match('/iPhone OS ([0-9._]+)/', $userAgent, $matches)) {
+        $os = 'iOS';
+        $osVersion = $matches[1];
+    }
+    
+    return [
+        'browser_name' => $browser,
+        'browser_version' => $browserVersion,
+        'os_name' => $os,
+        'os_version' => $osVersion
+    ];
+}
+
+/**
+ * Detect proxy/VPN usage
+ */
+function detectProxyVPN($ip) {
+    // Simple proxy/VPN detection based on common patterns
+    $proxyDetected = false;
+    $vpnDetected = false;
+    $torDetected = false;
+    
+    // Check for common proxy/VPN IP ranges
+    $proxyRanges = [
+        '10.0.0.0/8',
+        '172.16.0.0/12',
+        '192.168.0.0/16',
+        '127.0.0.0/8'
+    ];
+    
+    foreach ($proxyRanges as $range) {
+        if (ipInRange($ip, $range)) {
+            $proxyDetected = true;
+            break;
+        }
+    }
+    
+    // Check for known VPN providers (simplified)
+    $vpnProviders = ['nordvpn', 'expressvpn', 'surfshark', 'protonvpn'];
+    $reverseIp = @gethostbyaddr($ip);
+    
+    if ($reverseIp && $reverseIp !== $ip) {
+        foreach ($vpnProviders as $provider) {
+            if (stripos($reverseIp, $provider) !== false) {
+                $vpnDetected = true;
+                break;
+            }
+        }
+    }
+    
+    return [
+        'proxy_detected' => $proxyDetected,
+        'vpn_detected' => $vpnDetected,
+        'tor_detected' => $torDetected
+    ];
+}
+
+/**
+ * Check if IP is in range
+ */
+function ipInRange($ip, $range) {
+    list($range, $netmask) = explode('/', $range, 2);
+    $rangeDecimal = ip2long($range);
+    $ipDecimal = ip2long($ip);
+    $wildcardDecimal = pow(2, (32 - $netmask)) - 1;
+    $netmaskDecimal = ~ $wildcardDecimal;
+    
+    return (($ipDecimal & $netmaskDecimal) == ($rangeDecimal & $netmaskDecimal));
+}
+
+/**
+ * Parse UTM parameters from URL
+ */
+function parseUTMParameters($url) {
+    $parsed = parse_url($url);
+    if (!isset($parsed['query'])) {
+        return [];
+    }
+    
+    parse_str($parsed['query'], $params);
+    
+    return [
+        'utm_source' => $params['utm_source'] ?? null,
+        'utm_medium' => $params['utm_medium'] ?? null,
+        'utm_campaign' => $params['utm_campaign'] ?? null,
+        'utm_term' => $params['utm_term'] ?? null,
+        'utm_content' => $params['utm_content'] ?? null
+    ];
+}
+
+/**
+ * Get referrer information
+ */
+function getReferrerInfo($referrer) {
+    if (empty($referrer)) {
+        return ['domain' => null, 'path' => null];
+    }
+    
+    $parsed = parse_url($referrer);
+    
+    return [
+        'domain' => $parsed['host'] ?? null,
+        'path' => $parsed['path'] ?? null
+    ];
+}
+
+/**
+ * Generate tracking code
+ */
+function generateTrackingCode() {
+    return 'TRK' . strtoupper(substr(md5(uniqid()), 0, 8));
+}
+
+/**
+ * Get custom domains
+ */
+function getCustomDomains() {
+    global $conn;
+    $stmt = $conn->query("SELECT * FROM custom_domains WHERE is_active = 1 ORDER BY domain");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get link extensions
+ */
+function getLinkExtensions() {
+    global $conn;
+    $stmt = $conn->query("SELECT * FROM link_extensions WHERE is_active = 1 ORDER BY extension");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Update link statistics
+ */
+function updateLinkStats($linkId) {
+    global $conn;
+    
+    // Update click count
+    $stmt = $conn->prepare("
+        UPDATE links 
+        SET click_count = (
+            SELECT COUNT(*) FROM targets WHERE link_id = ?
+        ),
+        unique_visitors = (
+            SELECT COUNT(DISTINCT ip_address) FROM targets WHERE link_id = ?
+        ),
+        last_click_at = (
+            SELECT MAX(clicked_at) FROM targets WHERE link_id = ?
+        )
+        WHERE id = ?
+    ");
+    $stmt->execute([$linkId, $linkId, $linkId, $linkId]);
+}
+
+/**
+ * Log consent
+ */
+function logConsent($targetId, $consentType, $consentGiven, $consentText = null) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        INSERT INTO consent_logs (target_id, consent_type, consent_given, consent_text, ip_address)
+        VALUES (?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([$targetId, $consentType, $consentGiven ? 1 : 0, $consentText, getClientIP()]);
+}
 ?>

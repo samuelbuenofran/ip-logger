@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/config.php';
 require_once 'config/database.php';
+require_once 'includes/functions.php';
 
 // Initialize database connection
 $db = new Database();
@@ -149,6 +150,11 @@ foreach ($targets as $target) {
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="analytics.php">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
                             </a>
@@ -161,11 +167,14 @@ foreach ($targets as $target) {
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Target Data</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
-                    </div>
+                                         <div class="btn-toolbar mb-2 mb-md-0">
+                         <a href="index.php" class="btn btn-secondary me-2">
+                             <i class="fas fa-arrow-left"></i> Back to Dashboard
+                         </a>
+                         <a href="test_maps.php" class="btn btn-info" target="_blank">
+                             <i class="fas fa-map"></i> Test Maps
+                         </a>
+                     </div>
                 </div>
 
                 <!-- Link Information -->
@@ -187,17 +196,31 @@ foreach ($targets as $target) {
                     </div>
                 </div>
 
-                <!-- Google Maps -->
-                <?php if (!empty($map_data)): ?>
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-map"></i> Location Map</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="map"></div>
-                    </div>
-                </div>
-                <?php endif; ?>
+                                 <!-- Google Maps -->
+                 <?php if (!empty($map_data)): ?>
+                 <div class="card mb-4">
+                     <div class="card-header">
+                         <h5 class="mb-0"><i class="fas fa-map"></i> Location Map</h5>
+                     </div>
+                     <div class="card-body">
+                         <div id="map"></div>
+                     </div>
+                 </div>
+                 <?php else: ?>
+                 <div class="card mb-4">
+                     <div class="card-header">
+                         <h5 class="mb-0"><i class="fas fa-map"></i> Location Map</h5>
+                     </div>
+                     <div class="card-body">
+                         <div class="alert alert-info">
+                             <i class="fas fa-info-circle"></i>
+                             <strong>No location data available.</strong> 
+                             Location tracking requires valid IP addresses and geolocation data. 
+                             Some visitors may have private IP addresses or location data may not be available.
+                         </div>
+                     </div>
+                 </div>
+                 <?php endif; ?>
 
                 <!-- Statistics -->
                 <div class="row mb-4">
@@ -333,42 +356,64 @@ foreach ($targets as $target) {
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <?php if (!empty($map_data)): ?>
-    <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo GOOGLE_MAPS_API_KEY; ?>&callback=initMap" async defer></script>
-    <?php endif; ?>
+         <?php if (!empty($map_data)): ?>
+     <!-- Google Maps API -->
+     <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo GOOGLE_MAPS_API_KEY; ?>&callback=initMap" async defer onerror="handleMapError()"></script>
+     <?php else: ?>
+     <!-- No map data available -->
+     <script>
+         function handleMapError() {
+             console.error('Google Maps failed to load');
+         }
+     </script>
+     <?php endif; ?>
     
     <!-- Custom JS -->
     <script>
-        <?php if (!empty($map_data)): ?>
-        function initMap() {
-            const mapData = <?php echo json_encode($map_data); ?>;
-            
-            if (mapData.length === 0) return;
-            
-            const map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 2,
-                center: { lat: mapData[0].lat, lng: mapData[0].lng },
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            });
-            
-            mapData.forEach(function(location) {
-                const marker = new google.maps.Marker({
-                    position: { lat: location.lat, lng: location.lng },
-                    map: map,
-                    title: location.title
-                });
-                
-                const infowindow = new google.maps.InfoWindow({
-                    content: location.info
-                });
-                
-                marker.addListener('click', function() {
-                    infowindow.open(map, marker);
-                });
-            });
-        }
-        <?php endif; ?>
+                 <?php if (!empty($map_data)): ?>
+         function initMap() {
+             try {
+                 const mapData = <?php echo json_encode($map_data); ?>;
+                 
+                 if (mapData.length === 0) {
+                     console.log('No map data available');
+                     return;
+                 }
+                 
+                 const map = new google.maps.Map(document.getElementById('map'), {
+                     zoom: 2,
+                     center: { lat: mapData[0].lat, lng: mapData[0].lng },
+                     mapTypeId: google.maps.MapTypeId.ROADMAP
+                 });
+                 
+                 mapData.forEach(function(location) {
+                     const marker = new google.maps.Marker({
+                         position: { lat: location.lat, lng: location.lng },
+                         map: map,
+                         title: location.title
+                     });
+                     
+                     const infowindow = new google.maps.InfoWindow({
+                         content: location.info
+                     });
+                     
+                     marker.addListener('click', function() {
+                         infowindow.open(map, marker);
+                     });
+                 });
+                 
+                 console.log('Google Maps initialized successfully with', mapData.length, 'markers');
+             } catch (error) {
+                 console.error('Error initializing Google Maps:', error);
+                 document.getElementById('map').innerHTML = '<div class="alert alert-danger">Error loading map: ' + error.message + '</div>';
+             }
+         }
+         
+         function handleMapError() {
+             console.error('Google Maps API failed to load');
+             document.getElementById('map').innerHTML = '<div class="alert alert-danger">Failed to load Google Maps. Please check your API key configuration.</div>';
+         }
+         <?php endif; ?>
         
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
