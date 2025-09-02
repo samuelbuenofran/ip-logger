@@ -11,7 +11,7 @@ define('SITE_NAME', 'IP Logger');
 define('SITE_DESCRIPTION', 'URL Shortener & IP Tracker');
 
 // Google Maps API Configuration
-define('GOOGLE_MAPS_API_KEY', 'YOUR_GOOGLE_MAPS_API_KEY_HERE');
+define('GOOGLE_MAPS_API_KEY', 'AIzaSyC5gMYj7gqRiwNlE6BxyLAdG9IMCCJZsrs');
 
 // Security Configuration
 define('SHORT_CODE_LENGTH', 8);
