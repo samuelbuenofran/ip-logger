@@ -13,7 +13,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'update_settings':
-                updateSetting('admin_email', sanitizeInput($_POST['admin_email']));
+                $email = sanitizeInput($_POST['notification_email']);
+                
+                // Validate email if provided
+                if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    redirectWithMessage('email_settings.php', 'Please enter a valid email address.', 'error');
+                }
+                
+                updateSetting('notification_email', $email);
                 updateSetting('email_notifications_enabled', isset($_POST['email_enabled']) ? 'true' : 'false');
                 updateSetting('notify_on_link_click', isset($_POST['notify_click']) ? 'true' : 'false');
                 updateSetting('notify_on_new_link', isset($_POST['notify_new']) ? 'true' : 'false');
@@ -28,15 +35,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirectWithMessage('email_settings.php', 'Failed to send test email. Check your SMTP configuration.', 'error');
                 }
                 break;
+                
+            case 'delete_email':
+                updateSetting('notification_email', 'NO_NOTIFICATION_EMAIL');
+                redirectWithMessage('email_settings.php', 'Your email has been removed from our database. You will no longer receive notifications.', 'success');
+                break;
         }
     }
 }
 
 // Get current settings
-$adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+$notificationEmail = getSetting('notification_email', '');
 $emailEnabled = getSetting('email_notifications_enabled', 'true') === 'true';
 $notifyClick = getSetting('notify_on_link_click', 'true') === 'true';
 $notifyNew = getSetting('notify_on_new_link', 'true') === 'true';
+
+// Check if email is set to no notification
+$hasNotificationEmail = $notificationEmail && $notificationEmail !== 'NO_NOTIFICATION_EMAIL';
 ?>
 
 <!DOCTYPE html>
@@ -110,17 +125,32 @@ $notifyNew = getSetting('notify_on_new_link', 'true') === 'true';
                         <!-- Email Configuration -->
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-cog"></i> Email Configuration</h5>
+                                <h5 class="mb-0"><i class="fas fa-cog"></i> Notification Email Settings</h5>
                             </div>
                             <div class="card-body">
+                                <!-- Privacy Notice -->
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-shield-alt"></i> Privacy Notice</h6>
+                                    <p class="mb-2">Your email address will <strong>only</strong> be used to send you notifications about your IP Logger links. We will never:</p>
+                                    <ul class="mb-2">
+                                        <li>Share your email with third parties</li>
+                                        <li>Send you marketing emails</li>
+                                        <li>Use your email for any other purpose</li>
+                                    </ul>
+                                    <p class="mb-0">You can remove your email at any time using the "Remove Email" button below. <a href="privacy.php" class="alert-link">Read our full privacy policy</a>.</p>
+                                </div>
+                                
                                 <form method="POST">
                                     <input type="hidden" name="action" value="update_settings">
                                     
                                     <div class="mb-3">
-                                        <label for="admin_email" class="form-label">Admin Email Address</label>
-                                        <input type="email" class="form-control" id="admin_email" name="admin_email" 
-                                               value="<?php echo htmlspecialchars($adminEmail); ?>" required>
-                                        <div class="form-text">This email will receive all notifications</div>
+                                        <label for="notification_email" class="form-label">Notification Email Address</label>
+                                        <input type="email" class="form-control" id="notification_email" name="notification_email" 
+                                               value="<?php echo $hasNotificationEmail ? htmlspecialchars($notificationEmail) : ''; ?>" 
+                                               placeholder="Enter your email to receive notifications">
+                                        <div class="form-text">
+                                            Leave empty if you don't want to receive email notifications
+                                        </div>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -155,6 +185,23 @@ $notifyNew = getSetting('notify_on_new_link', 'true') === 'true';
                                         <i class="fas fa-save"></i> Save Settings
                                     </button>
                                 </form>
+                                
+                                <!-- Remove Email Button -->
+                                <?php if ($hasNotificationEmail): ?>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Current Email: <code><?php echo htmlspecialchars($notificationEmail); ?></code></h6>
+                                        <small class="text-muted">Click the button to remove your email from our database</small>
+                                    </div>
+                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove your email? You will no longer receive notifications.');">
+                                        <input type="hidden" name="action" value="delete_email">
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="fas fa-trash"></i> Remove Email
+                                        </button>
+                                    </form>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -164,33 +211,39 @@ $notifyNew = getSetting('notify_on_new_link', 'true') === 'true';
                                 <h5 class="mb-0"><i class="fas fa-paper-plane"></i> Test Email Configuration</h5>
                             </div>
                             <div class="card-body">
-                                <p>Send a test email to verify your SMTP configuration is working correctly.</p>
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action" value="test_email">
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fas fa-envelope"></i> Send Test Email
-                                    </button>
-                                </form>
+                                <?php if ($hasNotificationEmail): ?>
+                                    <p>Send a test email to verify your notification email is working correctly.</p>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="test_email">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-envelope"></i> Send Test Email
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <strong>No email configured.</strong> Please add an email address above to test email notifications.
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-4">
-                        <!-- SMTP Information -->
+                        <!-- System Information -->
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-info-circle"></i> SMTP Configuration</h5>
+                                <h5 class="mb-0"><i class="fas fa-info-circle"></i> System Information</h5>
                             </div>
                             <div class="card-body">
-                                <p><strong>SMTP Host:</strong> <?php echo SMTP_HOST; ?></p>
-                                <p><strong>SMTP Port:</strong> <?php echo SMTP_PORT; ?></p>
-                                <p><strong>Security:</strong> <?php echo SMTP_SECURE; ?></p>
-                                <p><strong>Username:</strong> <?php echo SMTP_USERNAME; ?></p>
-                                <p><strong>From Email:</strong> <?php echo SMTP_FROM_EMAIL; ?></p>
+                                <p><strong>Email System:</strong> <?php echo $hasNotificationEmail ? 'Configured' : 'Not Configured'; ?></p>
+                                <p><strong>Notifications:</strong> <?php echo $emailEnabled ? 'Enabled' : 'Disabled'; ?></p>
+                                <p><strong>Link Clicks:</strong> <?php echo $notifyClick ? 'Will Notify' : 'No Notifications'; ?></p>
+                                <p><strong>New Links:</strong> <?php echo $notifyNew ? 'Will Notify' : 'No Notifications'; ?></p>
                                 
                                 <div class="alert alert-info">
                                     <small>
-                                        <strong>Note:</strong> To change SMTP settings, edit the <code>config/config.php</code> file.
+                                        <strong>Note:</strong> Email notifications are sent from <code><?php echo SMTP_FROM_EMAIL; ?></code>
                                     </small>
                                 </div>
                             </div>

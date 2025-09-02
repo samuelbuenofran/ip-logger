@@ -127,7 +127,7 @@ try {
         ('data_retention_days', '90'),
         ('anonymize_ips', 'false'),
         ('google_maps_api_key', ''),
-        ('admin_email', 'it@keizai-tech.com'),
+        ('notification_email', ''),
         ('email_notifications_enabled', 'true'),
         ('notify_on_link_click', 'true'),
         ('notify_on_new_link', 'true'),

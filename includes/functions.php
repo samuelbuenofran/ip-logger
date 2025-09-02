@@ -498,8 +498,13 @@ function sendLinkClickNotification($linkId, $targetData) {
         return false;
     }
     
-    // Get admin email from settings
-    $adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+    // Get notification email from settings
+    $notificationEmail = getSetting('notification_email', '');
+    
+    // Check if email is set to no notification
+    if (!$notificationEmail || $notificationEmail === 'NO_NOTIFICATION_EMAIL') {
+        return false;
+    }
     
     $subject = "Link Clicked: " . $link['short_code'];
     $message = "Your IP Logger link has been clicked!\n\n";
@@ -515,7 +520,7 @@ function sendLinkClickNotification($linkId, $targetData) {
     
     $htmlMessage = createEmailHTML($subject, $message, $link, $targetData);
     
-    return sendEmailNotification($adminEmail, $subject, $message, $htmlMessage);
+    return sendEmailNotification($notificationEmail, $subject, $message, $htmlMessage);
 }
 
 /**
@@ -537,8 +542,13 @@ function sendNewLinkNotification($linkId) {
         return false;
     }
     
-    // Get admin email from settings
-    $adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+    // Get notification email from settings
+    $notificationEmail = getSetting('notification_email', '');
+    
+    // Check if email is set to no notification
+    if (!$notificationEmail || $notificationEmail === 'NO_NOTIFICATION_EMAIL') {
+        return false;
+    }
     
     $subject = "New Link Created: " . $link['short_code'];
     $message = "A new IP Logger link has been created!\n\n";
@@ -549,14 +559,23 @@ function sendNewLinkNotification($linkId) {
     
     $htmlMessage = createEmailHTML($subject, $message, $link);
     
-    return sendEmailNotification($adminEmail, $subject, $message, $htmlMessage);
+    return sendEmailNotification($notificationEmail, $subject, $message, $htmlMessage);
 }
 
 /**
  * Test email functionality
  */
 function testEmailFunctionality() {
-    $adminEmail = getSetting('admin_email', SMTP_FROM_EMAIL);
+    $notificationEmail = getSetting('notification_email', '');
+    
+    // Check if email is set to no notification
+    if (!$notificationEmail || $notificationEmail === 'NO_NOTIFICATION_EMAIL') {
+        return [
+            'success' => false,
+            'email' => '',
+            'message' => 'No notification email configured. Please add an email address in the settings.'
+        ];
+    }
     
     $subject = "IP Logger Email Test";
     $message = "This is a test email from your IP Logger system.\n\n";
@@ -568,11 +587,11 @@ function testEmailFunctionality() {
     
     $htmlMessage = createEmailHTML($subject, $message);
     
-    $result = sendEmailNotification($adminEmail, $subject, $message, $htmlMessage);
+    $result = sendEmailNotification($notificationEmail, $subject, $message, $htmlMessage);
     
     return [
         'success' => $result,
-        'email' => $adminEmail,
+        'email' => $notificationEmail,
         'message' => $result ? 'Test email sent successfully!' : 'Failed to send test email. Check your SMTP configuration.'
     ];
 }
