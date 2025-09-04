@@ -181,6 +181,48 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             margin-bottom: 2rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+        
+        .generated-urls {
+            min-width: 300px;
+        }
+        
+        .url-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .url-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        
+        .url-display {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .url-text {
+            flex: 1;
+            font-size: 0.8rem;
+            color: #495057;
+            background: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            border: 1px solid #dee2e6;
+            word-break: break-all;
+        }
+        
+        .url-display .btn {
+            flex-shrink: 0;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -343,6 +385,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                     <tr>
                                         <th>ID</th>
                                         <th>Short Code</th>
+                                        <th>Generated URLs</th>
                                         <th>Original URL</th>
                                         <th>Password</th>
                                         <th>Tracking Code</th>
@@ -358,9 +401,28 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                         <td><?php echo $link['id']; ?></td>
                                         <td>
                                             <code><?php echo $link['short_code']; ?></code>
-                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="generated-urls">
+                                                <div class="url-item mb-2">
+                                                    <label class="url-label">Short URL:</label>
+                                                    <div class="url-display">
+                                                        <code class="url-text"><?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?></code>
+                                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?>')" title="Copy Short URL">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="url-item">
+                                                    <label class="url-label">Tracking URL:</label>
+                                                    <div class="url-display">
+                                                        <code class="url-text"><?php echo BASE_URL . $link['tracking_code']; ?></code>
+                                                        <button class="btn btn-sm btn-outline-info ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['tracking_code']; ?>')" title="Copy Tracking URL">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
                                             <div class="link-url" title="<?php echo htmlspecialchars($link['original_url']); ?>">
@@ -455,7 +517,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             const rows = document.querySelectorAll('tbody tr');
             
             rows.forEach(row => {
-                const statusCell = row.querySelector('td:nth-child(6)');
+                const statusCell = row.querySelector('td:nth-child(7)');
                 const status = statusCell.textContent.trim();
                 
                 if (filterValue === '' || status.toLowerCase().includes(filterValue)) {
@@ -540,7 +602,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
         // Export to CSV
         function exportToCSV() {
             const rows = document.querySelectorAll('tbody tr');
-            let csv = 'ID,Short Code,Original URL,Password,Tracking Code,Status,Clicks,Created\n';
+            let csv = 'ID,Short Code,Generated URLs,Original URL,Password,Tracking Code,Status,Clicks,Created\n';
             
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
@@ -548,7 +610,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                     const rowData = [];
                     
                     cells.forEach((cell, index) => {
-                        if (index < 8) { // Exclude actions column
+                        if (index < 9) { // Exclude actions column
                             let text = cell.textContent.trim();
                             if (text.includes(',')) {
                                 text = '"' + text + '"';
