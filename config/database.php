@@ -45,9 +45,13 @@ class Database {
                     short_code VARCHAR(50) UNIQUE NOT NULL,
                     password VARCHAR(255) NOT NULL,
                     expiry_date DATETIME NULL,
+                    custom_domain VARCHAR(255) NULL,
+                    extension VARCHAR(20) NULL,
+                    tracking_code VARCHAR(50) UNIQUE NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     INDEX idx_short_code (short_code),
+                    INDEX idx_tracking_code (tracking_code),
                     INDEX idx_created_at (created_at),
                     INDEX idx_expiry_date (expiry_date)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

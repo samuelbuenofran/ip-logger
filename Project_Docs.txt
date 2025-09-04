@@ -1,38 +1,9 @@
 KEIZAI TECH.
 
-PROJECT NAME: 
-
-
-
-
-
-
-
-
-
-
-
-DEVELOPER: 
-
-
-
-
-
-
-
-
-
-
+PROJECT NAME: IP Logger
+DEVELOPER: Samuel B. Francisco
 
 1. STRATEGY & PRODUCT FOUNDATIONS
-
-
-
-
-
-IP Logger
-
-Samuel Bueno Francisco
 
 1.1. SCOPE
 

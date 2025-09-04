@@ -8,23 +8,17 @@ require_once 'includes/functions.php';
 $db = new Database();
 $conn = $db->getConnection();
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Handle form submission for creating new links
+if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     $original_url = sanitizeInput($_POST['original_url']);
-    $custom_domain = sanitizeInput($_POST['custom_domain'] ?? '');
-    $custom_path = sanitizeInput($_POST['custom_path'] ?? '');
-    $link_extension = sanitizeInput($_POST['link_extension'] ?? '');
+    $custom_domain = sanitizeInput($_POST['custom_domain']);
+    $use_custom_domain = isset($_POST['use_custom_domain']) ? 1 : 0;
+    $shortcode = sanitizeInput($_POST['shortcode']);
+    $extension = sanitizeInput($_POST['extension']);
     $password = $_POST['password'];
-    $notes = sanitizeInput($_POST['notes'] ?? '');
+    $no_expiry = isset($_POST['no_expiry']) ? 1 : 0;
     
-    // Tracking options
-    $collect_smart_data = isset($_POST['collect_smart_data']) ? 1 : 0;
-    $collect_gps_data = isset($_POST['collect_gps_data']) ? 1 : 0;
-    $require_consent = isset($_POST['require_consent']) ? 1 : 0;
-    $forward_get_params = isset($_POST['forward_get_params']) ? 1 : 0;
-    $destination_preview = isset($_POST['destination_preview']) ? 1 : 0;
-    
-    // Validation
+    // Validate input
     if (!isValidUrl($original_url)) {
         redirectWithMessage('create_link.php', 'Please enter a valid URL', 'error');
     }
@@ -33,44 +27,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirectWithMessage('create_link.php', 'Password must be at least 3 characters long', 'error');
     }
     
-    // Generate unique short code and tracking code
-    $short_code = generateShortCode();
-    $tracking_code = generateTrackingCode();
+    // Validate custom domain if used
+    if ($use_custom_domain && !empty($custom_domain)) {
+        if (!filter_var('http://' . $custom_domain, FILTER_VALIDATE_URL)) {
+            redirectWithMessage('create_link.php', 'Please enter a valid domain name', 'error');
+        }
+    }
     
-    // Set expiry date (default 30 days)
-    $expiry_date = date('Y-m-d H:i:s', strtotime('+30 days'));
+    // Validate shortcode
+    if (empty($shortcode) || strlen($shortcode) < 3) {
+        redirectWithMessage('create_link.php', 'Shortcode must be at least 3 characters long', 'error');
+    }
+    
+    // Check if shortcode already exists
+    $stmt = $conn->prepare("SELECT id FROM links WHERE short_code = ?");
+    $stmt->execute([$shortcode]);
+    if ($stmt->fetch()) {
+        redirectWithMessage('create_link.php', 'This shortcode is already taken. Please choose another one.', 'error');
+    }
+    
+    // Generate tracking code
+    $tracking_code = generateRandomString(12);
+    
+    // Set expiry date (default 30 days if not set to never expire)
+    $expiry_date = $no_expiry ? NULL : date('Y-m-d H:i:s', strtotime('+30 days'));
     
     // Hash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     
     // Insert into database
-    $stmt = $conn->prepare("
-        INSERT INTO links (
-            original_url, short_code, tracking_code, password, expiry_date, 
-            custom_domain, custom_path, link_extension, notes,
-            collect_smart_data, collect_gps_data, require_consent, 
-            forward_get_params, destination_preview, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-    ");
+    $stmt = $conn->prepare("INSERT INTO links (original_url, short_code, password, expiry_date, custom_domain, extension, tracking_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->execute([$original_url, $shortcode, $hashed_password, $expiry_date, $custom_domain, $extension, $tracking_code]);
     
-    $stmt->execute([
-        $original_url, $short_code, $tracking_code, $hashed_password, $expiry_date,
-        $custom_domain, $custom_path, $link_extension, $notes,
-        $collect_smart_data, $collect_gps_data, $require_consent,
-        $forward_get_params, $destination_preview
-    ]);
-    
+    // Get the link ID for email notification
     $linkId = $conn->lastInsertId();
     
-    // Send email notification
+    // Send email notification for new link creation
     sendNewLinkNotification($linkId);
     
     redirectWithMessage('create_link.php', 'Link created successfully!', 'success');
 }
 
-// Get available domains and extensions
-$customDomains = getCustomDomains();
-$linkExtensions = getLinkExtensions();
+// Generate default values
+$default_shortcode = generateShortCode();
+$default_tracking_code = generateRandomString(12);
 ?>
 
 <!DOCTYPE html>
@@ -90,34 +90,95 @@ $linkExtensions = getLinkExtensions();
     <link rel="stylesheet" href="assets/css/style.css">
     
     <style>
-        .tracking-option {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
+        .link-creator {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-header i {
+            margin-right: 0.5rem;
+            color: #007bff;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 0.75rem;
+            transition: border-color 0.3s ease;
         }
-        .tracking-option:hover {
-            background: #e9ecef;
+        
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
         }
-        .form-switch {
-            padding-left: 2.5em;
-        }
-        .help-icon {
-            color: #6c757d;
-            cursor: help;
-        }
-        .preview-url {
+        
+        .domain-options {
             background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .final-link {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 1rem;
+        }
+        
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+        
+        .tracking-url {
+            background: #e9ecef;
+            border-radius: 6px;
+            padding: 0.5rem;
             font-family: monospace;
-            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
         }
     </style>
 </head>
-<body>
+<body class="bg-light">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -132,6 +193,11 @@ $linkExtensions = getLinkExtensions();
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">
                                 <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="create_link.php">
+                                <i class="fas fa-plus"></i> Create Link
                             </a>
                         </li>
                         <li class="nav-item">
@@ -150,11 +216,6 @@ $linkExtensions = getLinkExtensions();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="email_settings.php">
-                                <i class="fas fa-envelope"></i> Email Settings
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
                             </a>
@@ -165,267 +226,228 @@ $linkExtensions = getLinkExtensions();
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Create New Link</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
-                    </div>
+                <div class="link-creator">
+                    <!-- Alert Messages -->
+                    <?php echo displayMessage(); ?>
+                    
+                    <form method="POST" id="linkForm">
+                        <input type="hidden" name="action" value="create_link">
+                        
+                        <!-- Original Link Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fas fa-link"></i>
+                                Original Link
+                            </div>
+                            <div class="mb-3">
+                                <label for="original_url" class="form-label">Enter the URL you want to shorten</label>
+                                <input type="url" class="form-control" id="original_url" name="original_url" 
+                                       placeholder="https://www.example.com" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Customize Link Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fas fa-check-circle"></i>
+                                Customize Link
+                            </div>
+                            
+                            <!-- Domain Options -->
+                            <div class="domain-options">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="use_custom_domain" 
+                                               name="use_custom_domain" checked>
+                                        <label class="form-check-label" for="use_custom_domain">
+                                            Use your own domain
+                                        </label>
+                                    </div>
+                                    <input type="text" class="form-control mt-2" id="custom_domain" name="custom_domain" 
+                                           placeholder="yourdomain.com" value="keizai-tech.com">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="use_default_domain">
+                                        <label class="form-check-label" for="use_default_domain">
+                                            Use our default domain
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Shortcode -->
+                            <div class="mb-3">
+                                <label for="shortcode" class="form-label">Shortcode</label>
+                                <input type="text" class="form-control" id="shortcode" name="shortcode" 
+                                       value="<?php echo $default_shortcode; ?>" required>
+                                <div class="form-text">This will be the unique identifier for your shortened link.</div>
+                            </div>
+                            
+                            <!-- Extension -->
+                            <div class="mb-3">
+                                <label for="extension" class="form-label">Extension</label>
+                                <input type="text" class="form-control" id="extension" name="extension" 
+                                       value=".html" placeholder=".html">
+                                <div class="form-text">Optional file extension to add to your link.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tracking Information Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fas fa-chart-line"></i>
+                                Tracking Information
+                            </div>
+                            
+                            <!-- Tracking Code -->
+                            <div class="mb-3">
+                                <label for="tracking_code" class="form-label">Tracking Code</label>
+                                <input type="text" class="form-control" id="tracking_code" name="tracking_code" 
+                                       value="<?php echo $default_tracking_code; ?>" readonly>
+                                <div class="form-text">This unique code is used to identify and track your link.</div>
+                            </div>
+                            
+                            <!-- Tracking URL -->
+                            <div class="mb-3">
+                                <label class="form-label">Tracking URL</label>
+                                <div class="tracking-url" id="tracking_url">
+                                    https://keizai-tech.com/projects/ip-logger/<?php echo $default_tracking_code; ?>
+                                </div>
+                                <div class="form-text">This URL will be used to access your tracking data.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Security Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fas fa-lock"></i>
+                                Security Settings
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="form-text">This password will be required to view tracking data.</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="no_expiry" name="no_expiry">
+                                <label class="form-check-label" for="no_expiry">
+                                    My link does not expire
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Your Link Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fas fa-link"></i>
+                                Your Link
+                            </div>
+                            
+                            <div class="final-link" id="final_link">
+                                keizai-tech.com/<?php echo $default_shortcode; ?>.html
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <button type="button" class="copy-btn" onclick="copyFinalLink()">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Create Link
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <!-- Alert Messages -->
-                <?php echo displayMessage(); ?>
-
-                <form method="POST" id="createLinkForm">
-                    <div class="row">
-                        <div class="col-lg-8">
-                            <!-- Link Information -->
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-link"></i> Link Information</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="original_url" class="form-label">Redirect URL <span class="text-danger">*</span></label>
-                                        <input type="url" class="form-control" id="original_url" name="original_url" required 
-                                               placeholder="https://www.youtube.com/">
-                                        <div class="form-text">The URL where visitors will be redirected after clicking your link.</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="custom_domain" class="form-label">Custom Domain</label>
-                                        <select class="form-select" id="custom_domain" name="custom_domain">
-                                            <option value="">Default domain</option>
-                                            <?php foreach ($customDomains as $domain): ?>
-                                                <option value="<?php echo htmlspecialchars($domain['domain']); ?>">
-                                                    <?php echo htmlspecialchars($domain['domain']); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="custom_path" class="form-label">Custom Path</label>
-                                                <input type="text" class="form-control" id="custom_path" name="custom_path" 
-                                                       placeholder="mycustompath">
-                                                <div class="form-text">Optional custom path for your link.</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="link_extension" class="form-label">Extension</label>
-                                                <select class="form-select" id="link_extension" name="link_extension">
-                                                    <?php foreach ($linkExtensions as $ext): ?>
-                                                        <option value="<?php echo htmlspecialchars($ext['extension']); ?>">
-                                                            <?php echo htmlspecialchars($ext['extension'] ?: 'No extension'); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Preview URL -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Preview URL</label>
-                                        <div class="preview-url" id="previewUrl">
-                                            <span class="text-muted">Enter a redirect URL to see preview</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="password" name="password" required>
-                                        <div class="form-text">This password will be required to view tracking data.</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="notes" class="form-label">Notes</label>
-                                        <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                                  placeholder="Add any notes about this link..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tracking Options -->
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-cog"></i> Tracking Options</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="tracking-option">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="collect_smart_data" 
-                                                   name="collect_smart_data" checked>
-                                            <label class="form-check-label" for="collect_smart_data">
-                                                <strong>Collect SMART data</strong>
-                                                <i class="fas fa-question-circle help-icon ms-2" 
-                                                   title="Collect detailed device and browser information"></i>
-                                            </label>
-                                        </div>
-                                        <small class="text-muted">Gather detailed information about device, browser, and system.</small>
-                                    </div>
-
-                                    <div class="tracking-option">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="require_consent" 
-                                                   name="require_consent">
-                                            <label class="form-check-label" for="require_consent">
-                                                <strong>Consent collection</strong>
-                                                <i class="fas fa-question-circle help-icon ms-2" 
-                                                   title="Require user consent before tracking"></i>
-                                            </label>
-                                        </div>
-                                        <small class="text-muted">Require user consent before collecting tracking data (GDPR compliant).</small>
-                                    </div>
-
-                                    <div class="tracking-option">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="collect_gps_data" 
-                                                   name="collect_gps_data" checked>
-                                            <label class="form-check-label" for="collect_gps_data">
-                                                <strong>Collect GPS data</strong>
-                                                <i class="fas fa-question-circle help-icon ms-2" 
-                                                   title="Collect precise GPS location when available"></i>
-                                            </label>
-                                        </div>
-                                        <small class="text-muted">Collect precise GPS location when available (requires user permission).</small>
-                                    </div>
-
-                                    <div class="tracking-option">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="forward_get_params" 
-                                                   name="forward_get_params">
-                                            <label class="form-check-label" for="forward_get_params">
-                                                <strong>Forward GET parameters</strong>
-                                                <i class="fas fa-question-circle help-icon ms-2" 
-                                                   title="Forward URL parameters to destination"></i>
-                                            </label>
-                                        </div>
-                                        <small class="text-muted">Forward URL parameters from tracking link to destination URL.</small>
-                                    </div>
-
-                                    <div class="tracking-option">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="destination_preview" 
-                                                   name="destination_preview">
-                                            <label class="form-check-label" for="destination_preview">
-                                                <strong>Destination preview</strong>
-                                                <i class="fas fa-question-circle help-icon ms-2" 
-                                                   title="Show destination URL before redirecting"></i>
-                                                <span class="badge bg-success ms-2">New</span>
-                                            </label>
-                                        </div>
-                                        <small class="text-muted">Show destination URL to users before redirecting them.</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4">
-                            <!-- Statistics Preview -->
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Statistics Preview</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row text-center">
-                                        <div class="col-6">
-                                            <h4 class="text-primary">0</h4>
-                                            <small class="text-muted">Clicks</small>
-                                        </div>
-                                        <div class="col-6">
-                                            <h4 class="text-success">0</h4>
-                                            <small class="text-muted">Unique</small>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="text-center">
-                                        <small class="text-muted">Your link will appear here once created</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Quick Actions -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
-                                </div>
-                                <div class="card-body">
-                                    <button type="submit" class="btn btn-primary w-100 mb-2">
-                                        <i class="fas fa-plus"></i> Create Link
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary w-100 mb-2" onclick="resetForm()">
-                                        <i class="fas fa-undo"></i> Reset Form
-                                    </button>
-                                    <a href="links.php" class="btn btn-outline-info w-100">
-                                        <i class="fas fa-list"></i> View All Links
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
             </main>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script>
-        // Update preview URL in real-time
-        function updatePreview() {
-            const originalUrl = document.getElementById('original_url').value;
-            const customDomain = document.getElementById('custom_domain').value;
-            const customPath = document.getElementById('custom_path').value;
-            const extension = document.getElementById('link_extension').value;
+        // Update final link when inputs change
+        function updateFinalLink() {
+            const customDomain = document.getElementById('custom_domain').value || 'keizai-tech.com';
+            const shortcode = document.getElementById('shortcode').value || '<?php echo $default_shortcode; ?>';
+            const extension = document.getElementById('extension').value || '';
+            const useCustomDomain = document.getElementById('use_custom_domain').checked;
             
-            let previewUrl = '';
-            
-            if (originalUrl) {
-                if (customDomain) {
-                    previewUrl = `https://${customDomain}/`;
-                    if (customPath) {
-                        previewUrl += customPath;
-                    } else {
-                        previewUrl += '<?php echo generateShortCode(); ?>';
-                    }
-                } else {
-                    previewUrl = '<?php echo BASE_URL; ?>';
-                    if (customPath) {
-                        previewUrl += customPath;
-                    } else {
-                        previewUrl += '<?php echo generateShortCode(); ?>';
-                    }
-                }
-                
-                if (extension) {
-                    previewUrl += extension;
-                }
-                
-                document.getElementById('previewUrl').innerHTML = `<a href="${previewUrl}" target="_blank">${previewUrl}</a>`;
+            let finalLink = '';
+            if (useCustomDomain) {
+                finalLink = customDomain + '/' + shortcode + extension;
             } else {
-                document.getElementById('previewUrl').innerHTML = '<span class="text-muted">Enter a redirect URL to see preview</span>';
+                finalLink = '<?php echo BASE_URL; ?>' + shortcode + extension;
             }
+            
+            document.getElementById('final_link').textContent = finalLink;
         }
         
-        // Add event listeners
-        document.getElementById('original_url').addEventListener('input', updatePreview);
-        document.getElementById('custom_domain').addEventListener('change', updatePreview);
-        document.getElementById('custom_path').addEventListener('input', updatePreview);
-        document.getElementById('link_extension').addEventListener('change', updatePreview);
-        
-        function resetForm() {
-            document.getElementById('createLinkForm').reset();
-            updatePreview();
+        // Update tracking URL when tracking code changes
+        function updateTrackingUrl() {
+            const trackingCode = document.getElementById('tracking_code').value;
+            const trackingUrl = 'https://keizai-tech.com/projects/ip-logger/' + trackingCode;
+            document.getElementById('tracking_url').textContent = trackingUrl;
         }
         
-        // Initialize preview
-        updatePreview();
+        // Copy final link to clipboard
+        function copyFinalLink() {
+            const finalLink = document.getElementById('final_link').textContent;
+            navigator.clipboard.writeText(finalLink).then(function() {
+                // Show success message
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#007bff';
+                }, 2000);
+            });
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update links when inputs change
+            document.getElementById('custom_domain').addEventListener('input', updateFinalLink);
+            document.getElementById('shortcode').addEventListener('input', updateFinalLink);
+            document.getElementById('extension').addEventListener('input', updateFinalLink);
+            document.getElementById('use_custom_domain').addEventListener('change', updateFinalLink);
+            document.getElementById('tracking_code').addEventListener('input', updateTrackingUrl);
+            
+            // Handle default domain checkbox
+            document.getElementById('use_default_domain').addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('use_custom_domain').checked = false;
+                    document.getElementById('custom_domain').disabled = true;
+                } else {
+                    document.getElementById('custom_domain').disabled = false;
+                }
+                updateFinalLink();
+            });
+            
+            // Handle custom domain checkbox
+            document.getElementById('use_custom_domain').addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('use_default_domain').checked = false;
+                    document.getElementById('custom_domain').disabled = false;
+                } else {
+                    document.getElementById('custom_domain').disabled = true;
+                }
+                updateFinalLink();
+            });
+        });
     </script>
 </body>
 </html>
