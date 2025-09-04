@@ -44,6 +44,7 @@ class Database {
                     original_url TEXT NOT NULL,
                     short_code VARCHAR(50) UNIQUE NOT NULL,
                     password VARCHAR(255) NOT NULL,
+                    password_recovery_code VARCHAR(255) NULL,
                     expiry_date DATETIME NULL,
                     custom_domain VARCHAR(255) NULL,
                     extension VARCHAR(20) NULL,
@@ -53,7 +54,8 @@ class Database {
                     INDEX idx_short_code (short_code),
                     INDEX idx_tracking_code (tracking_code),
                     INDEX idx_created_at (created_at),
-                    INDEX idx_expiry_date (expiry_date)
+                    INDEX idx_expiry_date (expiry_date),
+                    INDEX idx_password_recovery (password_recovery_code)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ");
             

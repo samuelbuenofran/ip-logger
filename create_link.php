@@ -46,8 +46,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         redirectWithMessage('create_link.php', 'This shortcode is already taken. Please choose another one.', 'error');
     }
     
-    // Generate tracking code
+    // Generate tracking code and recovery code
     $tracking_code = generateRandomString(12);
+    $recovery_code = generateRandomString(12);
     
     // Set expiry date (default 30 days if not set to never expire)
     $expiry_date = $no_expiry ? NULL : date('Y-m-d H:i:s', strtotime('+30 days'));
@@ -56,8 +57,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     
     // Insert into database
-    $stmt = $conn->prepare("INSERT INTO links (original_url, short_code, password, expiry_date, custom_domain, extension, tracking_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->execute([$original_url, $shortcode, $hashed_password, $expiry_date, $custom_domain, $extension, $tracking_code]);
+    $stmt = $conn->prepare("INSERT INTO links (original_url, short_code, password, expiry_date, custom_domain, extension, tracking_code, password_recovery_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->execute([$original_url, $shortcode, $hashed_password, $expiry_date, $custom_domain, $extension, $tracking_code, $recovery_code]);
     
     // Get the link ID for email notification
     $linkId = $conn->lastInsertId();
@@ -69,6 +70,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     $_SESSION['created_link'] = [
         'short_code' => $shortcode,
         'tracking_code' => $tracking_code,
+        'recovery_code' => $recovery_code,
         'custom_domain' => $custom_domain,
         'extension' => $extension,
         'original_url' => $original_url,
@@ -265,16 +267,23 @@ $default_tracking_code = generateRandomString(12);
                                 <div class="col-md-6">
                                     <h6><i class="fas fa-key"></i> Tracking Information</h6>
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">
-                                            <strong>Tracking Code:</strong> 
-                                            <code><?php echo $_SESSION['created_link']['tracking_code']; ?></code>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <strong>Tracking URL:</strong> 
-                                            <a href="<?php echo $_SESSION['created_link']['tracking_url']; ?>" target="_blank">
-                                                <?php echo $_SESSION['created_link']['tracking_url']; ?>
-                                            </a>
-                                        </li>
+                                                                                 <li class="list-group-item">
+                                             <strong>Tracking Code:</strong> 
+                                             <code><?php echo $_SESSION['created_link']['tracking_code']; ?></code>
+                                         </li>
+                                         <li class="list-group-item">
+                                             <strong>Tracking URL:</strong> 
+                                             <a href="<?php echo $_SESSION['created_link']['tracking_url']; ?>" target="_blank">
+                                                 <?php echo $_SESSION['created_link']['tracking_url']; ?>
+                                             </a>
+                                         </li>
+                                         <li class="list-group-item">
+                                             <strong>Recovery Code:</strong> 
+                                             <code class="text-warning"><?php echo $_SESSION['created_link']['recovery_code']; ?></code>
+                                             <small class="text-muted d-block mt-1">
+                                                 <i class="fas fa-exclamation-triangle"></i> Save this code securely! You'll need it to recover your password.
+                                             </small>
+                                         </li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">

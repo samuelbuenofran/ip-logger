@@ -118,11 +118,16 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <i class="fas fa-gavel"></i> Terms of Use
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="cookies.php">
-                                <i class="fas fa-cookie-bite"></i> About Cookies
-                            </a>
-                        </li>
+                                                 <li class="nav-item">
+                             <a class="nav-link" href="cookies.php">
+                                 <i class="fas fa-cookie-bite"></i> About Cookies
+                             </a>
+                         </li>
+                         <li class="nav-item">
+                             <a class="nav-link" href="password_recovery.php">
+                                 <i class="fas fa-key"></i> Password Recovery
+                             </a>
+                         </li>
                     </ul>
                 </div>
             </nav>
