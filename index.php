@@ -108,6 +108,11 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <i class="fas fa-user-shield"></i> Privacy Policy
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="terms.php">
+                                <i class="fas fa-gavel"></i> Terms of Use
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
