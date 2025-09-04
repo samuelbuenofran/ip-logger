@@ -78,18 +78,62 @@ $stmt = $conn->prepare("
 $stmt->execute([$link_id]);
 $targets = $stmt->fetchAll();
 
-// Prepare data for Google Maps
+// Prepare data for Google Maps with enhanced information
 $map_data = [];
+$countries = [];
+$cities = [];
+$device_types = [];
+
 foreach ($targets as $target) {
     if ($target['latitude'] && $target['longitude']) {
+        // Count statistics
+        if ($target['country']) {
+            $countries[$target['country']] = ($countries[$target['country']] ?? 0) + 1;
+        }
+        if ($target['city']) {
+            $cities[$target['city']] = ($cities[$target['city']] ?? 0) + 1;
+        }
+        if ($target['device_type']) {
+            $device_types[$target['device_type']] = ($device_types[$target['device_type']] ?? 0) + 1;
+        }
+        
+        // Create detailed info window content
+        $info_content = '
+            <div style="min-width: 250px; padding: 10px;">
+                <h6 style="margin: 0 0 10px 0; color: #333;">
+                    <i class="fas fa-map-marker-alt" style="color: #dc3545;"></i>
+                    ' . ($target['city'] ? $target['city'] . ', ' : '') . $target['country'] . '
+                </h6>
+                <div style="font-size: 12px; line-height: 1.4;">
+                    <p style="margin: 5px 0;"><strong>IP Address:</strong> ' . $target['ip_address'] . '</p>
+                    <p style="margin: 5px 0;"><strong>Device:</strong> ' . ucfirst($target['device_type']) . '</p>
+                    <p style="margin: 5px 0;"><strong>ISP:</strong> ' . ($target['isp'] ?: 'Unknown') . '</p>
+                    <p style="margin: 5px 0;"><strong>Time:</strong> ' . formatDate($target['clicked_at']) . '</p>
+                    <p style="margin: 5px 0;"><strong>Coordinates:</strong> ' . $target['latitude'] . ', ' . $target['longitude'] . '</p>
+                </div>
+            </div>
+        ';
+        
         $map_data[] = [
             'lat' => (float)$target['latitude'],
             'lng' => (float)$target['longitude'],
-            'title' => $target['city'] . ', ' . $target['country'],
-            'info' => 'IP: ' . $target['ip_address'] . '<br>Device: ' . $target['device_type'] . '<br>Time: ' . formatDate($target['clicked_at'])
+            'title' => ($target['city'] ? $target['city'] . ', ' : '') . $target['country'],
+            'info' => $info_content,
+            'ip' => $target['ip_address'],
+            'device' => $target['device_type'],
+            'country' => $target['country'],
+            'city' => $target['city'],
+            'time' => $target['clicked_at']
         ];
     }
 }
+
+// Calculate map statistics
+$total_locations = count($map_data);
+$unique_countries = count($countries);
+$unique_cities = count($cities);
+$most_common_country = !empty($countries) ? array_keys($countries, max($countries))[0] : 'None';
+$most_common_device = !empty($device_types) ? array_keys($device_types, max($device_types))[0] : 'None';
 ?>
 
 <!DOCTYPE html>
@@ -110,15 +154,102 @@ foreach ($targets as $target) {
     
     <style>
         #map {
-            height: 400px;
+            height: 500px;
             width: 100%;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        
+        .map-controls {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .map-stats {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .map-stat {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .map-stat i {
+            margin-right: 0.5rem;
+            color: #007bff;
+        }
+        
         .target-card {
             transition: transform 0.2s;
         }
+        
         .target-card:hover {
             transform: translateY(-2px);
+        }
+        
+        .location-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .location-badge i {
+            margin-right: 0.25rem;
+            color: #dc3545;
+        }
+        
+        .map-legend {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .map-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 500px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .map-loading i {
+            font-size: 2rem;
+            color: #007bff;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -203,7 +334,75 @@ foreach ($targets as $target) {
                          <h5 class="mb-0"><i class="fas fa-map"></i> Location Map</h5>
                      </div>
                      <div class="card-body">
+                         <!-- Map Statistics -->
+                         <div class="map-stats">
+                             <div class="map-stat">
+                                 <i class="fas fa-map-marker-alt"></i>
+                                 <?php echo $total_locations; ?> Locations
+                             </div>
+                             <div class="map-stat">
+                                 <i class="fas fa-globe"></i>
+                                 <?php echo $unique_countries; ?> Countries
+                             </div>
+                             <div class="map-stat">
+                                 <i class="fas fa-city"></i>
+                                 <?php echo $unique_cities; ?> Cities
+                             </div>
+                             <div class="map-stat">
+                                 <i class="fas fa-flag"></i>
+                                 Top: <?php echo $most_common_country; ?>
+                             </div>
+                             <div class="map-stat">
+                                 <i class="fas fa-mobile-alt"></i>
+                                 Most: <?php echo ucfirst($most_common_device); ?>
+                             </div>
+                         </div>
+                         
+                         <!-- Map Controls -->
+                         <div class="map-controls">
+                             <div class="row">
+                                 <div class="col-md-6">
+                                     <button class="btn btn-outline-primary btn-sm" onclick="fitMapToBounds()">
+                                         <i class="fas fa-expand"></i> Fit All Markers
+                                     </button>
+                                     <button class="btn btn-outline-secondary btn-sm ms-2" onclick="clearMap()">
+                                         <i class="fas fa-eraser"></i> Clear Map
+                                     </button>
+                                 </div>
+                                 <div class="col-md-6 text-end">
+                                     <button class="btn btn-outline-info btn-sm" onclick="exportMapData()">
+                                         <i class="fas fa-download"></i> Export Data
+                                     </button>
+                                     <button class="btn btn-outline-success btn-sm ms-2" onclick="refreshMap()">
+                                         <i class="fas fa-sync"></i> Refresh
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Map Container -->
                          <div id="map"></div>
+                         
+                         <!-- Map Legend -->
+                         <div class="map-legend">
+                             <h6><i class="fas fa-info-circle"></i> Map Legend</h6>
+                             <div class="legend-item">
+                                 <div class="legend-color" style="background: #dc3545;"></div>
+                                 <span>Desktop Users</span>
+                             </div>
+                             <div class="legend-item">
+                                 <div class="legend-color" style="background: #28a745;"></div>
+                                 <span>Mobile Users</span>
+                             </div>
+                             <div class="legend-item">
+                                 <div class="legend-color" style="background: #ffc107;"></div>
+                                 <span>Tablet Users</span>
+                             </div>
+                             <div class="legend-item">
+                                 <div class="legend-color" style="background: #17a2b8;"></div>
+                                 <span>Other Devices</span>
+                             </div>
+                         </div>
                      </div>
                  </div>
                  <?php else: ?>
@@ -370,50 +569,139 @@ foreach ($targets as $target) {
     
     <!-- Custom JS -->
     <script>
-                 <?php if (!empty($map_data)): ?>
-         function initMap() {
-             try {
-                 const mapData = <?php echo json_encode($map_data); ?>;
-                 
-                 if (mapData.length === 0) {
-                     console.log('No map data available');
-                     return;
-                 }
-                 
-                 const map = new google.maps.Map(document.getElementById('map'), {
-                     zoom: 2,
-                     center: { lat: mapData[0].lat, lng: mapData[0].lng },
-                     mapTypeId: google.maps.MapTypeId.ROADMAP
-                 });
-                 
-                 mapData.forEach(function(location) {
-                     const marker = new google.maps.Marker({
-                         position: { lat: location.lat, lng: location.lng },
-                         map: map,
-                         title: location.title
-                     });
-                     
-                     const infowindow = new google.maps.InfoWindow({
-                         content: location.info
-                     });
-                     
-                     marker.addListener('click', function() {
-                         infowindow.open(map, marker);
-                     });
-                 });
-                 
-                 console.log('Google Maps initialized successfully with', mapData.length, 'markers');
-             } catch (error) {
-                 console.error('Error initializing Google Maps:', error);
-                 document.getElementById('map').innerHTML = '<div class="alert alert-danger">Error loading map: ' + error.message + '</div>';
-             }
-         }
-         
-         function handleMapError() {
-             console.error('Google Maps API failed to load');
-             document.getElementById('map').innerHTML = '<div class="alert alert-danger">Failed to load Google Maps. Please check your API key configuration.</div>';
-         }
-         <?php endif; ?>
+        <?php if (!empty($map_data)): ?>
+        let map;
+        let markers = [];
+        let bounds;
+        
+        function initMap() {
+            try {
+                const mapData = <?php echo json_encode($map_data); ?>;
+                
+                if (mapData.length === 0) {
+                    console.log('No map data available');
+                    return;
+                }
+                
+                // Initialize bounds
+                bounds = new google.maps.LatLngBounds();
+                
+                // Create map
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 2,
+                    center: { lat: mapData[0].lat, lng: mapData[0].lng },
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    mapTypeControl: true,
+                    streetViewControl: true,
+                    fullscreenControl: true,
+                    zoomControl: true,
+                    styles: [
+                        {
+                            featureType: 'poi',
+                            elementType: 'labels',
+                            stylers: [{ visibility: 'off' }]
+                        }
+                    ]
+                });
+                
+                // Add markers
+                mapData.forEach(function(location) {
+                    // Determine marker color based on device type
+                    let markerColor = '#17a2b8'; // default
+                    switch(location.device) {
+                        case 'desktop':
+                            markerColor = '#dc3545';
+                            break;
+                        case 'mobile':
+                            markerColor = '#28a745';
+                            break;
+                        case 'tablet':
+                            markerColor = '#ffc107';
+                            break;
+                    }
+                    
+                    // Create custom marker
+                    const marker = new google.maps.Marker({
+                        position: { lat: location.lat, lng: location.lng },
+                        map: map,
+                        title: location.title,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 8,
+                            fillColor: markerColor,
+                            fillOpacity: 0.8,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 2
+                        }
+                    });
+                    
+                    // Create info window
+                    const infowindow = new google.maps.InfoWindow({
+                        content: location.info,
+                        maxWidth: 300
+                    });
+                    
+                    // Add click listener
+                    marker.addListener('click', function() {
+                        infowindow.open(map, marker);
+                    });
+                    
+                    // Add marker to bounds
+                    bounds.extend(marker.getPosition());
+                    markers.push(marker);
+                });
+                
+                // Fit map to bounds
+                if (markers.length > 1) {
+                    map.fitBounds(bounds);
+                }
+                
+                console.log('Google Maps initialized successfully with', mapData.length, 'markers');
+            } catch (error) {
+                console.error('Error initializing Google Maps:', error);
+                document.getElementById('map').innerHTML = '<div class="alert alert-danger">Error loading map: ' + error.message + '</div>';
+            }
+        }
+        
+        // Map control functions
+        function fitMapToBounds() {
+            if (bounds && markers.length > 0) {
+                map.fitBounds(bounds);
+            }
+        }
+        
+        function clearMap() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            bounds = new google.maps.LatLngBounds();
+        }
+        
+        function refreshMap() {
+            location.reload();
+        }
+        
+        function exportMapData() {
+            const mapData = <?php echo json_encode($map_data); ?>;
+            let csv = 'IP Address,Country,City,Device,Time,Latitude,Longitude\n';
+            
+            mapData.forEach(location => {
+                csv += `"${location.ip}","${location.country}","${location.city}","${location.device}","${location.time}","${location.lat}","${location.lng}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ip_logger_map_data_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function handleMapError() {
+            console.error('Google Maps API failed to load');
+            document.getElementById('map').innerHTML = '<div class="alert alert-danger">Failed to load Google Maps. Please check your API key configuration.</div>';
+        }
+        <?php endif; ?>
         
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {

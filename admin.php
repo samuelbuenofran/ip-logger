@@ -1,0 +1,574 @@
+<?php
+session_start();
+require_once 'config/config.php';
+require_once 'config/database.php';
+require_once 'includes/functions.php';
+
+// Initialize database connection
+$db = new Database();
+$conn = $db->getConnection();
+
+// Handle admin actions
+if (isset($_POST['action'])) {
+    switch ($_POST['action']) {
+        case 'delete_link':
+            $link_id = (int)$_POST['link_id'];
+            $stmt = $conn->prepare("DELETE FROM links WHERE id = ?");
+            $stmt->execute([$link_id]);
+            redirectWithMessage('admin.php', 'Link deleted successfully!', 'success');
+            break;
+            
+        case 'toggle_expiry':
+            $link_id = (int)$_POST['link_id'];
+            $current_expiry = $_POST['current_expiry'];
+            $new_expiry = $current_expiry === 'NULL' ? date('Y-m-d H:i:s', strtotime('+30 days')) : NULL;
+            $stmt = $conn->prepare("UPDATE links SET expiry_date = ? WHERE id = ?");
+            $stmt->execute([$new_expiry, $link_id]);
+            redirectWithMessage('admin.php', 'Link expiry updated successfully!', 'success');
+            break;
+            
+        case 'regenerate_tracking':
+            $link_id = (int)$_POST['link_id'];
+            $new_tracking_code = generateRandomString(12);
+            $stmt = $conn->prepare("UPDATE links SET tracking_code = ? WHERE id = ?");
+            $stmt->execute([$new_tracking_code, $link_id]);
+            redirectWithMessage('admin.php', 'Tracking code regenerated successfully!', 'success');
+            break;
+    }
+}
+
+// Get all links with their statistics
+$stmt = $conn->query("
+    SELECT l.*, 
+           COUNT(t.id) as click_count,
+           COUNT(DISTINCT t.ip_address) as unique_visitors
+    FROM links l 
+    LEFT JOIN targets t ON l.id = t.link_id 
+    GROUP BY l.id 
+    ORDER BY l.created_at DESC
+");
+$links = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get overall statistics
+$total_links = count($links);
+$active_links = count(array_filter($links, function($link) { 
+    return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); 
+}));
+$total_clicks = array_sum(array_column($links, 'click_count'));
+$total_visitors = array_sum(array_column($links, 'unique_visitors'));
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - IP Logger</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        .admin-content {
+            padding: 2rem;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .stats-card p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .link-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .link-table th {
+            background: #f8f9fa;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .link-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .link-url {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-expiring {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .password-field {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
+                        <p class="text-muted">URL Shortener & Tracker</p>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="create_link.php">
+                                <i class="fas fa-plus"></i> Create Link
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="links.php">
+                                <i class="fas fa-link"></i> My Links
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="view_targets.php">
+                                <i class="fas fa-map-marker-alt"></i> Targets
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="admin.php">
+                                <i class="fas fa-cog"></i> Admin Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="privacy.php">
+                                <i class="fas fa-user-shield"></i> Privacy Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="terms.php">
+                                <i class="fas fa-gavel"></i> Terms of Use
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="cookies.php">
+                                <i class="fas fa-cookie-bite"></i> About Cookies
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="admin-content">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="fas fa-cog"></i> Admin Panel</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <a href="create_link.php" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create New Link
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <?php echo displayMessage(); ?>
+
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3><?php echo $total_links; ?></h3>
+                                        <p>Total Links</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-link fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3><?php echo $active_links; ?></h3>
+                                        <p>Active Links</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-check-circle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3><?php echo $total_clicks; ?></h3>
+                                        <p>Total Clicks</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-mouse-pointer fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3><?php echo $total_visitors; ?></h3>
+                                        <p>Unique Visitors</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-users fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="search-box">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search by shortcode, URL, or tracking code...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="expiring">Expiring Soon</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary w-100" onclick="exportToCSV()">
+                                    <i class="fas fa-download"></i> Export CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Links Table -->
+                    <div class="link-table">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Short Code</th>
+                                        <th>Original URL</th>
+                                        <th>Password</th>
+                                        <th>Tracking Code</th>
+                                        <th>Status</th>
+                                        <th>Clicks</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($links as $link): ?>
+                                    <tr>
+                                        <td><?php echo $link['id']; ?></td>
+                                        <td>
+                                            <code><?php echo $link['short_code']; ?></code>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="link-url" title="<?php echo htmlspecialchars($link['original_url']); ?>">
+                                                <a href="<?php echo htmlspecialchars($link['original_url']); ?>" target="_blank">
+                                                    <?php echo htmlspecialchars($link['original_url']); ?>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="password-field">
+                                                <input type="password" class="form-control form-control-sm" value="<?php echo $link['password']; ?>" readonly>
+                                                <button class="password-toggle" onclick="togglePassword(this)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <code><?php echo $link['tracking_code']; ?></code>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                            if ($link['expiry_date'] === NULL) {
+                                                echo '<span class="status-badge status-active">Active</span>';
+                                            } else {
+                                                $expiry = strtotime($link['expiry_date']);
+                                                if ($expiry > time()) {
+                                                    if ($expiry < strtotime('+7 days')) {
+                                                        echo '<span class="status-badge status-expiring">Expiring Soon</span>';
+                                                    } else {
+                                                        echo '<span class="status-badge status-active">Active</span>';
+                                                    }
+                                                } else {
+                                                    echo '<span class="status-badge status-expired">Expired</span>';
+                                                }
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info"><?php echo $link['click_count']; ?></span>
+                                            <?php if ($link['unique_visitors'] > 0): ?>
+                                                <small class="text-muted d-block"><?php echo $link['unique_visitors']; ?> unique</small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo date('M j, Y', strtotime($link['created_at'])); ?></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="btn btn-sm btn-primary" title="View Targets">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-warning" onclick="toggleExpiry(<?php echo $link['id']; ?>, '<?php echo $link['expiry_date']; ?>')" title="Toggle Expiry">
+                                                    <i class="fas fa-clock"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-info" onclick="regenerateTracking(<?php echo $link['id']; ?>)" title="Regenerate Tracking Code">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteLink(<?php echo $link['id']; ?>)" title="Delete Link">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        // Status filter
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const filterValue = this.value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const statusCell = row.querySelector('td:nth-child(6)');
+                const status = statusCell.textContent.trim();
+                
+                if (filterValue === '' || status.toLowerCase().includes(filterValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Password toggle
+        function togglePassword(button) {
+            const input = button.previousElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success message
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-success');
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-secondary');
+                }, 2000);
+            });
+        }
+        
+        // Admin actions
+        function deleteLink(linkId) {
+            if (confirm('Are you sure you want to delete this link? This action cannot be undone.')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.innerHTML = `
+                    <input type="hidden" name="action" value="delete_link">
+                    <input type="hidden" name="link_id" value="${linkId}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function toggleExpiry(linkId, currentExpiry) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="toggle_expiry">
+                <input type="hidden" name="link_id" value="${linkId}">
+                <input type="hidden" name="current_expiry" value="${currentExpiry}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        function regenerateTracking(linkId) {
+            if (confirm('Are you sure you want to regenerate the tracking code? This will invalidate the old tracking URL.')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.innerHTML = `
+                    <input type="hidden" name="action" value="regenerate_tracking">
+                    <input type="hidden" name="link_id" value="${linkId}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Export to CSV
+        function exportToCSV() {
+            const rows = document.querySelectorAll('tbody tr');
+            let csv = 'ID,Short Code,Original URL,Password,Tracking Code,Status,Clicks,Created\n';
+            
+            rows.forEach(row => {
+                if (row.style.display !== 'none') {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = [];
+                    
+                    cells.forEach((cell, index) => {
+                        if (index < 8) { // Exclude actions column
+                            let text = cell.textContent.trim();
+                            if (text.includes(',')) {
+                                text = '"' + text + '"';
+                            }
+                            rowData.push(text);
+                        }
+                    });
+                    
+                    csv += rowData.join(',') + '\n';
+                }
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ip_logger_links_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

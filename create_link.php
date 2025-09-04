@@ -65,6 +65,17 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     // Send email notification for new link creation
     sendNewLinkNotification($linkId);
     
+    // Store link details in session for display
+    $_SESSION['created_link'] = [
+        'short_code' => $shortcode,
+        'tracking_code' => $tracking_code,
+        'custom_domain' => $custom_domain,
+        'extension' => $extension,
+        'original_url' => $original_url,
+        'final_url' => ($use_custom_domain ? $custom_domain : BASE_URL) . '/' . $shortcode . $extension,
+        'tracking_url' => 'https://keizai-tech.com/projects/ip-logger/' . $tracking_code
+    ];
+    
     redirectWithMessage('create_link.php', 'Link created successfully!', 'success');
 }
 
@@ -229,6 +240,72 @@ $default_tracking_code = generateRandomString(12);
                 <div class="link-creator">
                     <!-- Alert Messages -->
                     <?php echo displayMessage(); ?>
+                    
+                    <!-- Success Message with Link Details -->
+                    <?php if (isset($_SESSION['created_link'])): ?>
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fas fa-check-circle text-success"></i>
+                                Link Created Successfully!
+                            </div>
+                            
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-link"></i> Your Generated Link</h5>
+                                <div class="final-link" id="final_link">
+                                    <?php echo $_SESSION['created_link']['final_url']; ?>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button type="button" class="copy-btn" onclick="copyFinalLink()">
+                                        <i class="fas fa-copy"></i> Copy Link
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-key"></i> Tracking Information</h6>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <strong>Tracking Code:</strong> 
+                                            <code><?php echo $_SESSION['created_link']['tracking_code']; ?></code>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Tracking URL:</strong> 
+                                            <a href="<?php echo $_SESSION['created_link']['tracking_url']; ?>" target="_blank">
+                                                <?php echo $_SESSION['created_link']['tracking_url']; ?>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-info-circle"></i> Link Details</h6>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <strong>Original URL:</strong> 
+                                            <a href="<?php echo $_SESSION['created_link']['original_url']; ?>" target="_blank">
+                                                <?php echo $_SESSION['created_link']['original_url']; ?>
+                                            </a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Short Code:</strong> 
+                                            <code><?php echo $_SESSION['created_link']['short_code']; ?></code>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <a href="create_link.php" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create Another Link
+                                </a>
+                                <a href="admin.php" class="btn btn-secondary ms-2">
+                                    <i class="fas fa-cog"></i> Admin Panel
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <?php unset($_SESSION['created_link']); ?>
+                    <?php endif; ?>
                     
                     <form method="POST" id="linkForm">
                         <input type="hidden" name="action" value="create_link">

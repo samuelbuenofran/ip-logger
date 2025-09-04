@@ -94,6 +94,11 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="admin.php">
+                                <i class="fas fa-cog"></i> Admin Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="analytics.php">
                                 <i class="fas fa-chart-line"></i> Analytics
                             </a>
@@ -127,9 +132,12 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="create_link.php" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Create New Link
-                        </a>
+                                                 <a href="create_link.php" class="btn btn-primary me-2">
+                             <i class="fas fa-plus"></i> Create New Link
+                         </a>
+                         <a href="test_geolocation.php" class="btn btn-info">
+                             <i class="fas fa-globe"></i> Test Geolocation
+                         </a>
                     </div>
                 </div>
 
