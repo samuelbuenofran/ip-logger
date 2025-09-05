@@ -2,7 +2,6 @@
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
-require_once 'includes/enhanced_geolocation.php';
 
 // Initialize database connection
 $db = new Database();
@@ -32,162 +31,127 @@ $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $referrer = $_SERVER['HTTP_REFERER'] ?? '';
 $device_type = getDeviceType();
 
-// Enhanced tracking based on link settings
+// Basic geolocation data (fallback)
+$geo_data = getGeolocationData($ip_address);
+
+// Prepare target data for database insertion
 $target_data = [
     'link_id' => $link['id'],
     'ip_address' => $ip_address,
     'user_agent' => $user_agent,
     'referrer' => $referrer,
     'device_type' => $device_type,
+    'country' => $geo_data['country'] ?? null,
+    'country_code' => $geo_data['country_code'] ?? null,
+    'region' => $geo_data['region'] ?? null,
+    'city' => $geo_data['city'] ?? null,
+    'zip_code' => $geo_data['zip_code'] ?? null,
+    'latitude' => $geo_data['latitude'] ?? null,
+    'longitude' => $geo_data['longitude'] ?? null,
+    'timezone' => $geo_data['timezone'] ?? null,
+    'isp' => $geo_data['isp'] ?? null,
+    'organization' => $geo_data['organization'] ?? null,
+    'as_number' => $geo_data['as_number'] ?? null,
     'clicked_at' => date('Y-m-d H:i:s')
 ];
 
-// Initialize enhanced geolocation system
-$enhanced_geo = new EnhancedGeolocation();
-$enhanced_geo->__init($conn);
-
-// Get enhanced geolocation data with multiple sources
-$additional_data = [
-    'screen_resolution' => $_POST['screen_resolution'] ?? null,
-    'timezone_offset' => $_POST['timezone_offset'] ?? null,
-    'language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null,
-    'touch_support' => $_POST['touch_support'] ?? false
-];
-
-$geo_data = $enhanced_geo->getPreciseLocation($ip_address, $user_agent, $additional_data);
-
-// Use refined coordinates if available, otherwise fall back to original
-$latitude = $geo_data['refined_latitude'] ?? $geo_data['latitude'] ?? null;
-$longitude = $geo_data['refined_longitude'] ?? $geo_data['longitude'] ?? null;
-
-// Enhanced target data with all geolocation information
-$target_data = array_merge($target_data, [
-    'country' => $geo_data['country'],
-    'country_code' => $geo_data['country_code'],
-    'region' => $geo_data['region'],
-    'city' => $geo_data['city'],
-    'zip_code' => $geo_data['zip_code'],
-    'latitude' => $latitude,
-    'longitude' => $longitude,
-    'timezone' => $geo_data['timezone'],
-    'isp' => $geo_data['isp'],
-    'organization' => $geo_data['organization'],
-    'as_number' => $geo_data['as_number'],
+// Insert tracking data into database
+try {
+    $stmt = $conn->prepare("
+        INSERT INTO targets (
+            link_id, ip_address, user_agent, referer, device_type,
+            country, country_code, region, city, zip_code, latitude, longitude, 
+            timezone, isp, organization, as_number, clicked_at
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+    ");
     
-    // Enhanced geolocation data
-    'confidence_score' => $geo_data['confidence_score'],
-    'accuracy_meters' => $geo_data['accuracy'],
-    'location_method' => $geo_data['location_method'],
-    'precision_level' => $geo_data['precision_level'],
-    'data_sources' => json_encode($geo_data['data_sources']),
+    $stmt->execute([
+        $target_data['link_id'],
+        $target_data['ip_address'],
+        $target_data['user_agent'],
+        $target_data['referrer'],
+        $target_data['device_type'],
+        $target_data['country'],
+        $target_data['country_code'],
+        $target_data['region'],
+        $target_data['city'],
+        $target_data['zip_code'],
+        $target_data['latitude'],
+        $target_data['longitude'],
+        $target_data['timezone'],
+        $target_data['isp'],
+        $target_data['organization'],
+        $target_data['as_number'],
+        $target_data['clicked_at']
+    ]);
     
-    // Network analysis
-    'network_type' => $geo_data['network_analysis']['network_type'],
-    'carrier_info' => $geo_data['network_analysis']['carrier_info'],
-    'vpn_detected' => $geo_data['network_analysis']['vpn_detected'],
-    'proxy_detected' => $geo_data['network_analysis']['proxy_detected'],
-    'tor_exit_node' => $geo_data['network_analysis']['tor_exit_node'],
-    'data_center' => $geo_data['network_analysis']['data_center'],
-    'mobile_network' => $geo_data['network_analysis']['mobile_network'],
-    'isp_network' => $geo_data['network_analysis']['isp_network'],
-    
-    // Device fingerprinting
-    'browser' => $geo_data['device_fingerprint']['browser'],
-    'browser_version' => $geo_data['device_fingerprint']['browser_version'],
-    'os' => $geo_data['device_fingerprint']['os'],
-    'os_version' => $geo_data['device_fingerprint']['os_version'],
-    'platform' => $geo_data['device_fingerprint']['platform'],
-    'screen_resolution' => $geo_data['device_fingerprint']['screen_resolution'],
-    'timezone_offset' => $geo_data['device_fingerprint']['timezone_offset'],
-    'language' => $geo_data['device_fingerprint']['language'],
-    'touch_support' => $geo_data['device_fingerprint']['touch_support'],
-    
-    // Historical analysis
-    'historical_consistency_score' => $geo_data['historical_analysis']['consistency_score'],
-    'location_variance_km' => $geo_data['historical_analysis']['location_variance'],
-    'most_frequent_location' => json_encode($geo_data['historical_analysis']['most_frequent_location']),
-    
-    // Refined coordinates
-    'refined_latitude' => $geo_data['refined_latitude'],
-    'refined_longitude' => $geo_data['refined_longitude'],
-    'accuracy_improvement_meters' => $geo_data['accuracy_improvement'],
-    'confidence_boost' => $geo_data['confidence_boost']
-]);
-
-// Update device type from enhanced fingerprinting
-$target_data['device_type'] = $geo_data['device_fingerprint']['device_type'] ?? 'desktop';
-
-// Insert enhanced target data
-$stmt = $conn->prepare("
-    INSERT INTO targets (
-        link_id, ip_address, user_agent, referer, device_type,
-        country, country_code, region, city, zip_code, latitude, longitude, timezone, isp, organization, as_number, clicked_at,
-        confidence_score, accuracy_meters, location_method, precision_level, data_sources,
-        network_type, carrier_info, vpn_detected, proxy_detected, tor_exit_node, data_center, mobile_network, isp_network,
-        browser, browser_version, os, os_version, platform, screen_resolution, timezone_offset, language, touch_support,
-        historical_consistency_score, location_variance_km, most_frequent_location,
-        refined_latitude, refined_longitude, accuracy_improvement_meters, confidence_boost
-    ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?,
-        ?, ?, ?, ?
-    )
-");
-
-$stmt->execute([
-    $target_data['link_id'], $target_data['ip_address'], $target_data['user_agent'], 
-    $target_data['referrer'], $target_data['device_type'], $target_data['country'],
-    $target_data['country_code'], $target_data['region'], $target_data['city'], 
-    $target_data['zip_code'], $target_data['latitude'], $target_data['longitude'], 
-    $target_data['timezone'], $target_data['isp'], $target_data['organization'], 
-    $target_data['as_number'], $target_data['clicked_at'],
-    
-    // Enhanced geolocation data
-    $target_data['confidence_score'], $target_data['accuracy_meters'], 
-    $target_data['location_method'], $target_data['precision_level'], $target_data['data_sources'],
-    
-    // Network analysis
-    $target_data['network_type'], $target_data['carrier_info'], $target_data['vpn_detected'],
-    $target_data['proxy_detected'], $target_data['tor_exit_node'], $target_data['data_center'],
-    $target_data['mobile_network'], $target_data['isp_network'],
-    
-    // Device fingerprinting
-    $target_data['browser'], $target_data['browser_version'], $target_data['os'],
-    $target_data['os_version'], $target_data['platform'], $target_data['screen_resolution'],
-    $target_data['timezone_offset'], $target_data['language'], $target_data['touch_support'],
-    
-    // Historical analysis
-    $target_data['historical_consistency_score'], $target_data['location_variance_km'],
-    $target_data['most_frequent_location'],
-    
-    // Refined coordinates
-    $target_data['refined_latitude'], $target_data['refined_longitude'],
-    $target_data['accuracy_improvement_meters'], $target_data['confidence_boost']
-]);
-
-$target_id = $conn->lastInsertId();
-
-// Send email notification if function exists
-if (function_exists('sendLinkClickNotification')) {
-    sendLinkClickNotification($link['id'], $target_data);
+} catch (Exception $e) {
+    // Log error but don't stop the redirect
+    error_log("Tracking error: " . $e->getMessage());
 }
 
-// Build destination URL
-$destination_url = $link['original_url'];
-
-// Forward GET parameters (excluding tracking parameters)
-$params = $_GET;
-unset($params['short_code'], $params['consent'], $params['redirect']); // Remove tracking parameters
-
-if (!empty($params)) {
-    $separator = strpos($destination_url, '?') !== false ? '&' : '?';
-    $destination_url .= $separator . http_build_query($params);
+// Check if password is required
+if (!empty($link['password'])) {
+    $password = $_POST['password'] ?? '';
+    
+    if (empty($password) || !password_verify($password, $link['password'])) {
+        // Show password form
+        ?>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Enter Password - IP Logger</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        </head>
+        <body class="bg-light">
+            <div class="container mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-lock"></i> Password Required</h4>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">This link is password protected. Please enter the password to continue.</p>
+                                <form method="POST">
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-unlock"></i> Continue
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
 }
 
 // Redirect to original URL
-header('Location: ' . $destination_url);
+$original_url = $link['original_url'];
+
+// Forward any additional GET parameters
+$query_params = $_GET;
+unset($query_params['short_code']); // Remove our parameter
+
+if (!empty($query_params)) {
+    $separator = (strpos($original_url, '?') !== false) ? '&' : '?';
+    $original_url .= $separator . http_build_query($query_params);
+}
+
+// Perform redirect
+header('Location: ' . $original_url);
 exit;
 ?>
