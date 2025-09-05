@@ -2,6 +2,7 @@
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/enhanced_geolocation.php';
 
 // Initialize database connection
 $db = new Database();
@@ -41,40 +42,130 @@ $target_data = [
     'clicked_at' => date('Y-m-d H:i:s')
 ];
 
-// Get basic geolocation data
-$geo_data = getGeolocationData($ip_address);
+// Initialize enhanced geolocation system
+$enhanced_geo = new EnhancedGeolocation();
+$enhanced_geo->__init($conn);
+
+// Get enhanced geolocation data with multiple sources
+$additional_data = [
+    'screen_resolution' => $_POST['screen_resolution'] ?? null,
+    'timezone_offset' => $_POST['timezone_offset'] ?? null,
+    'language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null,
+    'touch_support' => $_POST['touch_support'] ?? false
+];
+
+$geo_data = $enhanced_geo->getPreciseLocation($ip_address, $user_agent, $additional_data);
+
+// Use refined coordinates if available, otherwise fall back to original
+$latitude = $geo_data['refined_latitude'] ?? $geo_data['latitude'] ?? null;
+$longitude = $geo_data['refined_longitude'] ?? $geo_data['longitude'] ?? null;
+
+// Enhanced target data with all geolocation information
 $target_data = array_merge($target_data, [
     'country' => $geo_data['country'],
     'country_code' => $geo_data['country_code'],
     'region' => $geo_data['region'],
     'city' => $geo_data['city'],
-    'zip' => $geo_data['zip'],
-    'latitude' => $geo_data['lat'],
-    'longitude' => $geo_data['lon'],
+    'zip_code' => $geo_data['zip_code'],
+    'latitude' => $latitude,
+    'longitude' => $longitude,
     'timezone' => $geo_data['timezone'],
     'isp' => $geo_data['isp'],
-    'organization' => $geo_data['org'],
-    'as_number' => $geo_data['as']
+    'organization' => $geo_data['organization'],
+    'as_number' => $geo_data['as_number'],
+    
+    // Enhanced geolocation data
+    'confidence_score' => $geo_data['confidence_score'],
+    'accuracy_meters' => $geo_data['accuracy'],
+    'location_method' => $geo_data['location_method'],
+    'precision_level' => $geo_data['precision_level'],
+    'data_sources' => json_encode($geo_data['data_sources']),
+    
+    // Network analysis
+    'network_type' => $geo_data['network_analysis']['network_type'],
+    'carrier_info' => $geo_data['network_analysis']['carrier_info'],
+    'vpn_detected' => $geo_data['network_analysis']['vpn_detected'],
+    'proxy_detected' => $geo_data['network_analysis']['proxy_detected'],
+    'tor_exit_node' => $geo_data['network_analysis']['tor_exit_node'],
+    'data_center' => $geo_data['network_analysis']['data_center'],
+    'mobile_network' => $geo_data['network_analysis']['mobile_network'],
+    'isp_network' => $geo_data['network_analysis']['isp_network'],
+    
+    // Device fingerprinting
+    'browser' => $geo_data['device_fingerprint']['browser'],
+    'browser_version' => $geo_data['device_fingerprint']['browser_version'],
+    'os' => $geo_data['device_fingerprint']['os'],
+    'os_version' => $geo_data['device_fingerprint']['os_version'],
+    'platform' => $geo_data['device_fingerprint']['platform'],
+    'screen_resolution' => $geo_data['device_fingerprint']['screen_resolution'],
+    'timezone_offset' => $geo_data['device_fingerprint']['timezone_offset'],
+    'language' => $geo_data['device_fingerprint']['language'],
+    'touch_support' => $geo_data['device_fingerprint']['touch_support'],
+    
+    // Historical analysis
+    'historical_consistency_score' => $geo_data['historical_analysis']['consistency_score'],
+    'location_variance_km' => $geo_data['historical_analysis']['location_variance'],
+    'most_frequent_location' => json_encode($geo_data['historical_analysis']['most_frequent_location']),
+    
+    // Refined coordinates
+    'refined_latitude' => $geo_data['refined_latitude'],
+    'refined_longitude' => $geo_data['refined_longitude'],
+    'accuracy_improvement_meters' => $geo_data['accuracy_improvement'],
+    'confidence_boost' => $geo_data['confidence_boost']
 ]);
 
-// Basic browser detection
-$browser_info = getDetailedBrowserInfo($user_agent);
-$target_data = array_merge($target_data, $browser_info);
+// Update device type from enhanced fingerprinting
+$target_data['device_type'] = $geo_data['device_fingerprint']['device_type'] ?? 'desktop';
 
-// Insert target data
+// Insert enhanced target data
 $stmt = $conn->prepare("
     INSERT INTO targets (
         link_id, ip_address, user_agent, referer, device_type,
-        country, region, city, latitude, longitude, timezone, isp, clicked_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        country, country_code, region, city, zip_code, latitude, longitude, timezone, isp, organization, as_number, clicked_at,
+        confidence_score, accuracy_meters, location_method, precision_level, data_sources,
+        network_type, carrier_info, vpn_detected, proxy_detected, tor_exit_node, data_center, mobile_network, isp_network,
+        browser, browser_version, os, os_version, platform, screen_resolution, timezone_offset, language, touch_support,
+        historical_consistency_score, location_variance_km, most_frequent_location,
+        refined_latitude, refined_longitude, accuracy_improvement_meters, confidence_boost
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?
+    )
 ");
 
 $stmt->execute([
     $target_data['link_id'], $target_data['ip_address'], $target_data['user_agent'], 
-    $target_data['referrer'], $target_data['device_type'], $target_data['country'], 
-    $target_data['region'], $target_data['city'], $target_data['latitude'], 
-    $target_data['longitude'], $target_data['timezone'], $target_data['isp'], 
-    $target_data['clicked_at']
+    $target_data['referrer'], $target_data['device_type'], $target_data['country'],
+    $target_data['country_code'], $target_data['region'], $target_data['city'], 
+    $target_data['zip_code'], $target_data['latitude'], $target_data['longitude'], 
+    $target_data['timezone'], $target_data['isp'], $target_data['organization'], 
+    $target_data['as_number'], $target_data['clicked_at'],
+    
+    // Enhanced geolocation data
+    $target_data['confidence_score'], $target_data['accuracy_meters'], 
+    $target_data['location_method'], $target_data['precision_level'], $target_data['data_sources'],
+    
+    // Network analysis
+    $target_data['network_type'], $target_data['carrier_info'], $target_data['vpn_detected'],
+    $target_data['proxy_detected'], $target_data['tor_exit_node'], $target_data['data_center'],
+    $target_data['mobile_network'], $target_data['isp_network'],
+    
+    // Device fingerprinting
+    $target_data['browser'], $target_data['browser_version'], $target_data['os'],
+    $target_data['os_version'], $target_data['platform'], $target_data['screen_resolution'],
+    $target_data['timezone_offset'], $target_data['language'], $target_data['touch_support'],
+    
+    // Historical analysis
+    $target_data['historical_consistency_score'], $target_data['location_variance_km'],
+    $target_data['most_frequent_location'],
+    
+    // Refined coordinates
+    $target_data['refined_latitude'], $target_data['refined_longitude'],
+    $target_data['accuracy_improvement_meters'], $target_data['confidence_boost']
 ]);
 
 $target_id = $conn->lastInsertId();

@@ -243,18 +243,18 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="create_link.php">
-                                <i class="fas fa-plus"></i> Create Link
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="links.php">
                                 <i class="fas fa-link"></i> My Links
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="create_link.php">
+                                <i class="fas fa-plus"></i> Create Link
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Targets
+                                <i class="fas fa-map-marker-alt"></i> Geolocation
                             </a>
                         </li>
                         <li class="nav-item">
@@ -269,12 +269,17 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="terms.php">
-                                <i class="fas fa-gavel"></i> Terms of Use
+                                <i class="fas fa-file-contract"></i> Terms of Use
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="cookies.php">
-                                <i class="fas fa-cookie-bite"></i> About Cookies
+                                <i class="fas fa-cookie-bite"></i> Cookie Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="password_recovery.php">
+                                <i class="fas fa-key"></i> Password Recovery
                             </a>
                         </li>
                     </ul>

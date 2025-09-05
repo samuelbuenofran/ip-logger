@@ -11,6 +11,393 @@ $conn = $db->getConnection();
 $link_id = $_GET['link_id'] ?? 0;
 $password = $_POST['password'] ?? '';
 
+// If no link_id is provided, show list of all links
+if (empty($link_id)) {
+    // Get all links
+    $stmt = $conn->query("SELECT * FROM links ORDER BY created_at DESC");
+    $links = $stmt->fetchAll();
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Geolocation - IP Logger</title>
+        
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- FontAwesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+            
+            .sidebar {
+                min-height: 100vh;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar .nav-link {
+                color: #adb5bd;
+                padding: 0.75rem 1rem;
+                border-radius: 0.375rem;
+                margin: 0.25rem 0;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar .nav-link:hover {
+                color: #fff;
+                background-color: rgba(255,255,255,0.1);
+            }
+            
+            .sidebar .nav-link.active {
+                color: #fff;
+                background-color: #007bff;
+            }
+            
+            .link-card {
+                background: white;
+                border: 1px solid #e9ecef;
+                border-radius: 12px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                height: 100%;
+            }
+            
+            .link-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .link-card .card-body {
+                padding: 1.5rem;
+            }
+            
+            .link-card .card-title {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 0.75rem;
+            }
+            
+            .link-card .card-text {
+                color: #6c757d;
+                margin-bottom: 1rem;
+            }
+            
+            .stats-badge {
+                font-size: 0.8rem;
+                padding: 0.375rem 0.75rem;
+                border-radius: 0.375rem;
+                font-weight: 500;
+            }
+            
+            .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+                border-radius: 0.375rem;
+                padding: 0.5rem 1rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+            
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+                transform: translateY(-1px);
+            }
+            
+            .btn-secondary {
+                background-color: #6c757d;
+                border-color: #6c757d;
+                border-radius: 0.375rem;
+                padding: 0.5rem 1rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+            
+            .btn-secondary:hover {
+                background-color: #545b62;
+                border-color: #545b62;
+                transform: translateY(-1px);
+            }
+            
+            .card {
+                border: 1px solid #e9ecef;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .card-header {
+                background-color: #f8f9fa;
+                border-bottom: 1px solid #e9ecef;
+                border-radius: 12px 12px 0 0;
+                padding: 1rem 1.5rem;
+            }
+            
+            .card-header h5 {
+                margin: 0;
+                font-weight: 600;
+                color: #333;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .h2 {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 0;
+            }
+            
+            .text-muted {
+                color: #6c757d !important;
+            }
+            
+            .bg-light {
+                background-color: #f8f9fa !important;
+            }
+            
+            .border-bottom {
+                border-bottom: 1px solid #e9ecef !important;
+            }
+            
+            .pt-3 {
+                padding-top: 1rem !important;
+            }
+            
+            .pb-2 {
+                padding-bottom: 0.5rem !important;
+            }
+            
+            .mb-3 {
+                margin-bottom: 1rem !important;
+            }
+            
+            .mb-2 {
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .mb-md-0 {
+                margin-bottom: 0 !important;
+            }
+            
+            .d-flex {
+                display: flex !important;
+            }
+            
+            .justify-content-between {
+                justify-content: space-between !important;
+            }
+            
+            .align-items-center {
+                align-items: center !important;
+            }
+            
+            .flex-wrap {
+                flex-wrap: wrap !important;
+            }
+            
+            .flex-md-nowrap {
+                flex-wrap: nowrap !important;
+            }
+            
+            .btn-toolbar {
+                display: flex;
+                gap: 0.5rem;
+            }
+            
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0 -0.75rem;
+            }
+            
+            .col-12 {
+                flex: 0 0 100%;
+                max-width: 100%;
+                padding: 0 0.75rem;
+            }
+            
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+                padding: 0 0.75rem;
+            }
+            
+            .col-lg-4 {
+                flex: 0 0 33.333333%;
+                max-width: 33.333333%;
+                padding: 0 0.75rem;
+            }
+            
+            @media (max-width: 768px) {
+                .col-md-6 {
+                    flex: 0 0 100%;
+                    max-width: 100%;
+                }
+            }
+            
+            @media (max-width: 992px) {
+                .col-lg-4 {
+                    flex: 0 0 50%;
+                    max-width: 50%;
+                }
+            }
+        </style>
+    </head>
+    <body class="bg-light">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                    <div class="position-sticky pt-3">
+                        <div class="text-center mb-4">
+                            <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
+                            <p class="text-muted">URL Shortener & Tracker</p>
+                        </div>
+                        
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.php">
+                                    <i class="fas fa-home"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="links.php">
+                                    <i class="fas fa-link"></i> My Links
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="create_link.php">
+                                    <i class="fas fa-plus"></i> Create Link
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="view_targets.php">
+                                    <i class="fas fa-map-marker-alt"></i> Geolocation
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="admin.php">
+                                    <i class="fas fa-cog"></i> Admin Panel
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="privacy.php">
+                                    <i class="fas fa-user-shield"></i> Privacy Policy
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="terms.php">
+                                    <i class="fas fa-file-contract"></i> Terms of Use
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="cookies.php">
+                                    <i class="fas fa-cookie-bite"></i> Cookie Policy
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="password_recovery.php">
+                                    <i class="fas fa-key"></i> Password Recovery
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- Main content -->
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="fas fa-map-marker-alt"></i> Geolocation</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <a href="index.php" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-link"></i> Select a Link to View Geolocation Data</h5>
+                                </div>
+                                <div class="card-body">
+                                    <?php if (empty($links)): ?>
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-link fa-3x text-muted mb-3"></i>
+                                            <h4>No Links Found</h4>
+                                            <p class="text-muted">You haven't created any links yet.</p>
+                                            <a href="create_link.php" class="btn btn-primary">
+                                                <i class="fas fa-plus"></i> Create Your First Link
+                                            </a>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="row">
+                                            <?php foreach ($links as $link): ?>
+                                                <?php
+                                                // Get click count for this link
+                                                $stmt = $conn->prepare("SELECT COUNT(*) as clicks FROM targets WHERE link_id = ?");
+                                                $stmt->execute([$link['id']]);
+                                                $click_count = $stmt->fetch(PDO::FETCH_ASSOC)['clicks'];
+                                                
+                                                // Get unique visitors count
+                                                $stmt = $conn->prepare("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets WHERE link_id = ?");
+                                                $stmt->execute([$link['id']]);
+                                                $unique_visitors = $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
+                                                ?>
+                                                <div class="col-md-6 col-lg-4 mb-3">
+                                                    <div class="card link-card h-100">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title">
+                                                                <code><?php echo htmlspecialchars($link['short_code']); ?></code>
+                                                            </h6>
+                                                            <p class="card-text text-muted small">
+                                                                <?php echo htmlspecialchars(substr($link['original_url'], 0, 50)) . (strlen($link['original_url']) > 50 ? '...' : ''); ?>
+                                                            </p>
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <span class="badge bg-primary stats-badge">
+                                                                    <i class="fas fa-mouse-pointer"></i> <?php echo $click_count; ?> clicks
+                                                                </span>
+                                                                <span class="badge bg-info stats-badge">
+                                                                    <i class="fas fa-users"></i> <?php echo $unique_visitors; ?> visitors
+                                                                </span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between">
+                                                                <small class="text-muted">
+                                                                    Created: <?php echo date('M j, Y', strtotime($link['created_at'])); ?>
+                                                                </small>
+                                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="btn btn-sm btn-primary">
+                                                                    <i class="fas fa-map-marker-alt"></i> View Map
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 // Get link information
 $stmt = $conn->prepare("SELECT * FROM links WHERE id = ?");
 $stmt->execute([$link_id]);
@@ -276,18 +663,38 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Targets
+                            <a class="nav-link" href="create_link.php">
+                                <i class="fas fa-plus"></i> Create Link
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="analytics.php">
-                                <i class="fas fa-chart-line"></i> Analytics
+                            <a class="nav-link active" href="view_targets.php">
+                                <i class="fas fa-map-marker-alt"></i> Geolocation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin.php">
+                                <i class="fas fa-cog"></i> Admin Panel
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="terms.php">
+                                <i class="fas fa-file-contract"></i> Terms of Use
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="cookies.php">
+                                <i class="fas fa-cookie-bite"></i> Cookie Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="password_recovery.php">
+                                <i class="fas fa-key"></i> Password Recovery
                             </a>
                         </li>
                     </ul>

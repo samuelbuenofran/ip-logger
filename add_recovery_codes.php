@@ -10,13 +10,29 @@ $conn = $db->getConnection();
 echo "<h2>Adding Recovery Codes to Existing Links</h2>";
 
 try {
-    // First, add the password_recovery_code column if it doesn't exist
-    $conn->exec("ALTER TABLE links ADD COLUMN IF NOT EXISTS password_recovery_code VARCHAR(255) NULL");
-    echo "<p>✅ Added password_recovery_code column</p>";
+    // Check if password_recovery_code column already exists
+    $stmt = $conn->query("SHOW COLUMNS FROM links LIKE 'password_recovery_code'");
+    $column_exists = $stmt->fetch();
     
-    // Add index for recovery codes
-    $conn->exec("ALTER TABLE links ADD INDEX IF NOT EXISTS idx_password_recovery (password_recovery_code)");
-    echo "<p>✅ Added index for password_recovery_code</p>";
+    if (!$column_exists) {
+        // Add the password_recovery_code column
+        $conn->exec("ALTER TABLE links ADD COLUMN password_recovery_code VARCHAR(255) NULL");
+        echo "<p>✅ Added password_recovery_code column</p>";
+    } else {
+        echo "<p>✅ password_recovery_code column already exists</p>";
+    }
+    
+    // Check if index already exists
+    $stmt = $conn->query("SHOW INDEX FROM links WHERE Key_name = 'idx_password_recovery'");
+    $index_exists = $stmt->fetch();
+    
+    if (!$index_exists) {
+        // Add index for recovery codes
+        $conn->exec("ALTER TABLE links ADD INDEX idx_password_recovery (password_recovery_code)");
+        echo "<p>✅ Added index for password_recovery_code</p>";
+    } else {
+        echo "<p>✅ Index for password_recovery_code already exists</p>";
+    }
     
     // Get all links that don't have recovery codes
     $stmt = $conn->query("SELECT id, short_code FROM links WHERE password_recovery_code IS NULL");

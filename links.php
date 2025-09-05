@@ -68,23 +68,38 @@ $activeLinks = count(array_filter($links, function($link) {
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="create_link.php">
+                                <i class="fas fa-plus"></i> Create Link
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Targets
+                                <i class="fas fa-map-marker-alt"></i> Geolocation
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="analytics.php">
-                                <i class="fas fa-chart-line"></i> Analytics
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="email_settings.php">
-                                <i class="fas fa-envelope"></i> Email Settings
+                            <a class="nav-link" href="admin.php">
+                                <i class="fas fa-cog"></i> Admin Panel
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="terms.php">
+                                <i class="fas fa-file-contract"></i> Terms of Use
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="cookies.php">
+                                <i class="fas fa-cookie-bite"></i> Cookie Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="password_recovery.php">
+                                <i class="fas fa-key"></i> Password Recovery
                             </a>
                         </li>
                     </ul>
@@ -95,7 +110,7 @@ $activeLinks = count(array_filter($links, function($link) {
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">My Links</h1>
-                    <a href="index.php" class="btn btn-primary">
+                    <a href="create_link.php" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Create New Link
                     </a>
                 </div>

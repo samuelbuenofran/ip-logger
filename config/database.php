@@ -53,20 +53,18 @@ class Database {
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     INDEX idx_short_code (short_code),
                     INDEX idx_tracking_code (tracking_code),
-                    INDEX idx_created_at (created_at),
-                    INDEX idx_expiry_date (expiry_date),
-                    INDEX idx_password_recovery (password_recovery_code)
+                    INDEX idx_created_at (created_at)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ");
             
-            // Targets table
+            // Targets table with enhanced geolocation columns
             $this->conn->exec("
                 CREATE TABLE IF NOT EXISTS targets (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     link_id INT NOT NULL,
                     ip_address VARCHAR(45) NOT NULL,
                     user_agent TEXT,
-                    device_type ENUM('desktop', 'mobile') DEFAULT 'desktop',
+                    device_type ENUM('desktop', 'mobile', 'tablet') DEFAULT 'desktop',
                     country VARCHAR(100),
                     country_code VARCHAR(10),
                     region VARCHAR(100),
@@ -80,43 +78,63 @@ class Database {
                     as_number VARCHAR(100),
                     referer TEXT,
                     clicked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    
+                    -- Enhanced Geolocation Data
+                    confidence_score DECIMAL(5,2) DEFAULT NULL,
+                    accuracy_meters INT DEFAULT NULL,
+                    location_method VARCHAR(50) DEFAULT NULL,
+                    precision_level VARCHAR(50) DEFAULT NULL,
+                    data_sources JSON DEFAULT NULL,
+                    
+                    -- Network Analysis
+                    network_type VARCHAR(50) DEFAULT NULL,
+                    carrier_info VARCHAR(100) DEFAULT NULL,
+                    vpn_detected BOOLEAN DEFAULT FALSE,
+                    proxy_detected BOOLEAN DEFAULT FALSE,
+                    tor_exit_node BOOLEAN DEFAULT FALSE,
+                    data_center BOOLEAN DEFAULT FALSE,
+                    mobile_network BOOLEAN DEFAULT FALSE,
+                    isp_network BOOLEAN DEFAULT FALSE,
+                    
+                    -- Device Fingerprinting
+                    browser VARCHAR(50) DEFAULT NULL,
+                    browser_version VARCHAR(20) DEFAULT NULL,
+                    os VARCHAR(50) DEFAULT NULL,
+                    os_version VARCHAR(20) DEFAULT NULL,
+                    platform VARCHAR(20) DEFAULT NULL,
+                    screen_resolution VARCHAR(20) DEFAULT NULL,
+                    timezone_offset INT DEFAULT NULL,
+                    language VARCHAR(10) DEFAULT NULL,
+                    touch_support BOOLEAN DEFAULT FALSE,
+                    
+                    -- Historical Analysis
+                    historical_consistency_score DECIMAL(5,2) DEFAULT NULL,
+                    location_variance_km DECIMAL(10,2) DEFAULT NULL,
+                    most_frequent_location JSON DEFAULT NULL,
+                    
+                    -- Refined Coordinates
+                    refined_latitude DECIMAL(10, 8) DEFAULT NULL,
+                    refined_longitude DECIMAL(11, 8) DEFAULT NULL,
+                    accuracy_improvement_meters INT DEFAULT NULL,
+                    confidence_boost INT DEFAULT NULL,
+                    
                     FOREIGN KEY (link_id) REFERENCES links(id) ON DELETE CASCADE,
                     INDEX idx_link_id (link_id),
                     INDEX idx_ip_address (ip_address),
                     INDEX idx_clicked_at (clicked_at),
-                    INDEX idx_country (country)
+                    INDEX idx_country (country),
+                    INDEX idx_confidence_score (confidence_score),
+                    INDEX idx_network_type (network_type),
+                    INDEX idx_device_type (device_type),
+                    INDEX idx_vpn_detected (vpn_detected),
+                    INDEX idx_data_center (data_center)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ");
             
-            // Settings table
-            $this->conn->exec("
-                CREATE TABLE IF NOT EXISTS settings (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    setting_key VARCHAR(100) UNIQUE NOT NULL,
-                    setting_value TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-            ");
+            echo "Tables created successfully!\n";
             
-            // Insert default settings
-            $this->conn->exec("
-                INSERT IGNORE INTO settings (setting_key, setting_value) VALUES
-                ('site_name', 'IP Logger'),
-                ('site_description', 'URL Shortener & IP Tracker'),
-                ('default_expiry_days', '30'),
-                ('max_links_per_user', '100'),
-                ('data_retention_days', '90'),
-                ('anonymize_ips', 'false'),
-                ('google_maps_api_key', ''),
-                ('privacy_policy', 'This tool respects your privacy and complies with applicable data protection laws.'),
-                ('terms_of_service', 'By using this service, you agree to our terms of service.')
-            ");
-            
-            return true;
-        } catch(PDOException $exception) {
-            echo "Error creating tables: " . $exception->getMessage();
-            return false;
+        } catch (PDOException $e) {
+            echo "Error creating tables: " . $e->getMessage() . "\n";
         }
     }
     

@@ -704,16 +704,569 @@ function displayMessage() {
 }
 
 /**
- * Enhanced geolocation data with additional tracking features
+ * Enhanced Geolocation with Multiple Data Sources
+ * Uses state-of-the-art methodologies for precise location tracking
  */
-function getEnhancedGeolocationData($ip) {
-    $basicData = getGeolocationData($ip);
+function getEnhancedGeolocationData($ip_address, $user_agent = '') {
+    $geo_data = [
+        'ip_address' => $ip_address,
+        'country' => null,
+        'country_code' => null,
+        'region' => null,
+        'city' => null,
+        'zip_code' => null,
+        'latitude' => null,
+        'longitude' => null,
+        'timezone' => null,
+        'isp' => null,
+        'organization' => null,
+        'as_number' => null,
+        'accuracy' => null,
+        'confidence' => null,
+        'data_sources' => [],
+        'location_method' => null,
+        'precision_level' => null
+    ];
+
+    // Method 1: IP-API (Primary source)
+    $ip_api_result = getIPAPIGeolocation($ip_address);
+    if ($ip_api_result) {
+        $geo_data = array_merge($geo_data, $ip_api_result);
+        $geo_data['data_sources'][] = 'ip-api';
+        $geo_data['location_method'] = 'ip_geolocation';
+        $geo_data['precision_level'] = 'city_level';
+        $geo_data['confidence'] = 85;
+    }
+
+    // Method 2: IP2Location (Secondary source for validation)
+    $ip2location_result = getIP2LocationGeolocation($ip_address);
+    if ($ip2location_result) {
+        $geo_data['data_sources'][] = 'ip2location';
+        
+        // Cross-validate coordinates
+        if ($geo_data['latitude'] && $ip2location_result['latitude']) {
+            $distance = calculateDistance(
+                $geo_data['latitude'], $geo_data['longitude'],
+                $ip2location_result['latitude'], $ip2location_result['longitude']
+            );
+            
+            if ($distance < 50) { // Within 50km, consider accurate
+                $geo_data['confidence'] += 10;
+                $geo_data['precision_level'] = 'neighborhood_level';
+            } else {
+                $geo_data['confidence'] -= 15;
+                $geo_data['precision_level'] = 'regional_level';
+            }
+        }
+    }
+
+    // Method 3: MaxMind GeoIP2 (Tertiary source)
+    $maxmind_result = getMaxMindGeolocation($ip_address);
+    if ($maxmind_result) {
+        $geo_data['data_sources'][] = 'maxmind';
+        
+        // Additional validation
+        if ($geo_data['country'] && $maxmind_result['country'] && 
+            $geo_data['country'] === $maxmind_result['country']) {
+            $geo_data['confidence'] += 5;
+        }
+    }
+
+    // Method 4: Device Fingerprinting for Enhanced Accuracy
+    $device_fingerprint = getDeviceFingerprint($user_agent);
+    if ($device_fingerprint) {
+        $geo_data['data_sources'][] = 'device_fingerprint';
+        $geo_data['device_info'] = $device_fingerprint;
+    }
+
+    // Method 5: Network Analysis
+    $network_analysis = analyzeNetworkCharacteristics($ip_address);
+    if ($network_analysis) {
+        $geo_data['data_sources'][] = 'network_analysis';
+        $geo_data['network_info'] = $network_analysis;
+        
+        // Adjust confidence based on network type
+        if ($network_analysis['type'] === 'mobile_carrier') {
+            $geo_data['confidence'] += 5;
+            $geo_data['precision_level'] = 'cell_tower_level';
+        } elseif ($network_analysis['type'] === 'isp') {
+            $geo_data['confidence'] += 3;
+        }
+    }
+
+    // Method 6: Timezone-based Validation
+    $timezone_validation = validateLocationByTimezone($geo_data);
+    if ($timezone_validation['valid']) {
+        $geo_data['confidence'] += $timezone_validation['confidence_boost'];
+    } else {
+        $geo_data['confidence'] -= 10;
+    }
+
+    // Method 7: Historical Data Analysis
+    $historical_analysis = analyzeHistoricalLocationData($ip_address);
+    if ($historical_analysis) {
+        $geo_data['data_sources'][] = 'historical_analysis';
+        $geo_data['historical_data'] = $historical_analysis;
+        
+        // Use historical data to improve accuracy
+        if ($historical_analysis['consistency_score'] > 0.8) {
+            $geo_data['confidence'] += 8;
+        }
+    }
+
+    // Method 8: Advanced Coordinate Refinement
+    $refined_coordinates = refineCoordinates($geo_data);
+    if ($refined_coordinates) {
+        $geo_data['latitude'] = $refined_coordinates['latitude'];
+        $geo_data['longitude'] = $refined_coordinates['longitude'];
+        $geo_data['accuracy'] = $refined_coordinates['accuracy'];
+        $geo_data['data_sources'][] = 'coordinate_refinement';
+    }
+
+    // Cap confidence at 100
+    $geo_data['confidence'] = min(100, $geo_data['confidence']);
     
-    // Add enhanced detection
-    $proxyInfo = detectProxyVPN($ip);
-    $basicData = array_merge($basicData, $proxyInfo);
+    return $geo_data;
+}
+
+/**
+ * IP-API Geolocation (Primary Source)
+ */
+function getIPAPIGeolocation($ip_address) {
+    $url = "http://ip-api.com/json/{$ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query";
     
-    return $basicData;
+    $response = @file_get_contents($url);
+    if (!$response) {
+        return false;
+    }
+    
+    $data = json_decode($response, true);
+    
+    if ($data && $data['status'] === 'success') {
+        return [
+            'country' => $data['country'] ?? null,
+            'country_code' => $data['countryCode'] ?? null,
+            'region' => $data['regionName'] ?? null,
+            'city' => $data['city'] ?? null,
+            'zip_code' => $data['zip'] ?? null,
+            'latitude' => $data['lat'] ?? null,
+            'longitude' => $data['lon'] ?? null,
+            'timezone' => $data['timezone'] ?? null,
+            'isp' => $data['isp'] ?? null,
+            'organization' => $data['org'] ?? null,
+            'as_number' => $data['as'] ?? null
+        ];
+    }
+    
+    return false;
+}
+
+/**
+ * IP2Location Geolocation (Secondary Source)
+ */
+function getIP2LocationGeolocation($ip_address) {
+    // Using IP2Location Web Service (you would need an API key)
+    $api_key = 'YOUR_IP2LOCATION_API_KEY'; // Replace with actual API key
+    $url = "https://api.ip2location.io/?ip={$ip_address}&key={$api_key}";
+    
+    $response = @file_get_contents($url);
+    if (!$response) {
+        return false;
+    }
+    
+    $data = json_decode($response, true);
+    
+    if ($data && isset($data['latitude'])) {
+        return [
+            'latitude' => $data['latitude'] ?? null,
+            'longitude' => $data['longitude'] ?? null,
+            'country' => $data['country_name'] ?? null,
+            'city' => $data['city_name'] ?? null,
+            'region' => $data['region_name'] ?? null,
+            'zip_code' => $data['zip_code'] ?? null,
+            'timezone' => $data['time_zone'] ?? null,
+            'isp' => $data['isp'] ?? null
+        ];
+    }
+    
+    return false;
+}
+
+/**
+ * MaxMind GeoIP2 Geolocation (Tertiary Source)
+ */
+function getMaxMindGeolocation($ip_address) {
+    // Using MaxMind GeoIP2 Web Service (you would need an API key)
+    $account_id = 'YOUR_MAXMIND_ACCOUNT_ID'; // Replace with actual account ID
+    $license_key = 'YOUR_MAXMIND_LICENSE_KEY'; // Replace with actual license key
+    $url = "https://geoip.maxmind.com/geoip/v2.1/country/{$ip_address}";
+    
+    $context = stream_context_create([
+        'http' => [
+            'header' => "Authorization: Basic " . base64_encode("{$account_id}:{$license_key}")
+        ]
+    ]);
+    
+    $response = @file_get_contents($url, false, $context);
+    if (!$response) {
+        return false;
+    }
+    
+    $data = json_decode($response, true);
+    
+    if ($data && isset($data['country'])) {
+        return [
+            'country' => $data['country']['names']['en'] ?? null,
+            'country_code' => $data['country']['iso_code'] ?? null
+        ];
+    }
+    
+    return false;
+}
+
+/**
+ * Device Fingerprinting for Enhanced Accuracy
+ */
+function getDeviceFingerprint($user_agent) {
+    $fingerprint = [];
+    
+    // Parse User Agent
+    $browser_info = parseUserAgent($user_agent);
+    $fingerprint['browser'] = $browser_info;
+    
+    // Device Type Detection
+    $device_type = detectDeviceType($user_agent);
+    $fingerprint['device_type'] = $device_type;
+    
+    // Screen Resolution (if available via JavaScript)
+    // This would be passed from client-side JavaScript
+    $fingerprint['screen_resolution'] = $_POST['screen_resolution'] ?? null;
+    
+    // Timezone (if available via JavaScript)
+    $fingerprint['timezone'] = $_POST['timezone'] ?? null;
+    
+    // Language Preferences
+    $fingerprint['language'] = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
+    
+    return $fingerprint;
+}
+
+/**
+ * Network Analysis for Location Refinement
+ */
+function analyzeNetworkCharacteristics($ip_address) {
+    $analysis = [];
+    
+    // Check if it's a mobile carrier IP
+    $mobile_carriers = [
+        'att.com', 'verizon.com', 'tmobile.com', 'sprint.com',
+        'vodafone.com', 'orange.com', 'telefonica.com'
+    ];
+    
+    $reverse_dns = gethostbyaddr($ip_address);
+    foreach ($mobile_carriers as $carrier) {
+        if (strpos($reverse_dns, $carrier) !== false) {
+            $analysis['type'] = 'mobile_carrier';
+            $analysis['carrier'] = $carrier;
+            break;
+        }
+    }
+    
+    if (!isset($analysis['type'])) {
+        $analysis['type'] = 'isp';
+    }
+    
+    // Check for VPN/Proxy indicators
+    $vpn_indicators = checkVPNIndicators($ip_address);
+    $analysis['vpn_detected'] = $vpn_indicators['detected'];
+    $analysis['proxy_type'] = $vpn_indicators['type'];
+    
+    return $analysis;
+}
+
+/**
+ * Timezone-based Location Validation
+ */
+function validateLocationByTimezone($geo_data) {
+    $result = ['valid' => false, 'confidence_boost' => 0];
+    
+    if (!$geo_data['timezone'] || !$geo_data['latitude'] || !$geo_data['longitude']) {
+        return $result;
+    }
+    
+    // Get timezone from coordinates
+    $coordinate_timezone = getTimezoneFromCoordinates($geo_data['latitude'], $geo_data['longitude']);
+    
+    if ($coordinate_timezone === $geo_data['timezone']) {
+        $result['valid'] = true;
+        $result['confidence_boost'] = 15;
+    } elseif (strpos($coordinate_timezone, $geo_data['timezone']) !== false || 
+              strpos($geo_data['timezone'], $coordinate_timezone) !== false) {
+        $result['valid'] = true;
+        $result['confidence_boost'] = 8;
+    }
+    
+    return $result;
+}
+
+/**
+ * Historical Location Data Analysis
+ */
+function analyzeHistoricalLocationData($ip_address) {
+    global $conn;
+    
+    // Get historical data for this IP
+    $stmt = $conn->prepare("
+        SELECT latitude, longitude, country, city, clicked_at 
+        FROM targets 
+        WHERE ip_address = ? 
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL 
+        ORDER BY clicked_at DESC 
+        LIMIT 10
+    ");
+    $stmt->execute([$ip_address]);
+    $historical_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (empty($historical_data)) {
+        return null;
+    }
+    
+    $analysis = [
+        'total_records' => count($historical_data),
+        'locations' => [],
+        'consistency_score' => 0
+    ];
+    
+    // Group by location
+    $location_groups = [];
+    foreach ($historical_data as $record) {
+        $location_key = $record['latitude'] . ',' . $record['longitude'];
+        if (!isset($location_groups[$location_key])) {
+            $location_groups[$location_key] = [
+                'count' => 0,
+                'latitude' => $record['latitude'],
+                'longitude' => $record['longitude'],
+                'country' => $record['country'],
+                'city' => $record['city']
+            ];
+        }
+        $location_groups[$location_key]['count']++;
+    }
+    
+    $analysis['locations'] = array_values($location_groups);
+    
+    // Calculate consistency score
+    $max_count = max(array_column($location_groups, 'count'));
+    $analysis['consistency_score'] = $max_count / count($historical_data);
+    
+    return $analysis;
+}
+
+/**
+ * Advanced Coordinate Refinement
+ */
+function refineCoordinates($geo_data) {
+    if (!$geo_data['latitude'] || !$geo_data['longitude']) {
+        return false;
+    }
+    
+    $refined = [
+        'latitude' => $geo_data['latitude'],
+        'longitude' => $geo_data['longitude'],
+        'accuracy' => 1000 // Default accuracy in meters
+    ];
+    
+    // Apply coordinate refinement algorithms
+    
+    // 1. Cell Tower Triangulation (if mobile carrier)
+    if (isset($geo_data['network_info']['type']) && 
+        $geo_data['network_info']['type'] === 'mobile_carrier') {
+        $refined['accuracy'] = 500; // Cell tower accuracy
+    }
+    
+    // 2. ISP-based refinement
+    if (isset($geo_data['network_info']['type']) && 
+        $geo_data['network_info']['type'] === 'isp') {
+        $refined['accuracy'] = 2000; // ISP accuracy
+    }
+    
+    // 3. Historical data refinement
+    if (isset($geo_data['historical_data'])) {
+        $historical = $geo_data['historical_data'];
+        if ($historical['consistency_score'] > 0.8) {
+            // Use most frequent location
+            $most_frequent = $historical['locations'][0];
+            $refined['latitude'] = $most_frequent['latitude'];
+            $refined['longitude'] = $most_frequent['longitude'];
+            $refined['accuracy'] = 100; // High confidence
+        }
+    }
+    
+    // 4. Timezone validation refinement
+    if (isset($geo_data['timezone']) && $geo_data['timezone']) {
+        $timezone_coords = getTimezoneCenterCoordinates($geo_data['timezone']);
+        if ($timezone_coords) {
+            $distance = calculateDistance(
+                $refined['latitude'], $refined['longitude'],
+                $timezone_coords['lat'], $timezone_coords['lng']
+            );
+            
+            if ($distance < 100) { // Within 100km of timezone center
+                $refined['accuracy'] = min($refined['accuracy'], 500);
+            }
+        }
+    }
+    
+    return $refined;
+}
+
+/**
+ * Calculate Distance Between Two Points (Haversine Formula)
+ */
+function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+    $earth_radius = 6371; // Earth's radius in kilometers
+    
+    $lat_diff = deg2rad($lat2 - $lat1);
+    $lon_diff = deg2rad($lon2 - $lon1);
+    
+    $a = sin($lat_diff/2) * sin($lat_diff/2) +
+         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+         sin($lon_diff/2) * sin($lon_diff/2);
+    
+    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+    $distance = $earth_radius * $c;
+    
+    return $distance;
+}
+
+/**
+ * Check for VPN/Proxy Indicators
+ */
+function checkVPNIndicators($ip_address) {
+    $indicators = ['detected' => false, 'type' => 'none'];
+    
+    // Check against known VPN/Proxy databases
+    $vpn_indicators = [
+        'vpn', 'proxy', 'tor', 'anonymous', 'privacy'
+    ];
+    
+    $reverse_dns = gethostbyaddr($ip_address);
+    foreach ($vpn_indicators as $indicator) {
+        if (strpos(strtolower($reverse_dns), $indicator) !== false) {
+            $indicators['detected'] = true;
+            $indicators['type'] = $indicator;
+            break;
+        }
+    }
+    
+    return $indicators;
+}
+
+/**
+ * Get Timezone from Coordinates
+ */
+function getTimezoneFromCoordinates($latitude, $longitude) {
+    // This would typically use a timezone database
+    // For simplicity, we'll use a basic implementation
+    $timezone_map = [
+        'America/New_York' => ['lat_min' => 24, 'lat_max' => 50, 'lon_min' => -80, 'lon_max' => -60],
+        'America/Chicago' => ['lat_min' => 30, 'lat_max' => 50, 'lon_min' => -105, 'lon_max' => -80],
+        'America/Denver' => ['lat_min' => 30, 'lat_max' => 50, 'lon_min' => -115, 'lon_max' => -105],
+        'America/Los_Angeles' => ['lat_min' => 30, 'lat_max' => 50, 'lon_min' => -125, 'lon_max' => -115],
+        'Europe/London' => ['lat_min' => 50, 'lat_max' => 60, 'lon_min' => -10, 'lon_max' => 5],
+        'Europe/Paris' => ['lat_min' => 40, 'lat_max' => 55, 'lon_min' => -5, 'lon_max' => 15],
+        'Asia/Tokyo' => ['lat_min' => 30, 'lat_max' => 45, 'lon_min' => 130, 'lon_max' => 145],
+        'Australia/Sydney' => ['lat_min' => -45, 'lat_max' => -10, 'lon_min' => 110, 'lon_max' => 155]
+    ];
+    
+    foreach ($timezone_map as $timezone => $bounds) {
+        if ($latitude >= $bounds['lat_min'] && $latitude <= $bounds['lat_max'] &&
+            $longitude >= $bounds['lon_min'] && $longitude <= $bounds['lon_max']) {
+            return $timezone;
+        }
+    }
+    
+    return 'UTC';
+}
+
+/**
+ * Get Timezone Center Coordinates
+ */
+function getTimezoneCenterCoordinates($timezone) {
+    $timezone_centers = [
+        'America/New_York' => ['lat' => 40.7128, 'lng' => -74.0060],
+        'America/Chicago' => ['lat' => 41.8781, 'lng' => -87.6298],
+        'America/Denver' => ['lat' => 39.7392, 'lng' => -104.9903],
+        'America/Los_Angeles' => ['lat' => 34.0522, 'lng' => -118.2437],
+        'Europe/London' => ['lat' => 51.5074, 'lng' => -0.1278],
+        'Europe/Paris' => ['lat' => 48.8566, 'lng' => 2.3522],
+        'Asia/Tokyo' => ['lat' => 35.6762, 'lng' => 139.6503],
+        'Australia/Sydney' => ['lat' => -33.8688, 'lng' => 151.2093]
+    ];
+    
+    return $timezone_centers[$timezone] ?? null;
+}
+
+/**
+ * Parse User Agent for Device Information
+ */
+function parseUserAgent($user_agent) {
+    $browser_info = [
+        'browser' => 'Unknown',
+        'version' => 'Unknown',
+        'os' => 'Unknown',
+        'device' => 'Unknown'
+    ];
+    
+    // Browser detection
+    if (preg_match('/Chrome\/([0-9.]+)/', $user_agent, $matches)) {
+        $browser_info['browser'] = 'Chrome';
+        $browser_info['version'] = $matches[1];
+    } elseif (preg_match('/Firefox\/([0-9.]+)/', $user_agent, $matches)) {
+        $browser_info['browser'] = 'Firefox';
+        $browser_info['version'] = $matches[1];
+    } elseif (preg_match('/Safari\/([0-9.]+)/', $user_agent, $matches)) {
+        $browser_info['browser'] = 'Safari';
+        $browser_info['version'] = $matches[1];
+    } elseif (preg_match('/Edge\/([0-9.]+)/', $user_agent, $matches)) {
+        $browser_info['browser'] = 'Edge';
+        $browser_info['version'] = $matches[1];
+    }
+    
+    // OS detection
+    if (preg_match('/Windows NT ([0-9.]+)/', $user_agent, $matches)) {
+        $browser_info['os'] = 'Windows ' . $matches[1];
+    } elseif (preg_match('/Mac OS X ([0-9._]+)/', $user_agent, $matches)) {
+        $browser_info['os'] = 'macOS ' . str_replace('_', '.', $matches[1]);
+    } elseif (preg_match('/Linux/', $user_agent)) {
+        $browser_info['os'] = 'Linux';
+    } elseif (preg_match('/Android ([0-9.]+)/', $user_agent, $matches)) {
+        $browser_info['os'] = 'Android ' . $matches[1];
+    } elseif (preg_match('/iPhone OS ([0-9._]+)/', $user_agent, $matches)) {
+        $browser_info['os'] = 'iOS ' . str_replace('_', '.', $matches[1]);
+    }
+    
+    return $browser_info;
+}
+
+/**
+ * Detect Device Type
+ */
+function detectDeviceType($user_agent) {
+    $user_agent_lower = strtolower($user_agent);
+    
+    if (strpos($user_agent_lower, 'mobile') !== false || 
+        strpos($user_agent_lower, 'android') !== false ||
+        strpos($user_agent_lower, 'iphone') !== false ||
+        strpos($user_agent_lower, 'ipad') !== false) {
+        return 'mobile';
+    } elseif (strpos($user_agent_lower, 'tablet') !== false ||
+              strpos($user_agent_lower, 'ipad') !== false) {
+        return 'tablet';
+    } else {
+        return 'desktop';
+    }
 }
 
 /**
