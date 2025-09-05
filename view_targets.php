@@ -823,6 +823,129 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Resizable Table Columns */
+        .resizable-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        
+        .resizable-table th,
+        .resizable-table td {
+            position: relative;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 8px 12px;
+        }
+        
+        .resizable-table th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            user-select: none;
+        }
+        
+        .resizable-table th:hover {
+            background-color: #e9ecef;
+        }
+        
+        .resizable-table th .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background-color: transparent;
+            cursor: col-resize;
+            transition: background-color 0.2s ease;
+        }
+        
+        .resizable-table th .resize-handle:hover {
+            background-color: #007bff;
+        }
+        
+        .resizable-table th .resize-handle.active {
+            background-color: #0056b3;
+        }
+        
+        .resizable-table th .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .resizable-table th .column-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .resizable-table th .resize-icon {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .resizable-table th:hover .resize-icon {
+            opacity: 1;
+        }
+        
+        .resizable-table td {
+            cursor: help;
+        }
+        
+        .resizable-table td:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Tooltip styles */
+        .table-tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            max-width: 300px;
+            word-wrap: break-word;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .table-tooltip.show {
+            opacity: 1;
+        }
+        
+        .table-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        /* Column width indicators */
+        .column-width-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 2px;
+            height: 100%;
+            background-color: #007bff;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .resizable-table th:hover .column-width-indicator {
+            opacity: 0.3;
+        }
     </style>
 </head>
 <body>
@@ -1068,16 +1191,58 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped resizable-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>IP Address</th>
-                                        <th>Location</th>
-                                        <th>Device</th>
-                                        <th>ISP</th>
-                                        <th>Clicked</th>
-                                        <th>Actions</th>
+                                        <th style="width: 60px;">
+                                            <div class="column-header">
+                                                <span class="column-title">ID</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <div class="column-header">
+                                                <span class="column-title">IP Address</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 200px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Location</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 100px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Device</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 150px;">
+                                            <div class="column-header">
+                                                <span class="column-title">ISP</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 150px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Clicked</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 100px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Actions</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1161,7 +1326,7 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
     
          <?php if (!empty($map_data)): ?>
      <!-- Google Maps API -->
-     <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo GOOGLE_MAPS_API_KEY; ?>&callback=initMap" async defer onerror="handleMapError()"></script>
+     <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo GOOGLE_MAPS_API_KEY; ?>&callback=initMap&libraries=geometry" async defer onerror="handleMapError()"></script>
      <?php else: ?>
      <!-- No map data available -->
      <script>
@@ -1180,10 +1345,13 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
         
         function initMap() {
             try {
+                console.log('initMap function called');
                 const mapData = <?php echo json_encode($map_data); ?>;
+                console.log('Map data received:', mapData);
                 
                 if (mapData.length === 0) {
                     console.log('No map data available');
+                    document.getElementById('map').innerHTML = '<div class="alert alert-info">No location data available for this link.</div>';
                     return;
                 }
                 
@@ -1303,9 +1471,191 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
         
         function handleMapError() {
             console.error('Google Maps API failed to load');
-            document.getElementById('map').innerHTML = '<div class="alert alert-danger">Failed to load Google Maps. Please check your API key configuration.</div>';
+            const mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                mapContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Google Maps Failed to Load</strong><br>
+                        <small>This could be due to:</small>
+                        <ul class="mb-0 mt-2">
+                            <li>Invalid or expired API key</li>
+                            <li>API key restrictions (HTTP referrer, IP address)</li>
+                            <li>Missing billing account</li>
+                            <li>Required APIs not enabled</li>
+                        </ul>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                                <i class="fas fa-sync"></i> Retry
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
+        
+        // Add timeout to detect if Google Maps doesn't load
+        setTimeout(function() {
+            if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+                console.error('Google Maps API timeout - not loaded after 10 seconds');
+                const mapContainer = document.getElementById('map');
+                if (mapContainer && mapContainer.innerHTML.trim() === '') {
+                    mapContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock"></i> 
+                            <strong>Google Maps Loading Slowly</strong><br>
+                            <small>The map is taking longer than expected to load. This might be due to:</small>
+                            <ul class="mb-0 mt-2">
+                                <li>Slow internet connection</li>
+                                <li>API rate limiting</li>
+                                <li>Server issues</li>
+                            </ul>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                                    <i class="fas fa-sync"></i> Retry
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }, 10000);
         <?php endif; ?>
+        
+        // Resizable Table Columns Functionality
+        function initResizableTables() {
+            const tables = document.querySelectorAll('.resizable-table');
+            
+            tables.forEach(table => {
+                const headers = table.querySelectorAll('th');
+                let isResizing = false;
+                let currentHeader = null;
+                let startX = 0;
+                let startWidth = 0;
+                
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'table-tooltip';
+                document.body.appendChild(tooltip);
+                
+                headers.forEach((header, index) => {
+                    const resizeHandle = header.querySelector('.resize-handle');
+                    
+                    // Mouse down on resize handle
+                    resizeHandle.addEventListener('mousedown', (e) => {
+                        isResizing = true;
+                        currentHeader = header;
+                        startX = e.clientX;
+                        startWidth = header.offsetWidth;
+                        
+                        header.classList.add('active');
+                        document.body.style.cursor = 'col-resize';
+                        document.body.style.userSelect = 'none';
+                        
+                        e.preventDefault();
+                    });
+                    
+                    // Mouse move during resize
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing || !currentHeader) return;
+                        
+                        const newWidth = startWidth + (e.clientX - startX);
+                        const minWidth = 50; // Minimum column width
+                        const maxWidth = 400; // Maximum column width
+                        
+                        if (newWidth >= minWidth && newWidth <= maxWidth) {
+                            currentHeader.style.width = newWidth + 'px';
+                        }
+                    });
+                    
+                    // Mouse up to end resize
+                    document.addEventListener('mouseup', () => {
+                        if (isResizing && currentHeader) {
+                            isResizing = false;
+                            currentHeader.classList.remove('active');
+                            currentHeader = null;
+                            
+                            document.body.style.cursor = '';
+                            document.body.style.userSelect = '';
+                            
+                            // Save column widths to localStorage
+                            saveColumnWidths(table);
+                        }
+                    });
+                    
+                    // Add tooltip functionality to table cells
+                    const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                    cells.forEach(cell => {
+                        cell.addEventListener('mouseenter', (e) => {
+                            const cellText = cell.textContent.trim();
+                            const cellWidth = cell.offsetWidth;
+                            const textWidth = getTextWidth(cellText, '12px Inter, sans-serif');
+                            
+                            // Only show tooltip if text is truncated
+                            if (textWidth > cellWidth) {
+                                tooltip.textContent = cellText;
+                                tooltip.classList.add('show');
+                                
+                                // Position tooltip
+                                const rect = cell.getBoundingClientRect();
+                                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                                tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                            }
+                        });
+                        
+                        cell.addEventListener('mouseleave', () => {
+                            tooltip.classList.remove('show');
+                        });
+                    });
+                });
+                
+                // Load saved column widths
+                loadColumnWidths(table);
+            });
+        }
+        
+        // Helper function to get text width
+        function getTextWidth(text, font) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = font;
+            return context.measureText(text).width;
+        }
+        
+        // Save column widths to localStorage
+        function saveColumnWidths(table) {
+            const tableId = table.id || 'default-table';
+            const widths = [];
+            const headers = table.querySelectorAll('th');
+            
+            headers.forEach(header => {
+                widths.push(header.style.width || header.offsetWidth + 'px');
+            });
+            
+            localStorage.setItem(`table-widths-${tableId}`, JSON.stringify(widths));
+        }
+        
+        // Load column widths from localStorage
+        function loadColumnWidths(table) {
+            const tableId = table.id || 'default-table';
+            const savedWidths = localStorage.getItem(`table-widths-${tableId}`);
+            
+            if (savedWidths) {
+                const widths = JSON.parse(savedWidths);
+                const headers = table.querySelectorAll('th');
+                
+                headers.forEach((header, index) => {
+                    if (widths[index]) {
+                        header.style.width = widths[index];
+                    }
+                });
+            }
+        }
+        
+        // Initialize resizable tables when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initResizableTables();
+        });
         
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
