@@ -332,7 +332,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <td><?php echo $link['id']; ?></td>
                                         <td>
                                             <code><?php echo $link['short_code']; ?></code>
-                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')">
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')" title="Copy URL">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </td>
@@ -425,6 +425,116 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
     
+    <!-- Copy to Clipboard Function -->
+    <script>
+        function copyToClipboard(text) {
+            // Try modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showCopySuccess();
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopyToClipboard(text);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                } else {
+                    showCopyError();
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showCopyError();
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showCopySuccess() {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification toast-success';
+            toast.innerHTML = '<i class="fas fa-check-circle"></i> URL copied to clipboard!';
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+        
+        function showCopyError() {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification toast-error';
+            toast.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to copy to clipboard';
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+    </script>
+    
+    <!-- Toast Notification Styles -->
+    <style>
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        
+        .toast-success {
+            background-color: #28a745;
+        }
+        
+        .toast-error {
+            background-color: #dc3545;
+        }
+        
+        .toast-notification i {
+            margin-right: 8px;
+        }
+    </style>
+    
     <!-- Mobile Navigation Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -444,14 +554,16 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 sidebarOverlay.classList.remove('show');
             });
             
-            // Close sidebar when clicking on nav links (mobile)
+            // Close sidebar when clicking on nav links (mobile only)
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
             navLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(e) {
+                    // Only close sidebar on mobile, don't prevent default navigation
                     if (window.innerWidth < 768) {
                         sidebar.classList.remove('show');
                         sidebarOverlay.classList.remove('show');
                     }
+                    // Don't prevent default - let normal navigation work
                 });
             });
             

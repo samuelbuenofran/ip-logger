@@ -6,10 +6,10 @@ Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-# Handle short URLs (e.g., /abc123 or /abc123.html)
+# Handle short URLs (e.g., /abc123 or /abc123.html or /abc123.pdf, etc.)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([a-zA-Z0-9]+)(\.html)?$ redirect.php?short_code=$1 [L,QSA]
+RewriteRule ^([a-zA-Z0-9]+)(\.[a-zA-Z0-9]+)?$ redirect.php?short_code=$1 [L,QSA]
 
 # Handle tracking URLs (e.g., /track123)
 RewriteCond %{REQUEST_FILENAME} !-f

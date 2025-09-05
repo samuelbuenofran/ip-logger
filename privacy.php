@@ -324,14 +324,16 @@ $conn = $db->getConnection();
                 sidebarOverlay.classList.remove('show');
             });
             
-            // Close sidebar when clicking on nav links (mobile)
+            // Close sidebar when clicking on nav links (mobile only)
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
             navLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(e) {
+                    // Only close sidebar on mobile, don't prevent default navigation
                     if (window.innerWidth < 768) {
                         sidebar.classList.remove('show');
                         sidebarOverlay.classList.remove('show');
                     }
+                    // Don't prevent default - let normal navigation work
                 });
             });
             

@@ -6,7 +6,7 @@ define('DB_USER', 'techeletric_ip_logger');
 define('DB_PASS', 'guLepdtQVrbnkYV6CEuf');
 
 // Application Configuration
-define('BASE_URL', 'http://keizai-tech.com/projects/ip-logger/');
+define('BASE_URL', 'https://keizai-tech.com/projects/ip-logger/');
 define('SITE_NAME', 'IP Logger');
 define('SITE_DESCRIPTION', 'URL Shortener & IP Tracker');
 

@@ -79,8 +79,87 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
     
     <style>
+        /* Mobile Navigation Styles */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+            
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
+                display: none;
+            }
+            
+            .sidebar-overlay.show {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+            }
+            
+            .mobile-header {
+                display: block;
+                background: #343a40;
+                padding: 1rem;
+                position: sticky;
+                top: 0;
+                z-index: 1030;
+            }
+            
+            .mobile-header .navbar-brand {
+                color: white;
+                font-weight: 600;
+            }
+            
+            .mobile-header .btn {
+                color: white;
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .mobile-header .btn:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-header {
+                display: none;
+            }
+            
+            .sidebar-overlay {
+                display: none !important;
+            }
+        }
+        
+        /* Desktop sidebar adjustments */
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
         .recovery-section {
             background: white;
             border-radius: 12px;
@@ -135,15 +214,80 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
     
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1><i class="fas fa-key"></i> Password Recovery</h1>
-                    <a href="index.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
+                        <p class="text-muted">URL Shortener & Tracker</p>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="links.php">
+                                <i class="fas fa-link"></i> My Links
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="create_link.php">
+                                <i class="fas fa-plus"></i> Create Link
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="view_targets.php">
+                                <i class="fas fa-map-marker-alt"></i> Geolocation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin.php">
+                                <i class="fas fa-cog"></i> Admin Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="privacy.php">
+                                <i class="fas fa-user-shield"></i> Privacy Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="terms.php">
+                                <i class="fas fa-file-contract"></i> Terms of Use
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="cookies.php">
+                                <i class="fas fa-cookie-bite"></i> Cookie Policy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="password_recovery.php">
+                                <i class="fas fa-key"></i> Password Recovery
+                            </a>
+                        </li>
+                    </ul>
                 </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-key"></i> Password Recovery</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="index.php" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
                 
                 <!-- Alert Messages -->
                 <?php if ($message): ?>
@@ -235,7 +379,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
                         </div>
                     </div>
                 </div>
-            </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -261,14 +407,16 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
                 sidebarOverlay.classList.remove('show');
             });
             
-            // Close sidebar when clicking on nav links (mobile)
+            // Close sidebar when clicking on nav links (mobile only)
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
             navLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(e) {
+                    // Only close sidebar on mobile, don't prevent default navigation
                     if (window.innerWidth < 768) {
                         sidebar.classList.remove('show');
                         sidebarOverlay.classList.remove('show');
                     }
+                    // Don't prevent default - let normal navigation work
                 });
             });
             

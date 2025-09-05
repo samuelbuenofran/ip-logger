@@ -74,7 +74,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         'custom_domain' => $custom_domain,
         'extension' => $extension,
         'original_url' => $original_url,
-        'final_url' => ($use_custom_domain ? $custom_domain : BASE_URL) . '/' . $shortcode . $extension,
+        'final_url' => ($use_custom_domain ? $custom_domain . '/' : BASE_URL) . $shortcode . $extension,
         'tracking_url' => 'https://keizai-tech.com/projects/ip-logger/' . $tracking_code
     ];
     
@@ -267,6 +267,37 @@ $default_tracking_code = generateRandomString(12);
             font-family: monospace;
             font-size: 0.9rem;
             color: #666;
+        }
+        
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        
+        .toast-success {
+            background-color: #28a745;
+        }
+        
+        .toast-error {
+            background-color: #dc3545;
+        }
+        
+        .toast-notification i {
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -480,8 +511,44 @@ $default_tracking_code = generateRandomString(12);
                             <!-- Extension -->
                             <div class="mb-3">
                                 <label for="extension" class="form-label">Extension</label>
-                                <input type="text" class="form-control" id="extension" name="extension" 
-                                       value=".html" placeholder=".html">
+                                <select class="form-select" id="extension" name="extension">
+                                    <option value="">(no extension)</option>
+                                    <option value=".gif">.gif</option>
+                                    <option value=".jpg">.jpg</option>
+                                    <option value=".jpeg">.jpeg</option>
+                                    <option value=".png">.png</option>
+                                    <option value=".lnk">.lnk</option>
+                                    <option value=".link">.link</option>
+                                    <option value=".txt">.txt</option>
+                                    <option value=".html" selected>.html</option>
+                                    <option value=".js">.js</option>
+                                    <option value=".exe">.exe</option>
+                                    <option value=".ext">.ext</option>
+                                    <option value=".pdf">.pdf</option>
+                                    <option value=".psd">.psd</option>
+                                    <option value=".csv">.csv</option>
+                                    <option value=".mp3">.mp3</option>
+                                    <option value=".mp4">.mp4</option>
+                                    <option value=".wma">.wma</option>
+                                    <option value=".avi">.avi</option>
+                                    <option value=".apk">.apk</option>
+                                    <option value=".jar">.jar</option>
+                                    <option value=".ico">.ico</option>
+                                    <option value=".json">.json</option>
+                                    <option value=".iso">.iso</option>
+                                    <option value=".zip">.zip</option>
+                                    <option value=".rar">.rar</option>
+                                    <option value=".tgz">.tgz</option>
+                                    <option value=".tar">.tar</option>
+                                    <option value=".gz">.gz</option>
+                                    <option value=".torrent">.torrent</option>
+                                    <option value=".doc">.doc</option>
+                                    <option value=".docx">.docx</option>
+                                    <option value=".xls">.xls</option>
+                                    <option value=".xlsx">.xlsx</option>
+                                    <option value=".ppt">.ppt</option>
+                                    <option value=".pptx">.pptx</option>
+                                </select>
                                 <div class="form-text">Optional file extension to add to your link.</div>
                             </div>
                         </div>
@@ -540,7 +607,7 @@ $default_tracking_code = generateRandomString(12);
                             </div>
                             
                             <div class="final-link" id="final_link">
-                                keizai-tech.com/<?php echo $default_shortcode; ?>.html
+                                <?php echo BASE_URL; ?><?php echo $default_shortcode; ?>.html
                             </div>
                             
                             <div class="text-center mt-3">
@@ -595,18 +662,78 @@ $default_tracking_code = generateRandomString(12);
         // Copy final link to clipboard
         function copyFinalLink() {
             const finalLink = document.getElementById('final_link').textContent;
-            navigator.clipboard.writeText(finalLink).then(function() {
-                // Show success message
-                const btn = event.target.closest('button');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                btn.style.background = '#28a745';
-                
-                setTimeout(function() {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '#007bff';
-                }, 2000);
-            });
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(finalLink).then(function() {
+                    showCopySuccess();
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyToClipboard(finalLink);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopyToClipboard(finalLink);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                } else {
+                    showCopyError();
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showCopyError();
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showCopySuccess() {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification toast-success';
+            toast.innerHTML = '<i class="fas fa-check-circle"></i> URL copied to clipboard!';
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+        
+        function showCopyError() {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification toast-error';
+            toast.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to copy to clipboard';
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
         }
         
         // Event listeners
@@ -614,7 +741,7 @@ $default_tracking_code = generateRandomString(12);
             // Update links when inputs change
             document.getElementById('custom_domain').addEventListener('input', updateFinalLink);
             document.getElementById('shortcode').addEventListener('input', updateFinalLink);
-            document.getElementById('extension').addEventListener('input', updateFinalLink);
+            document.getElementById('extension').addEventListener('change', updateFinalLink);
             document.getElementById('use_custom_domain').addEventListener('change', updateFinalLink);
             document.getElementById('tracking_code').addEventListener('input', updateTrackingUrl);
             
@@ -661,14 +788,16 @@ $default_tracking_code = generateRandomString(12);
                 sidebarOverlay.classList.remove('show');
             });
             
-            // Close sidebar when clicking on nav links (mobile)
+            // Close sidebar when clicking on nav links (mobile only)
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
             navLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(e) {
+                    // Only close sidebar on mobile, don't prevent default navigation
                     if (window.innerWidth < 768) {
                         sidebar.classList.remove('show');
                         sidebarOverlay.classList.remove('show');
                     }
+                    // Don't prevent default - let normal navigation work
                 });
             });
             

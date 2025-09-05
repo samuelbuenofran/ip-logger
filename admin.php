@@ -8,6 +8,78 @@ require_once 'includes/functions.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+// Simple admin authentication
+$admin_password = 'admin123'; // Change this to a secure password
+$is_authenticated = isset($_SESSION['admin_authenticated']) && $_SESSION['admin_authenticated'];
+
+// Handle admin login
+if (isset($_POST['admin_login'])) {
+    $password = $_POST['admin_password'];
+    if ($password === $admin_password) {
+        $_SESSION['admin_authenticated'] = true;
+        $is_authenticated = true;
+    } else {
+        $login_error = 'Invalid admin password';
+    }
+}
+
+// Handle admin logout
+if (isset($_GET['logout'])) {
+    unset($_SESSION['admin_authenticated']);
+    $is_authenticated = false;
+}
+
+// Show login form if not authenticated
+if (!$is_authenticated) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Login - IP Logger</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+    <body class="bg-light">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h4><i class="fas fa-shield-alt"></i> Admin Login</h4>
+                        </div>
+                        <div class="card-body">
+                            <?php if (isset($login_error)): ?>
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> <?php echo $login_error; ?>
+                                </div>
+                            <?php endif; ?>
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="admin_password" class="form-label">Admin Password</label>
+                                    <input type="password" class="form-control" id="admin_password" name="admin_password" required>
+                                </div>
+                                <button type="submit" name="admin_login" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                            </form>
+                            <div class="text-center mt-3">
+                                <a href="index.php" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 // Handle admin actions
 if (isset($_POST['action'])) {
     switch ($_POST['action']) {
@@ -383,8 +455,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-cog"></i> Admin Panel</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="create_link.php" class="btn btn-primary">
+                            <a href="create_link.php" class="btn btn-primary me-2">
                                 <i class="fas fa-plus"></i> Create New Link
+                            </a>
+                            <a href="?logout=1" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to logout?')">
+                                <i class="fas fa-sign-out-alt"></i> Logout
                             </a>
                         </div>
                     </div>
@@ -671,15 +746,18 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
         }
         
         function toggleExpiry(linkId, currentExpiry) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.innerHTML = `
-                <input type="hidden" name="action" value="toggle_expiry">
-                <input type="hidden" name="link_id" value="${linkId}">
-                <input type="hidden" name="current_expiry" value="${currentExpiry}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
+            const action = currentExpiry ? 'remove expiry' : 'set expiry';
+            if (confirm(`Are you sure you want to ${action} for this link?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.innerHTML = `
+                    <input type="hidden" name="action" value="toggle_expiry">
+                    <input type="hidden" name="link_id" value="${linkId}">
+                    <input type="hidden" name="current_expiry" value="${currentExpiry}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
         
         function regenerateTracking(linkId) {
@@ -748,14 +826,16 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 sidebarOverlay.classList.remove('show');
             });
             
-            // Close sidebar when clicking on nav links (mobile)
+            // Close sidebar when clicking on nav links (mobile only)
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
             navLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(e) {
+                    // Only close sidebar on mobile, don't prevent default navigation
                     if (window.innerWidth < 768) {
                         sidebar.classList.remove('show');
                         sidebarOverlay.classList.remove('show');
                     }
+                    // Don't prevent default - let normal navigation work
                 });
             });
             
