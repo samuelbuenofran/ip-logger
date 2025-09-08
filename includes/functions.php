@@ -197,7 +197,32 @@ function sanitizeInput($input) {
  * Validate URL
  */
 function isValidUrl($url) {
-    return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    // Remove espaços em branco
+    $url = trim($url);
+    
+    // Se já tem protocolo, valida normalmente
+    if (preg_match('/^https?:\/\//', $url)) {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
+    
+    // Se não tem protocolo, adiciona https:// e valida
+    $urlWithProtocol = 'https://' . $url;
+    return filter_var($urlWithProtocol, FILTER_VALIDATE_URL) !== false;
+}
+
+/**
+ * Normalize URL by adding protocol if missing
+ */
+function normalizeUrl($url) {
+    $url = trim($url);
+    
+    // Se já tem protocolo, retorna como está
+    if (preg_match('/^https?:\/\//', $url)) {
+        return $url;
+    }
+    
+    // Se não tem protocolo, adiciona https://
+    return 'https://' . $url;
 }
 
 /**
