@@ -36,7 +36,7 @@ $geolocation_data = getGeolocationData($ip_address);
 
 // Log the visit
 $stmt = $conn->prepare("
-    INSERT INTO targets (link_id, ip_address, user_agent, referer, country, region, city, latitude, longitude, timezone, isp, created_at) 
+    INSERT INTO targets (link_id, ip_address, user_agent, referer, country, region, city, latitude, longitude, timezone, isp, clicked_at) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
