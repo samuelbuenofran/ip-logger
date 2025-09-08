@@ -413,12 +413,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                             
                             <div class="mb-3">
                                 <label for="original_url" class="form-label">
-                                    <i class="fas fa-globe"></i> URL da Imagem
+                                    <i class="fas fa-globe"></i> URL de Destino
                                 </label>
                                 <input type="url" class="form-control" id="original_url" name="original_url" 
-                                       placeholder="https://images.unsplash.com/photo-1562564055-71e051d33c19..." 
+                                       placeholder="https://example.com/documento.pdf ou https://site.com/imagem.jpg..." 
                                        required>
-                                <div class="form-text">Cole aqui a URL da imagem que você quer enviar</div>
+                                <div class="form-text">Cole aqui a URL que você quer enviar (imagem, documento, website, etc.)</div>
                             </div>
                             
                             <div class="mb-3">
@@ -438,9 +438,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                         
                         <div class="example-box">
                             <h6><i class="fas fa-lightbulb"></i> Como Funciona:</h6>
-                            <p>1. Cole a URL de uma imagem (ex: Unsplash, Imgur, etc.)<br>
+                            <p>1. Cole qualquer URL (imagem, documento, website, etc.)<br>
                                2. O sistema criará um link encurtado<br>
-                               3. Quando alguém acessar o link, verá a imagem<br>
+                               3. Quando alguém acessar o link, será redirecionado para o conteúdo<br>
                                4. Você receberá a localização da pessoa nos logs</p>
                         </div>
                     </div>
