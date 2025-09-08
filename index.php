@@ -167,7 +167,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
                         <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                        <p class="text-muted">URL Shortener & Tracker</p>
+                        <p class="text-muted">Encurtador de URL & Rastreador</p>
                     </div>
                     
                     <ul class="nav flex-column">
@@ -178,42 +178,42 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="links.php">
-                                <i class="fas fa-link"></i> My Links
+                                <i class="fas fa-link"></i> Meus Links
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="create_link.php">
-                                <i class="fas fa-plus"></i> Create Link
+                                <i class="fas fa-plus"></i> Criar Link
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Geolocation
+                                <i class="fas fa-map-marker-alt"></i> Geolocalização
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="admin.php">
-                                <i class="fas fa-cog"></i> Admin Panel
+                                <i class="fas fa-cog"></i> Painel Admin
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="privacy.php">
-                                <i class="fas fa-user-shield"></i> Privacy Policy
+                                <i class="fas fa-user-shield"></i> Política de Privacidade
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="terms.php">
-                                <i class="fas fa-file-contract"></i> Terms of Use
+                                <i class="fas fa-file-contract"></i> Termos de Uso
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="cookies.php">
-                                <i class="fas fa-cookie-bite"></i> Cookie Policy
+                                <i class="fas fa-cookie-bite"></i> Política de Cookies
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="password_recovery.php">
-                                <i class="fas fa-key"></i> Password Recovery
+                                <i class="fas fa-key"></i> Recuperar Senha
                             </a>
                         </li>
                     </ul>
@@ -226,7 +226,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <h1 class="h2">Dashboard</h1>
                                          <div class="btn-toolbar mb-2 mb-md-0">
                          <a href="create_link.php" class="btn btn-primary me-2">
-                             <i class="fas fa-plus"></i> Create New Link
+                             <i class="fas fa-plus"></i> Criar Novo Link
                          </a>
                      </div>
                 </div>
@@ -241,7 +241,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="card-title">Total Links</h5>
+                                        <h5 class="card-title">Total de Links</h5>
                                         <h2><?php echo count($links); ?></h2>
                                     </div>
                                     <div class="align-self-center">
@@ -257,7 +257,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="card-title">Active Links</h5>
+                                        <h5 class="card-title">Links Ativos</h5>
                                         <h2><?php echo count(array_filter($links, function($link) { return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); })); ?></h2>
                                     </div>
                                     <div class="align-self-center">
@@ -273,7 +273,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="card-title">Total Clicks</h5>
+                                        <h5 class="card-title">Total de Cliques</h5>
                                         <h2><?php 
                                             $stmt = $conn->query("SELECT COUNT(*) as total FROM targets");
                                             echo $stmt->fetch(PDO::FETCH_ASSOC)['total'];
@@ -292,7 +292,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="card-title">Unique Visitors</h5>
+                                        <h5 class="card-title">Visitantes Únicos</h5>
                                         <h2><?php 
                                             $stmt = $conn->query("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets");
                                             echo $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
@@ -310,20 +310,62 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Recent Links Table -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-link"></i> Recent Links</h5>
+                        <h5 class="mb-0"><i class="fas fa-link"></i> Links Recentes</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped resizable-table" id="dashboard-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Short Code</th>
-                                        <th>Original URL</th>
-                                        <th>Created</th>
-                                        <th>Expires</th>
-                                        <th>Clicks</th>
-                                        <th>Actions</th>
+                                        <th style="width: 60px;">
+                                            <div class="column-header">
+                                                <span class="column-title">ID</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Código</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 250px;">
+                                            <div class="column-header">
+                                                <span class="column-title">URL Original</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Criado</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Expira</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 80px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Cliques</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <div class="column-header">
+                                                <span class="column-title">Ações</span>
+                                                <i class="fas fa-grip-vertical resize-icon"></i>
+                                            </div>
+                                            <div class="resize-handle"></div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -332,7 +374,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <td><?php echo $link['id']; ?></td>
                                         <td>
                                             <code><?php echo $link['short_code']; ?></code>
-                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')" title="Copy URL">
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')" title="Copiar URL">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </td>
@@ -345,13 +387,13 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <td>
                                             <?php 
                                             if ($link['expiry_date'] === NULL) {
-                                                echo '<span class="badge bg-success">Never</span>';
+                                                echo '<span class="badge bg-success">Nunca</span>';
                                             } else {
                                                 $expiry = strtotime($link['expiry_date']);
                                                 if ($expiry > time()) {
                                                     echo '<span class="badge bg-warning">' . date('M j, Y', $expiry) . '</span>';
                                                 } else {
-                                                    echo '<span class="badge bg-danger">Expired</span>';
+                                                    echo '<span class="badge bg-danger">Expirado</span>';
                                                 }
                                             }
                                             ?>
@@ -500,6 +542,160 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 setTimeout(() => document.body.removeChild(toast), 300);
             }, 3000);
         }
+        
+        // Resizable Table Columns Functionality
+        function initResizableTables() {
+            console.log('initResizableTables called');
+            const tables = document.querySelectorAll('.resizable-table');
+            console.log('Found tables:', tables.length);
+            
+            tables.forEach((table, tableIndex) => {
+                console.log(`Processing table ${tableIndex}:`, table);
+                const headers = table.querySelectorAll('th');
+                console.log(`Found ${headers.length} headers in table ${tableIndex}`);
+                let isResizing = false;
+                let currentHeader = null;
+                let startX = 0;
+                let startWidth = 0;
+                
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'table-tooltip';
+                document.body.appendChild(tooltip);
+                
+                headers.forEach((header, index) => {
+                    const resizeHandle = header.querySelector('.resize-handle');
+                    console.log(`Header ${index}:`, header, 'Resize handle:', resizeHandle);
+                    
+                    if (resizeHandle) {
+                        // Mouse down on resize handle
+                        resizeHandle.addEventListener('mousedown', (e) => {
+                            console.log('Resize started');
+                            isResizing = true;
+                            currentHeader = header;
+                            startX = e.clientX;
+                            startWidth = header.offsetWidth;
+                            
+                            header.classList.add('active');
+                            document.body.style.cursor = 'col-resize';
+                            document.body.style.userSelect = 'none';
+                            
+                            e.preventDefault();
+                        });
+                    }
+                    
+                    // Mouse move during resize
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing || !currentHeader) return;
+                        
+                        const newWidth = startWidth + (e.clientX - startX);
+                        const minWidth = 50; // Minimum column width
+                        const maxWidth = 400; // Maximum column width
+                        
+                        if (newWidth >= minWidth && newWidth <= maxWidth) {
+                            currentHeader.style.width = newWidth + 'px';
+                        }
+                    });
+                    
+                    // Mouse up to end resize
+                    document.addEventListener('mouseup', () => {
+                        if (isResizing && currentHeader) {
+                            console.log('Resize ended');
+                            isResizing = false;
+                            currentHeader.classList.remove('active');
+                            currentHeader = null;
+                            
+                            document.body.style.cursor = '';
+                            document.body.style.userSelect = '';
+                            
+                            // Save column widths to localStorage
+                            saveColumnWidths(table);
+                        }
+                    });
+                    
+                    // Add tooltip functionality to table cells
+                    const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                    cells.forEach(cell => {
+                        cell.addEventListener('mouseenter', (e) => {
+                            const cellText = cell.textContent.trim();
+                            const cellWidth = cell.offsetWidth;
+                            const textWidth = getTextWidth(cellText, '12px Inter, sans-serif');
+                            
+                            console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
+                            
+                            // Only show tooltip if text is truncated
+                            if (textWidth > cellWidth) {
+                                tooltip.textContent = cellText;
+                                tooltip.classList.add('show');
+                                
+                                // Position tooltip
+                                const rect = cell.getBoundingClientRect();
+                                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                                tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                                
+                                console.log('Tooltip shown');
+                            }
+                        });
+                        
+                        cell.addEventListener('mouseleave', () => {
+                            tooltip.classList.remove('show');
+                        });
+                    });
+                });
+                
+                // Load saved column widths
+                loadColumnWidths(table);
+            });
+        }
+        
+        // Helper function to get text width
+        function getTextWidth(text, font) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = font;
+            return context.measureText(text).width;
+        }
+        
+        // Save column widths to localStorage
+        function saveColumnWidths(table) {
+            const tableId = table.id || 'default-table';
+            const widths = [];
+            const headers = table.querySelectorAll('th');
+            
+            headers.forEach(header => {
+                widths.push(header.style.width || header.offsetWidth + 'px');
+            });
+            
+            localStorage.setItem(`table-widths-${tableId}`, JSON.stringify(widths));
+        }
+        
+        // Load column widths from localStorage
+        function loadColumnWidths(table) {
+            const tableId = table.id || 'default-table';
+            const savedWidths = localStorage.getItem(`table-widths-${tableId}`);
+            
+            if (savedWidths) {
+                const widths = JSON.parse(savedWidths);
+                const headers = table.querySelectorAll('th');
+                
+                headers.forEach((header, index) => {
+                    if (widths[index]) {
+                        header.style.width = widths[index];
+                    }
+                });
+            }
+        }
+        
+        // Initialize resizable tables when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing resizable tables...');
+            try {
+                initResizableTables();
+                console.log('Resizable tables initialized successfully');
+            } catch (error) {
+                console.error('Error initializing resizable tables:', error);
+            }
+        });
     </script>
     
     <!-- Toast Notification Styles -->
@@ -532,6 +728,113 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         .toast-notification i {
             margin-right: 8px;
+        }
+        
+        /* Resizable Table Columns */
+        .resizable-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        
+        .resizable-table th,
+        .resizable-table td {
+            position: relative;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 8px 12px;
+        }
+        
+        .resizable-table th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            user-select: none;
+        }
+        
+        .resizable-table th:hover {
+            background-color: #e9ecef;
+        }
+        
+        .resizable-table th .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background-color: transparent;
+            cursor: col-resize;
+            transition: background-color 0.2s ease;
+        }
+        
+        .resizable-table th .resize-handle:hover {
+            background-color: #007bff;
+        }
+        
+        .resizable-table th .resize-handle.active {
+            background-color: #0056b3;
+        }
+        
+        .resizable-table th .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .resizable-table th .column-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .resizable-table th .resize-icon {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .resizable-table th:hover .resize-icon {
+            opacity: 1;
+        }
+        
+        .resizable-table td {
+            cursor: help;
+        }
+        
+        .resizable-table td:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Tooltip styles */
+        .table-tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            max-width: 300px;
+            word-wrap: break-word;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .table-tooltip.show {
+            opacity: 1;
+        }
+        
+        .table-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
         }
     </style>
     

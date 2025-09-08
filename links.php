@@ -289,17 +289,65 @@ $activeLinks = count(array_filter($links, function($link) {
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
-                                <table class="table table-hover">
+                                <table class="table table-hover resizable-table" id="links-table">
                                     <thead>
                                         <tr>
-                                            <th>Short URL</th>
-                                            <th>Original URL</th>
-                                            <th>Clicks</th>
-                                            <th>Unique Visitors</th>
-                                            <th>Created</th>
-                                            <th>Expires</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
+                                            <th style="width: 200px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Short URL</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 250px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Original URL</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 80px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Clicks</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 120px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Unique Visitors</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 120px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Created</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 120px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Expires</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 100px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Status</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
+                                            <th style="width: 120px;">
+                                                <div class="column-header">
+                                                    <span class="column-title">Actions</span>
+                                                    <i class="fas fa-grip-vertical resize-icon"></i>
+                                                </div>
+                                                <div class="resize-handle"></div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -442,6 +490,113 @@ $activeLinks = count(array_filter($links, function($link) {
         .toast-notification i {
             margin-right: 8px;
         }
+        
+        /* Resizable Table Columns */
+        .resizable-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        
+        .resizable-table th,
+        .resizable-table td {
+            position: relative;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 8px 12px;
+        }
+        
+        .resizable-table th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            user-select: none;
+        }
+        
+        .resizable-table th:hover {
+            background-color: #e9ecef;
+        }
+        
+        .resizable-table th .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background-color: transparent;
+            cursor: col-resize;
+            transition: background-color 0.2s ease;
+        }
+        
+        .resizable-table th .resize-handle:hover {
+            background-color: #007bff;
+        }
+        
+        .resizable-table th .resize-handle.active {
+            background-color: #0056b3;
+        }
+        
+        .resizable-table th .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .resizable-table th .column-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .resizable-table th .resize-icon {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .resizable-table th:hover .resize-icon {
+            opacity: 1;
+        }
+        
+        .resizable-table td {
+            cursor: help;
+        }
+        
+        .resizable-table td:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Tooltip styles */
+        .table-tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            max-width: 300px;
+            word-wrap: break-word;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .table-tooltip.show {
+            opacity: 1;
+        }
+        
+        .table-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
     </style>
     
     <script>
@@ -524,6 +679,160 @@ $activeLinks = count(array_filter($links, function($link) {
             document.getElementById('modalOriginalUrl').value = originalUrl;
             new bootstrap.Modal(document.getElementById('linkDetailsModal')).show();
         }
+        
+        // Resizable Table Columns Functionality
+        function initResizableTables() {
+            console.log('initResizableTables called');
+            const tables = document.querySelectorAll('.resizable-table');
+            console.log('Found tables:', tables.length);
+            
+            tables.forEach((table, tableIndex) => {
+                console.log(`Processing table ${tableIndex}:`, table);
+                const headers = table.querySelectorAll('th');
+                console.log(`Found ${headers.length} headers in table ${tableIndex}`);
+                let isResizing = false;
+                let currentHeader = null;
+                let startX = 0;
+                let startWidth = 0;
+                
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'table-tooltip';
+                document.body.appendChild(tooltip);
+                
+                headers.forEach((header, index) => {
+                    const resizeHandle = header.querySelector('.resize-handle');
+                    console.log(`Header ${index}:`, header, 'Resize handle:', resizeHandle);
+                    
+                    if (resizeHandle) {
+                        // Mouse down on resize handle
+                        resizeHandle.addEventListener('mousedown', (e) => {
+                            console.log('Resize started');
+                            isResizing = true;
+                            currentHeader = header;
+                            startX = e.clientX;
+                            startWidth = header.offsetWidth;
+                            
+                            header.classList.add('active');
+                            document.body.style.cursor = 'col-resize';
+                            document.body.style.userSelect = 'none';
+                            
+                            e.preventDefault();
+                        });
+                    }
+                    
+                    // Mouse move during resize
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing || !currentHeader) return;
+                        
+                        const newWidth = startWidth + (e.clientX - startX);
+                        const minWidth = 50; // Minimum column width
+                        const maxWidth = 400; // Maximum column width
+                        
+                        if (newWidth >= minWidth && newWidth <= maxWidth) {
+                            currentHeader.style.width = newWidth + 'px';
+                        }
+                    });
+                    
+                    // Mouse up to end resize
+                    document.addEventListener('mouseup', () => {
+                        if (isResizing && currentHeader) {
+                            console.log('Resize ended');
+                            isResizing = false;
+                            currentHeader.classList.remove('active');
+                            currentHeader = null;
+                            
+                            document.body.style.cursor = '';
+                            document.body.style.userSelect = '';
+                            
+                            // Save column widths to localStorage
+                            saveColumnWidths(table);
+                        }
+                    });
+                    
+                    // Add tooltip functionality to table cells
+                    const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                    cells.forEach(cell => {
+                        cell.addEventListener('mouseenter', (e) => {
+                            const cellText = cell.textContent.trim();
+                            const cellWidth = cell.offsetWidth;
+                            const textWidth = getTextWidth(cellText, '12px Inter, sans-serif');
+                            
+                            console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
+                            
+                            // Only show tooltip if text is truncated
+                            if (textWidth > cellWidth) {
+                                tooltip.textContent = cellText;
+                                tooltip.classList.add('show');
+                                
+                                // Position tooltip
+                                const rect = cell.getBoundingClientRect();
+                                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                                tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                                
+                                console.log('Tooltip shown');
+                            }
+                        });
+                        
+                        cell.addEventListener('mouseleave', () => {
+                            tooltip.classList.remove('show');
+                        });
+                    });
+                });
+                
+                // Load saved column widths
+                loadColumnWidths(table);
+            });
+        }
+        
+        // Helper function to get text width
+        function getTextWidth(text, font) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = font;
+            return context.measureText(text).width;
+        }
+        
+        // Save column widths to localStorage
+        function saveColumnWidths(table) {
+            const tableId = table.id || 'default-table';
+            const widths = [];
+            const headers = table.querySelectorAll('th');
+            
+            headers.forEach(header => {
+                widths.push(header.style.width || header.offsetWidth + 'px');
+            });
+            
+            localStorage.setItem(`table-widths-${tableId}`, JSON.stringify(widths));
+        }
+        
+        // Load column widths from localStorage
+        function loadColumnWidths(table) {
+            const tableId = table.id || 'default-table';
+            const savedWidths = localStorage.getItem(`table-widths-${tableId}`);
+            
+            if (savedWidths) {
+                const widths = JSON.parse(savedWidths);
+                const headers = table.querySelectorAll('th');
+                
+                headers.forEach((header, index) => {
+                    if (widths[index]) {
+                        header.style.width = widths[index];
+                    }
+                });
+            }
+        }
+        
+        // Initialize resizable tables when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing resizable tables...');
+            try {
+                initResizableTables();
+                console.log('Resizable tables initialized successfully');
+            } catch (error) {
+                console.error('Error initializing resizable tables:', error);
+            }
+        });
     </script>
     
     <!-- Mobile Navigation Script -->

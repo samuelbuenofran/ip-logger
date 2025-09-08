@@ -11,87 +11,60 @@ $conn = $db->getConnection();
 // Handle form submission for creating new links
 if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     $original_url = sanitizeInput($_POST['original_url']);
-    $custom_domain = sanitizeInput($_POST['custom_domain']);
-    $use_custom_domain = isset($_POST['use_custom_domain']) ? 1 : 0;
-    $shortcode = sanitizeInput($_POST['shortcode']);
-    $extension = sanitizeInput($_POST['extension']);
     $password = $_POST['password'];
-    $no_expiry = isset($_POST['no_expiry']) ? 1 : 0;
     
     // Validate input
     if (!isValidUrl($original_url)) {
-        redirectWithMessage('create_link.php', 'Please enter a valid URL', 'error');
+        redirectWithMessage('create_link.php', 'Por favor, insira uma URL válida', 'error');
     }
     
     if (strlen($password) < 3) {
-        redirectWithMessage('create_link.php', 'Password must be at least 3 characters long', 'error');
+        redirectWithMessage('create_link.php', 'A senha deve ter pelo menos 3 caracteres', 'error');
     }
     
-    // Validate custom domain if used
-    if ($use_custom_domain && !empty($custom_domain)) {
-        if (!filter_var('http://' . $custom_domain, FILTER_VALIDATE_URL)) {
-            redirectWithMessage('create_link.php', 'Please enter a valid domain name', 'error');
-        }
-    }
+    // Generate shortcode and tracking code
+    $shortcode = generateRandomString(8);
+    $tracking_code = generateRandomString(12);
+    $recovery_code = generateRandomString(16);
     
-    // Validate shortcode
-    if (empty($shortcode) || strlen($shortcode) < 3) {
-        redirectWithMessage('create_link.php', 'Shortcode must be at least 3 characters long', 'error');
-    }
-    
-    // Check if shortcode already exists
+    // Check if shortcode already exists (very unlikely with 8 chars)
     $stmt = $conn->prepare("SELECT id FROM links WHERE short_code = ?");
     $stmt->execute([$shortcode]);
     if ($stmt->fetch()) {
-        redirectWithMessage('create_link.php', 'This shortcode is already taken. Please choose another one.', 'error');
+        // Regenerate if exists
+        $shortcode = generateRandomString(8);
     }
     
-    // Generate tracking code and recovery code
-    $tracking_code = generateRandomString(12);
-    $recovery_code = generateRandomString(12);
+    // Insert new link
+    $stmt = $conn->prepare("
+        INSERT INTO links (short_code, original_url, password, tracking_code, password_recovery_code, created_at) 
+        VALUES (?, ?, ?, ?, ?, NOW())
+    ");
     
-    // Set expiry date (default 30 days if not set to never expire)
-    $expiry_date = $no_expiry ? NULL : date('Y-m-d H:i:s', strtotime('+30 days'));
-    
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    
-    // Insert into database
-    $stmt = $conn->prepare("INSERT INTO links (original_url, short_code, password, expiry_date, custom_domain, extension, tracking_code, password_recovery_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->execute([$original_url, $shortcode, $hashed_password, $expiry_date, $custom_domain, $extension, $tracking_code, $recovery_code]);
-    
-    // Get the link ID for email notification
-    $linkId = $conn->lastInsertId();
-    
-    // Send email notification for new link creation
-    sendNewLinkNotification($linkId);
-    
-    // Store link details in session for display
-    $_SESSION['created_link'] = [
-        'short_code' => $shortcode,
-        'tracking_code' => $tracking_code,
-        'recovery_code' => $recovery_code,
-        'custom_domain' => $custom_domain,
-        'extension' => $extension,
-        'original_url' => $original_url,
-        'final_url' => ($use_custom_domain ? $custom_domain . '/' : BASE_URL) . $shortcode . $extension,
-        'tracking_url' => 'https://keizai-tech.com/projects/ip-logger/' . $tracking_code
-    ];
-    
-    redirectWithMessage('create_link.php', 'Link created successfully!', 'success');
+    if ($stmt->execute([$shortcode, $original_url, $password, $tracking_code, $recovery_code])) {
+        $link_id = $conn->lastInsertId();
+        
+        // Store in session for display
+        $_SESSION['created_link'] = [
+            'short_url' => BASE_URL . $shortcode,
+            'tracking_url' => BASE_URL . $tracking_code,
+            'recovery_code' => $recovery_code,
+            'original_url' => $original_url
+        ];
+        
+        redirectWithMessage('create_link.php', 'Link criado com sucesso!', 'success');
+    } else {
+        redirectWithMessage('create_link.php', 'Erro ao criar o link. Tente novamente.', 'error');
+    }
 }
-
-// Generate default values
-$default_shortcode = generateShortCode();
-$default_tracking_code = generateRandomString(12);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Link - IP Logger</title>
+    <title>Criar Link - IP Logger</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -101,6 +74,7 @@ $default_tracking_code = generateRandomString(12);
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -179,125 +153,133 @@ $default_tracking_code = generateRandomString(12);
                 margin-left: 0;
             }
         }
-    </style>
-    
-    <style>
-        .link-creator {
-            max-width: 800px;
-            margin: 0 auto;
+        
+        .create-content {
             padding: 2rem;
         }
         
-        .section {
+        .form-card {
             background: white;
             border-radius: 12px;
             padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .section-header {
-            display: flex;
-            align-items: center;
+        .form-card h3 {
+            color: #495057;
             margin-bottom: 1.5rem;
             font-weight: 600;
-            color: #333;
-        }
-        
-        .section-header i {
-            margin-right: 0.5rem;
-            color: #007bff;
         }
         
         .form-label {
             font-weight: 500;
-            color: #555;
+            color: #495057;
             margin-bottom: 0.5rem;
         }
         
         .form-control {
-            border: 2px solid #e9ecef;
             border-radius: 8px;
+            border: 1px solid #dee2e6;
             padding: 0.75rem;
-            transition: border-color 0.3s ease;
+            font-size: 1rem;
         }
         
         .form-control:focus {
             border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
         
-        .domain-options {
-            background: #f8f9fa;
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-1px);
+        }
+        
+        .success-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .success-card h4 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .url-display {
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             padding: 1rem;
-            margin-bottom: 1rem;
+            margin: 1rem 0;
         }
         
-        .final-link {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin-top: 1rem;
+        .url-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
         }
         
         .copy-btn {
-            background: #007bff;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            border: none;
-            border-radius: 6px;
             padding: 0.5rem 1rem;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
         }
         
         .copy-btn:hover {
-            background: #0056b3;
-        }
-        
-        .tracking-url {
-            background: #e9ecef;
-            border-radius: 6px;
-            padding: 0.5rem;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        /* Toast Notification Styles */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.3);
             color: white;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .warning-box .text-warning {
+            color: #856404 !important;
             font-weight: 500;
-            z-index: 9999;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
-        .toast-notification.show {
-            transform: translateX(0);
+        .example-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
         }
         
-        .toast-success {
-            background-color: #28a745;
+        .example-box h6 {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
         
-        .toast-error {
-            background-color: #dc3545;
-        }
-        
-        .toast-notification i {
-            margin-right: 8px;
+        .example-box p {
+            color: #6c757d;
+            margin: 0;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -314,6 +296,7 @@ $default_tracking_code = generateRandomString(12);
     
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -321,7 +304,7 @@ $default_tracking_code = generateRandomString(12);
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
                         <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                        <p class="text-muted">URL Shortener & Tracker</p>
+                        <p class="text-muted">Encurtador de URL & Rastreador</p>
                     </div>
                     
                     <ul class="nav flex-column">
@@ -332,42 +315,42 @@ $default_tracking_code = generateRandomString(12);
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="links.php">
-                                <i class="fas fa-link"></i> My Links
+                                <i class="fas fa-link"></i> Meus Links
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" href="create_link.php">
-                                <i class="fas fa-plus"></i> Create Link
+                                <i class="fas fa-plus"></i> Criar Link
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Geolocation
+                                <i class="fas fa-map-marker-alt"></i> Geolocalização
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="admin.php">
-                                <i class="fas fa-cog"></i> Admin Panel
+                                <i class="fas fa-cog"></i> Painel Admin
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="privacy.php">
-                                <i class="fas fa-user-shield"></i> Privacy Policy
+                                <i class="fas fa-user-shield"></i> Política de Privacidade
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="terms.php">
-                                <i class="fas fa-file-contract"></i> Terms of Use
+                                <i class="fas fa-file-contract"></i> Termos de Uso
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="cookies.php">
-                                <i class="fas fa-cookie-bite"></i> Cookie Policy
+                                <i class="fas fa-cookie-bite"></i> Política de Cookies
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="password_recovery.php">
-                                <i class="fas fa-key"></i> Password Recovery
+                                <i class="fas fa-key"></i> Recuperar Senha
                             </a>
                         </li>
                     </ul>
@@ -376,254 +359,91 @@ $default_tracking_code = generateRandomString(12);
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="link-creator">
+                <div class="create-content">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="fas fa-plus"></i> Criar Novo Link</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <a href="index.php" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+                            </a>
+                        </div>
+                    </div>
+
                     <!-- Alert Messages -->
                     <?php echo displayMessage(); ?>
-                    
-                    <!-- Success Message with Link Details -->
+
+                    <!-- Success Message -->
                     <?php if (isset($_SESSION['created_link'])): ?>
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fas fa-check-circle text-success"></i>
-                                Link Created Successfully!
-                            </div>
+                        <?php $link = $_SESSION['created_link']; ?>
+                        <div class="success-card">
+                            <h4><i class="fas fa-check-circle"></i> Link Criado com Sucesso!</h4>
                             
-                            <div class="alert alert-success">
-                                <h5><i class="fas fa-link"></i> Your Generated Link</h5>
-                                <div class="final-link" id="final_link">
-                                    <?php echo $_SESSION['created_link']['final_url']; ?>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <button type="button" class="copy-btn" onclick="copyFinalLink()">
-                                        <i class="fas fa-copy"></i> Copy Link
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6><i class="fas fa-key"></i> Tracking Information</h6>
-                                    <ul class="list-group list-group-flush">
-                                                                                 <li class="list-group-item">
-                                             <strong>Tracking Code:</strong> 
-                                             <code><?php echo $_SESSION['created_link']['tracking_code']; ?></code>
-                                         </li>
-                                         <li class="list-group-item">
-                                             <strong>Tracking URL:</strong> 
-                                             <a href="<?php echo $_SESSION['created_link']['tracking_url']; ?>" target="_blank">
-                                                 <?php echo $_SESSION['created_link']['tracking_url']; ?>
-                                             </a>
-                                         </li>
-                                         <li class="list-group-item">
-                                             <strong>Recovery Code:</strong> 
-                                             <code class="text-warning"><?php echo $_SESSION['created_link']['recovery_code']; ?></code>
-                                             <small class="text-muted d-block mt-1">
-                                                 <i class="fas fa-exclamation-triangle"></i> Save this code securely! You'll need it to recover your password.
-                                             </small>
-                                         </li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6><i class="fas fa-info-circle"></i> Link Details</h6>
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">
-                                            <strong>Original URL:</strong> 
-                                            <a href="<?php echo $_SESSION['created_link']['original_url']; ?>" target="_blank">
-                                                <?php echo $_SESSION['created_link']['original_url']; ?>
-                                            </a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <strong>Short Code:</strong> 
-                                            <code><?php echo $_SESSION['created_link']['short_code']; ?></code>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center mt-3">
-                                <a href="create_link.php" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Create Another Link
-                                </a>
-                                <a href="admin.php" class="btn btn-secondary ms-2">
-                                    <i class="fas fa-cog"></i> Admin Panel
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <?php unset($_SESSION['created_link']); ?>
-                    <?php endif; ?>
-                    
-                    <form method="POST" id="linkForm">
-                        <input type="hidden" name="action" value="create_link">
-                        
-                        <!-- Original Link Section -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fas fa-link"></i>
-                                Original Link
-                            </div>
-                            <div class="mb-3">
-                                <label for="original_url" class="form-label">Enter the URL you want to shorten</label>
-                                <input type="url" class="form-control" id="original_url" name="original_url" 
-                                       placeholder="https://www.example.com" required>
-                            </div>
-                        </div>
-                        
-                        <!-- Customize Link Section -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fas fa-check-circle"></i>
-                                Customize Link
-                            </div>
-                            
-                            <!-- Domain Options -->
-                            <div class="domain-options">
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="use_custom_domain" 
-                                               name="use_custom_domain" checked>
-                                        <label class="form-check-label" for="use_custom_domain">
-                                            Use your own domain
-                                        </label>
-                                    </div>
-                                    <input type="text" class="form-control mt-2" id="custom_domain" name="custom_domain" 
-                                           placeholder="yourdomain.com" value="keizai-tech.com">
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="use_default_domain">
-                                        <label class="form-check-label" for="use_default_domain">
-                                            Use our default domain
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Shortcode -->
-                            <div class="mb-3">
-                                <label for="shortcode" class="form-label">Shortcode</label>
-                                <input type="text" class="form-control" id="shortcode" name="shortcode" 
-                                       value="<?php echo $default_shortcode; ?>" required>
-                                <div class="form-text">This will be the unique identifier for your shortened link.</div>
-                            </div>
-                            
-                            <!-- Extension -->
-                            <div class="mb-3">
-                                <label for="extension" class="form-label">Extension</label>
-                                <select class="form-select" id="extension" name="extension">
-                                    <option value="">(no extension)</option>
-                                    <option value=".gif">.gif</option>
-                                    <option value=".jpg">.jpg</option>
-                                    <option value=".jpeg">.jpeg</option>
-                                    <option value=".png">.png</option>
-                                    <option value=".lnk">.lnk</option>
-                                    <option value=".link">.link</option>
-                                    <option value=".txt">.txt</option>
-                                    <option value=".html" selected>.html</option>
-                                    <option value=".js">.js</option>
-                                    <option value=".exe">.exe</option>
-                                    <option value=".ext">.ext</option>
-                                    <option value=".pdf">.pdf</option>
-                                    <option value=".psd">.psd</option>
-                                    <option value=".csv">.csv</option>
-                                    <option value=".mp3">.mp3</option>
-                                    <option value=".mp4">.mp4</option>
-                                    <option value=".wma">.wma</option>
-                                    <option value=".avi">.avi</option>
-                                    <option value=".apk">.apk</option>
-                                    <option value=".jar">.jar</option>
-                                    <option value=".ico">.ico</option>
-                                    <option value=".json">.json</option>
-                                    <option value=".iso">.iso</option>
-                                    <option value=".zip">.zip</option>
-                                    <option value=".rar">.rar</option>
-                                    <option value=".tgz">.tgz</option>
-                                    <option value=".tar">.tar</option>
-                                    <option value=".gz">.gz</option>
-                                    <option value=".torrent">.torrent</option>
-                                    <option value=".doc">.doc</option>
-                                    <option value=".docx">.docx</option>
-                                    <option value=".xls">.xls</option>
-                                    <option value=".xlsx">.xlsx</option>
-                                    <option value=".ppt">.ppt</option>
-                                    <option value=".pptx">.pptx</option>
-                                </select>
-                                <div class="form-text">Optional file extension to add to your link.</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Tracking Information Section -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fas fa-chart-line"></i>
-                                Tracking Information
-                            </div>
-                            
-                            <!-- Tracking Code -->
-                            <div class="mb-3">
-                                <label for="tracking_code" class="form-label">Tracking Code</label>
-                                <input type="text" class="form-control" id="tracking_code" name="tracking_code" 
-                                       value="<?php echo $default_tracking_code; ?>" readonly>
-                                <div class="form-text">This unique code is used to identify and track your link.</div>
-                            </div>
-                            
-                            <!-- Tracking URL -->
-                            <div class="mb-3">
-                                <label class="form-label">Tracking URL</label>
-                                <div class="tracking-url" id="tracking_url">
-                                    https://keizai-tech.com/projects/ip-logger/<?php echo $default_tracking_code; ?>
-                                </div>
-                                <div class="form-text">This URL will be used to access your tracking data.</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Security Section -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fas fa-lock"></i>
-                                Security Settings
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <div class="form-text">This password will be required to view tracking data.</div>
-                            </div>
-                            
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="no_expiry" name="no_expiry">
-                                <label class="form-check-label" for="no_expiry">
-                                    My link does not expire
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Your Link Section -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fas fa-link"></i>
-                                Your Link
-                            </div>
-                            
-                            <div class="final-link" id="final_link">
-                                <?php echo BASE_URL; ?><?php echo $default_shortcode; ?>.html
-                            </div>
-                            
-                            <div class="text-center mt-3">
-                                <button type="button" class="copy-btn" onclick="copyFinalLink()">
-                                    <i class="fas fa-copy"></i> Copy
+                            <div class="url-display">
+                                <strong>Link Encurtado:</strong>
+                                <div class="url-text"><?php echo $link['short_url']; ?></div>
+                                <button class="copy-btn" onclick="copyToClipboard('<?php echo $link['short_url']; ?>')">
+                                    <i class="fas fa-copy"></i> Copiar Link
                                 </button>
                             </div>
+                            
+                            <div class="url-display">
+                                <strong>Link de Rastreamento:</strong>
+                                <div class="url-text"><?php echo $link['tracking_url']; ?></div>
+                                <button class="copy-btn" onclick="copyToClipboard('<?php echo $link['tracking_url']; ?>')">
+                                    <i class="fas fa-copy"></i> Copiar Link de Rastreamento
+                                </button>
+                            </div>
+                            
+                            <div class="warning-box">
+                                <p class="text-warning mb-0">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Importante:</strong> Guarde este código de recuperação: <code><?php echo $link['recovery_code']; ?></code>
+                                </p>
+                            </div>
                         </div>
+                        <?php unset($_SESSION['created_link']); ?>
+                    <?php endif; ?>
+
+                    <!-- Create Link Form -->
+                    <div class="form-card">
+                        <h3><i class="fas fa-link"></i> Criar Novo Link</h3>
                         
-                        <!-- Submit Button -->
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save"></i> Create Link
+                        <form method="POST">
+                            <input type="hidden" name="action" value="create_link">
+                            
+                            <div class="mb-3">
+                                <label for="original_url" class="form-label">
+                                    <i class="fas fa-globe"></i> URL da Imagem
+                                </label>
+                                <input type="url" class="form-control" id="original_url" name="original_url" 
+                                       placeholder="https://images.unsplash.com/photo-1562564055-71e051d33c19..." 
+                                       required>
+                                <div class="form-text">Cole aqui a URL da imagem que você quer enviar</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock"></i> Senha para Ver Logs
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Digite uma senha..." 
+                                       required>
+                                <div class="form-text">Esta senha será usada para acessar os logs de localização</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Criar Link
                             </button>
+                        </form>
+                        
+                        <div class="example-box">
+                            <h6><i class="fas fa-lightbulb"></i> Como Funciona:</h6>
+                            <p>1. Cole a URL de uma imagem (ex: Unsplash, Imgur, etc.)<br>
+                               2. O sistema criará um link encurtado<br>
+                               3. Quando alguém acessar o link, verá a imagem<br>
+                               4. Você receberá a localização da pessoa nos logs</p>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </main>
         </div>
@@ -635,138 +455,24 @@ $default_tracking_code = generateRandomString(12);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script>
-        // Update final link when inputs change
-        function updateFinalLink() {
-            const customDomain = document.getElementById('custom_domain').value || 'keizai-tech.com';
-            const shortcode = document.getElementById('shortcode').value || '<?php echo $default_shortcode; ?>';
-            const extension = document.getElementById('extension').value || '';
-            const useCustomDomain = document.getElementById('use_custom_domain').checked;
-            
-            let finalLink = '';
-            if (useCustomDomain) {
-                finalLink = customDomain + '/' + shortcode + extension;
-            } else {
-                finalLink = '<?php echo BASE_URL; ?>' + shortcode + extension;
-            }
-            
-            document.getElementById('final_link').textContent = finalLink;
-        }
-        
-        // Update tracking URL when tracking code changes
-        function updateTrackingUrl() {
-            const trackingCode = document.getElementById('tracking_code').value;
-            const trackingUrl = 'https://keizai-tech.com/projects/ip-logger/' + trackingCode;
-            document.getElementById('tracking_url').textContent = trackingUrl;
-        }
-        
-        // Copy final link to clipboard
-        function copyFinalLink() {
-            const finalLink = document.getElementById('final_link').textContent;
-            
-            // Try modern clipboard API first
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(finalLink).then(function() {
-                    showCopySuccess();
-                }).catch(function(err) {
-                    console.error('Clipboard API failed:', err);
-                    fallbackCopyToClipboard(finalLink);
-                });
-            } else {
-                // Fallback for older browsers
-                fallbackCopyToClipboard(finalLink);
-            }
-        }
-        
-        function fallbackCopyToClipboard(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showCopySuccess();
-                } else {
-                    showCopyError();
-                }
-            } catch (err) {
-                console.error('Fallback copy failed:', err);
-                showCopyError();
-            }
-            
-            document.body.removeChild(textArea);
-        }
-        
-        function showCopySuccess() {
-            // Create toast notification
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification toast-success';
-            toast.innerHTML = '<i class="fas fa-check-circle"></i> URL copied to clipboard!';
-            document.body.appendChild(toast);
-            
-            // Show toast
-            setTimeout(() => toast.classList.add('show'), 100);
-            
-            // Remove toast after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => document.body.removeChild(toast), 300);
-            }, 3000);
-        }
-        
-        function showCopyError() {
-            // Create toast notification
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification toast-error';
-            toast.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to copy to clipboard';
-            document.body.appendChild(toast);
-            
-            // Show toast
-            setTimeout(() => toast.classList.add('show'), 100);
-            
-            // Remove toast after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => document.body.removeChild(toast), 300);
-            }, 3000);
-        }
-        
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update links when inputs change
-            document.getElementById('custom_domain').addEventListener('input', updateFinalLink);
-            document.getElementById('shortcode').addEventListener('input', updateFinalLink);
-            document.getElementById('extension').addEventListener('change', updateFinalLink);
-            document.getElementById('use_custom_domain').addEventListener('change', updateFinalLink);
-            document.getElementById('tracking_code').addEventListener('input', updateTrackingUrl);
-            
-            // Handle default domain checkbox
-            document.getElementById('use_default_domain').addEventListener('change', function() {
-                if (this.checked) {
-                    document.getElementById('use_custom_domain').checked = false;
-                    document.getElementById('custom_domain').disabled = true;
-                } else {
-                    document.getElementById('custom_domain').disabled = false;
-                }
-                updateFinalLink();
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success message
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                btn.style.background = 'rgba(40, 167, 69, 0.3)';
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = 'rgba(255, 255, 255, 0.2)';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Erro ao copiar: ', err);
+                alert('Erro ao copiar para a área de transferência');
             });
-            
-            // Handle custom domain checkbox
-            document.getElementById('use_custom_domain').addEventListener('change', function() {
-                if (this.checked) {
-                    document.getElementById('use_default_domain').checked = false;
-                    document.getElementById('custom_domain').disabled = false;
-                } else {
-                    document.getElementById('custom_domain').disabled = true;
-                }
-                updateFinalLink();
-            });
-        });
+        }
     </script>
 
     <!-- Mobile Navigation Script -->
@@ -809,5 +515,6 @@ $default_tracking_code = generateRandomString(12);
                 }
             });
         });
-    </script></body>
+    </script>
+</body>
 </html>

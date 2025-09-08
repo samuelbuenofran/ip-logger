@@ -975,10 +975,14 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
         
         // Resizable Table Columns Functionality
         function initResizableTables() {
+            console.log('initResizableTables called');
             const tables = document.querySelectorAll('.resizable-table');
+            console.log('Found tables:', tables.length);
             
-            tables.forEach(table => {
+            tables.forEach((table, tableIndex) => {
+                console.log(`Processing table ${tableIndex}:`, table);
                 const headers = table.querySelectorAll('th');
+                console.log(`Found ${headers.length} headers in table ${tableIndex}`);
                 let isResizing = false;
                 let currentHeader = null;
                 let startX = 0;
@@ -991,20 +995,24 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 
                 headers.forEach((header, index) => {
                     const resizeHandle = header.querySelector('.resize-handle');
+                    console.log(`Header ${index}:`, header, 'Resize handle:', resizeHandle);
                     
-                    // Mouse down on resize handle
-                    resizeHandle.addEventListener('mousedown', (e) => {
-                        isResizing = true;
-                        currentHeader = header;
-                        startX = e.clientX;
-                        startWidth = header.offsetWidth;
-                        
-                        header.classList.add('active');
-                        document.body.style.cursor = 'col-resize';
-                        document.body.style.userSelect = 'none';
-                        
-                        e.preventDefault();
-                    });
+                    if (resizeHandle) {
+                        // Mouse down on resize handle
+                        resizeHandle.addEventListener('mousedown', (e) => {
+                            console.log('Resize started');
+                            isResizing = true;
+                            currentHeader = header;
+                            startX = e.clientX;
+                            startWidth = header.offsetWidth;
+                            
+                            header.classList.add('active');
+                            document.body.style.cursor = 'col-resize';
+                            document.body.style.userSelect = 'none';
+                            
+                            e.preventDefault();
+                        });
+                    }
                     
                     // Mouse move during resize
                     document.addEventListener('mousemove', (e) => {
@@ -1022,6 +1030,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                     // Mouse up to end resize
                     document.addEventListener('mouseup', () => {
                         if (isResizing && currentHeader) {
+                            console.log('Resize ended');
                             isResizing = false;
                             currentHeader.classList.remove('active');
                             currentHeader = null;
@@ -1042,6 +1051,8 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                             const cellWidth = cell.offsetWidth;
                             const textWidth = getTextWidth(cellText, '12px Inter, sans-serif');
                             
+                            console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
+                            
                             // Only show tooltip if text is truncated
                             if (textWidth > cellWidth) {
                                 tooltip.textContent = cellText;
@@ -1051,6 +1062,8 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                 const rect = cell.getBoundingClientRect();
                                 tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
                                 tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                                
+                                console.log('Tooltip shown');
                             }
                         });
                         
@@ -1105,7 +1118,13 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
         
         // Initialize resizable tables when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            initResizableTables();
+            console.log('DOM loaded, initializing resizable tables...');
+            try {
+                initResizableTables();
+                console.log('Resizable tables initialized successfully');
+            } catch (error) {
+                console.error('Error initializing resizable tables:', error);
+            }
         });
     </script>
 
