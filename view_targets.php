@@ -9,7 +9,18 @@ $db = new Database();
 $conn = $db->getConnection();
 
 $link_id = $_GET['link_id'] ?? 0;
+$tracking_code = $_GET['tracking_code'] ?? '';
 $password = $_POST['password'] ?? '';
+
+// If tracking_code is provided, find the link_id
+if (!empty($tracking_code) && empty($link_id)) {
+    $stmt = $conn->prepare("SELECT id FROM links WHERE tracking_code = ?");
+    $stmt->execute([$tracking_code]);
+    $result = $stmt->fetch();
+    if ($result) {
+        $link_id = $result['id'];
+    }
+}
 
 // If no link_id is provided, show list of all links
 if (empty($link_id)) {

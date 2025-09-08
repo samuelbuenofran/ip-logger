@@ -14,12 +14,12 @@ RewriteRule ^([a-zA-Z0-9]+)(\.[a-zA-Z0-9]+)?$ redirect.php?short_code=$1 [L,QSA]
 # Handle tracking URLs (e.g., /track123)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^track/([a-zA-Z0-9]+)$ view_targets.php?tracking_code=$1 [L,QSA]
+RewriteRule ^track/([a-zA-Z0-9]+)$ tracking.php?tracking_code=$1 [L,QSA]
 
 # Handle direct tracking codes (e.g., /abc123track)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([a-zA-Z0-9]+)track$ view_targets.php?tracking_code=$1 [L,QSA]
+RewriteRule ^([a-zA-Z0-9]+)track$ tracking.php?tracking_code=$1 [L,QSA]
 
 # Prevent access to sensitive files
 <Files "config.php">

@@ -3,6 +3,7 @@ session_start();
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/qr_generator.php';
 
 // Initialize database connection
 $db = new Database();
@@ -38,13 +39,16 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         $shortcode = generateRandomString(8);
     }
     
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    
     // Insert new link
     $stmt = $conn->prepare("
         INSERT INTO links (short_code, original_url, password, tracking_code, password_recovery_code, created_at) 
         VALUES (?, ?, ?, ?, ?, NOW())
     ");
     
-    if ($stmt->execute([$shortcode, $original_url, $password, $tracking_code, $recovery_code])) {
+    if ($stmt->execute([$shortcode, $original_url, $hashed_password, $tracking_code, $recovery_code])) {
         $link_id = $conn->lastInsertId();
         
         // Store in session for display
@@ -284,6 +288,51 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
             margin: 0;
             font-size: 0.9rem;
         }
+        
+        /* QR Code Styles */
+        .qr-code-container {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .qr-code-image {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 0.5rem;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .qr-code-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .qr-code-actions .copy-btn {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+        
+        .qr-code-actions .copy-btn i {
+            margin-right: 0.3rem;
+        }
+        
+        @media (max-width: 576px) {
+            .qr-code-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .qr-code-actions .copy-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -397,6 +446,24 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                                 </button>
                             </div>
                             
+                            <div class="url-display">
+                                <strong>QR Code:</strong>
+                                <div class="qr-code-container">
+                                    <img src="<?php echo QRCodeGenerator::generateQRCode($link['short_url'], 150); ?>" 
+                                         alt="QR Code" 
+                                         class="qr-code-image"
+                                         id="qrCodeImage">
+                                    <div class="qr-code-actions">
+                                        <button class="copy-btn" onclick="downloadQRCode('<?php echo $link['short_url']; ?>')">
+                                            <i class="fas fa-download"></i> Baixar QR Code
+                                        </button>
+                                        <button class="copy-btn" onclick="copyQRCodeUrl('<?php echo QRCodeGenerator::generateQRCode($link['short_url'], 150); ?>')">
+                                            <i class="fas fa-copy"></i> Copiar URL do QR Code
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="warning-box">
                                 <p class="text-warning mb-0">
                                     <i class="fas fa-exclamation-triangle"></i>
@@ -475,6 +542,23 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                 console.error('Erro ao copiar: ', err);
                 alert('Erro ao copiar para a área de transferência');
             });
+        }
+        
+        // Download QR Code
+        function downloadQRCode(url) {
+            const qrUrl = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' + encodeURIComponent(url);
+            const link = document.createElement('a');
+            link.href = qrUrl;
+            link.download = 'qr_code_' + new Date().toISOString().split('T')[0] + '.png';
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Copy QR Code URL
+        function copyQRCodeUrl(qrUrl) {
+            copyToClipboard(qrUrl);
         }
     </script>
 

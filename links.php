@@ -292,57 +292,65 @@ $activeLinks = count(array_filter($links, function($link) {
                                 <table class="table table-hover resizable-table" id="links-table">
                                     <thead>
                                         <tr>
-                                            <th style="width: 200px;">
+                                            <th style="width: 200px;" draggable="true" data-column="0">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Short URL</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 250px;">
+                                            <th style="width: 250px;" draggable="true" data-column="1">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Original URL</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 80px;">
+                                            <th style="width: 80px;" draggable="true" data-column="2">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Clicks</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 120px;">
+                                            <th style="width: 120px;" draggable="true" data-column="3">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Unique Visitors</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 120px;">
+                                            <th style="width: 120px;" draggable="true" data-column="4">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Created</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 120px;">
+                                            <th style="width: 120px;" draggable="true" data-column="5">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Expires</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 100px;">
+                                            <th style="width: 100px;" draggable="true" data-column="6">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Status</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
                                                 <div class="resize-handle"></div>
                                             </th>
-                                            <th style="width: 120px;">
+                                            <th style="width: 120px;" draggable="true" data-column="7">
                                                 <div class="column-header">
+                                                    <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                     <span class="column-title">Actions</span>
                                                     <i class="fas fa-grip-vertical resize-icon"></i>
                                                 </div>
@@ -368,8 +376,7 @@ $activeLinks = count(array_filter($links, function($link) {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="text-truncate" style="max-width: 200px;" 
-                                                         title="<?php echo htmlspecialchars($link['original_url']); ?>">
+                                                    <div class="url-cell" data-full-url="<?php echo htmlspecialchars($link['original_url']); ?>">
                                                         <?php echo htmlspecialchars($link['original_url']); ?>
                                                     </div>
                                                 </td>
@@ -510,10 +517,32 @@ $activeLinks = count(array_filter($links, function($link) {
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
             user-select: none;
+            cursor: move;
+            position: relative;
         }
         
         .resizable-table th:hover {
             background-color: #e9ecef;
+        }
+        
+        .resizable-table th.dragging {
+            opacity: 0.5;
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .resizable-table th.drag-over {
+            border-left: 3px solid #007bff;
+        }
+        
+        .resizable-table th.drag-over::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #007bff;
         }
         
         .resizable-table th .resize-handle {
@@ -559,12 +588,42 @@ $activeLinks = count(array_filter($links, function($link) {
             opacity: 1;
         }
         
+        .resizable-table th .drag-handle {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-size: 12px;
+            color: #6c757d;
+            cursor: grab;
+        }
+        
+        .resizable-table th:hover .drag-handle {
+            opacity: 1;
+        }
+        
+        .resizable-table th .drag-handle:active {
+            cursor: grabbing;
+        }
+        
         .resizable-table td {
             cursor: help;
         }
         
         .resizable-table td:hover {
             background-color: #f8f9fa;
+        }
+        
+        /* URL cell styling */
+        .url-cell {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: help;
+            color: #007bff;
+            transition: color 0.2s ease;
+        }
+        
+        .url-cell:hover {
+            color: #0056b3;
         }
         
         /* Tooltip styles */
@@ -727,10 +786,15 @@ $activeLinks = count(array_filter($links, function($link) {
                         
                         const newWidth = startWidth + (e.clientX - startX);
                         const minWidth = 50; // Minimum column width
-                        const maxWidth = 400; // Maximum column width
+                        const maxWidth = 600; // Increased maximum column width
                         
                         if (newWidth >= minWidth && newWidth <= maxWidth) {
                             currentHeader.style.width = newWidth + 'px';
+                            // Update all cells in this column
+                            const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                            cells.forEach(cell => {
+                                cell.style.width = newWidth + 'px';
+                            });
                         }
                     });
                     
@@ -754,23 +818,50 @@ $activeLinks = count(array_filter($links, function($link) {
                     const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
                     cells.forEach(cell => {
                         cell.addEventListener('mouseenter', (e) => {
-                            const cellText = cell.textContent.trim();
-                            const cellWidth = cell.offsetWidth;
-                            const textWidth = getTextWidth(cellText, '12px Inter, sans-serif');
+                            // Check if this is a URL cell with data-full-url attribute
+                            const urlCell = cell.querySelector('.url-cell');
+                            let tooltipText = '';
+                            let shouldShowTooltip = false;
                             
-                            console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
+                            if (urlCell && urlCell.hasAttribute('data-full-url')) {
+                                // This is a URL cell - always show the full URL
+                                tooltipText = urlCell.getAttribute('data-full-url');
+                                shouldShowTooltip = true;
+                                console.log('URL cell detected, showing full URL:', tooltipText);
+                            } else {
+                                // Regular cell - check if text is truncated
+                                const cellText = cell.textContent.trim();
+                                const cellWidth = cell.offsetWidth;
+                                const textWidth = getTextWidth(cellText, '14px Inter, sans-serif');
+                                
+                                console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
+                                
+                                if (textWidth > cellWidth || cellText.includes('http')) {
+                                    tooltipText = cellText;
+                                    shouldShowTooltip = true;
+                                }
+                            }
                             
-                            // Only show tooltip if text is truncated
-                            if (textWidth > cellWidth) {
-                                tooltip.textContent = cellText;
+                            if (shouldShowTooltip) {
+                                tooltip.textContent = tooltipText;
                                 tooltip.classList.add('show');
                                 
                                 // Position tooltip
                                 const rect = cell.getBoundingClientRect();
-                                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-                                tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                                const tooltipWidth = Math.min(tooltip.offsetWidth, 500);
+                                let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
                                 
-                                console.log('Tooltip shown');
+                                // Keep tooltip within viewport
+                                if (left < 10) left = 10;
+                                if (left + tooltipWidth > window.innerWidth - 10) {
+                                    left = window.innerWidth - tooltipWidth - 10;
+                                }
+                                
+                                tooltip.style.left = left + 'px';
+                                tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                                tooltip.style.maxWidth = '500px';
+                                
+                                console.log('Tooltip shown:', tooltipText);
                             }
                         });
                         
@@ -780,8 +871,66 @@ $activeLinks = count(array_filter($links, function($link) {
                     });
                 });
                 
-                // Load saved column widths
+                // Drag and Drop functionality
+                headers.forEach((header, index) => {
+                    // Drag start
+                    header.addEventListener('dragstart', (e) => {
+                        console.log('Drag started on column:', index);
+                        draggedColumn = header;
+                        draggedIndex = index;
+                        header.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/html', header.outerHTML);
+                    });
+                    
+                    // Drag end
+                    header.addEventListener('dragend', (e) => {
+                        console.log('Drag ended');
+                        header.classList.remove('dragging');
+                        // Remove all drag-over classes
+                        headers.forEach(h => h.classList.remove('drag-over'));
+                        draggedColumn = null;
+                        draggedIndex = -1;
+                    });
+                    
+                    // Drag over
+                    header.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        
+                        if (draggedColumn && draggedColumn !== header) {
+                            header.classList.add('drag-over');
+                        }
+                    });
+                    
+                    // Drag leave
+                    header.addEventListener('dragleave', (e) => {
+                        header.classList.remove('drag-over');
+                    });
+                    
+                    // Drop
+                    header.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        header.classList.remove('drag-over');
+                        
+                        if (draggedColumn && draggedColumn !== header) {
+                            const targetIndex = index;
+                            const sourceIndex = draggedIndex;
+                            
+                            console.log(`Moving column from ${sourceIndex} to ${targetIndex}`);
+                            
+                            // Reorder columns
+                            reorderColumns(table, sourceIndex, targetIndex);
+                            
+                            // Save column order
+                            saveColumnOrder(table);
+                        }
+                    });
+                });
+                
+                // Load saved column widths and order
                 loadColumnWidths(table);
+                loadColumnOrder(table);
             });
         }
         
@@ -818,8 +967,124 @@ $activeLinks = count(array_filter($links, function($link) {
                 headers.forEach((header, index) => {
                     if (widths[index]) {
                         header.style.width = widths[index];
+                        // Apply width to all cells in this column
+                        const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                        cells.forEach(cell => {
+                            cell.style.width = widths[index];
+                        });
                     }
                 });
+            }
+        }
+        
+        // Reorder columns function
+        function reorderColumns(table, sourceIndex, targetIndex) {
+            const headers = table.querySelectorAll('th');
+            const rows = table.querySelectorAll('tr');
+            
+            if (sourceIndex === targetIndex) return;
+            
+            // Get the source elements
+            const sourceHeader = headers[sourceIndex];
+            const sourceCells = [];
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                if (cells[sourceIndex]) {
+                    sourceCells.push(cells[sourceIndex]);
+                }
+            });
+            
+            // Remove source elements
+            sourceHeader.remove();
+            sourceCells.forEach(cell => cell.remove());
+            
+            // Insert at target position
+            if (targetIndex > sourceIndex) {
+                // Moving right - insert after target
+                const targetHeader = headers[targetIndex - 1];
+                targetHeader.insertAdjacentElement('afterend', sourceHeader);
+                
+                rows.forEach((row, rowIndex) => {
+                    const cells = row.querySelectorAll('th, td');
+                    const targetCell = cells[targetIndex - 1];
+                    if (targetCell && sourceCells[rowIndex]) {
+                        targetCell.insertAdjacentElement('afterend', sourceCells[rowIndex]);
+                    }
+                });
+            } else {
+                // Moving left - insert before target
+                const targetHeader = headers[targetIndex];
+                targetHeader.insertAdjacentElement('beforebegin', sourceHeader);
+                
+                rows.forEach((row, rowIndex) => {
+                    const cells = row.querySelectorAll('th, td');
+                    const targetCell = cells[targetIndex];
+                    if (targetCell && sourceCells[rowIndex]) {
+                        targetCell.insertAdjacentElement('beforebegin', sourceCells[rowIndex]);
+                    }
+                });
+            }
+            
+            // Update data-column attributes
+            const newHeaders = table.querySelectorAll('th');
+            newHeaders.forEach((header, index) => {
+                header.setAttribute('data-column', index);
+            });
+        }
+        
+        // Save column order to localStorage
+        function saveColumnOrder(table) {
+            const tableId = table.id || 'default-table';
+            const headers = table.querySelectorAll('th');
+            const order = Array.from(headers).map(header => header.getAttribute('data-column'));
+            localStorage.setItem(`table-order-${tableId}`, JSON.stringify(order));
+        }
+        
+        // Load column order from localStorage
+        function loadColumnOrder(table) {
+            const tableId = table.id || 'default-table';
+            const savedOrder = localStorage.getItem(`table-order-${tableId}`);
+            
+            if (savedOrder) {
+                const order = JSON.parse(savedOrder);
+                const headers = table.querySelectorAll('th');
+                
+                // Only reorder if the order is different
+                const currentOrder = Array.from(headers).map(header => header.getAttribute('data-column'));
+                if (JSON.stringify(currentOrder) !== JSON.stringify(order)) {
+                    // Reorder columns based on saved order
+                    const headerArray = Array.from(headers);
+                    const reorderedHeaders = order.map(index => headerArray.find(h => h.getAttribute('data-column') === index.toString()));
+                    
+                    // Clear the table header
+                    const thead = table.querySelector('thead tr');
+                    thead.innerHTML = '';
+                    
+                    // Add reordered headers
+                    reorderedHeaders.forEach(header => {
+                        if (header) {
+                            thead.appendChild(header);
+                        }
+                    });
+                    
+                    // Reorder data rows
+                    const tbody = table.querySelector('tbody');
+                    if (tbody) {
+                        const rows = Array.from(tbody.querySelectorAll('tr'));
+                        rows.forEach(row => {
+                            const cells = Array.from(row.querySelectorAll('td'));
+                            const reorderedCells = order.map(index => cells.find(c => c.parentNode.children[Array.from(c.parentNode.children).indexOf(c)] === cells[parseInt(index)]));
+                            
+                            // Clear and reorder cells
+                            row.innerHTML = '';
+                            reorderedCells.forEach(cell => {
+                                if (cell) {
+                                    row.appendChild(cell);
+                                }
+                            });
+                        });
+                    }
+                }
             }
         }
         
