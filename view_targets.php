@@ -266,7 +266,7 @@ if (empty($link_id)) {
         <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -346,9 +346,9 @@ if (empty($link_id)) {
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-link"></i> Select a Link to View Geolocation Data</h5>
+                            <div class="apple-card">
+                                <div class="apple-card-header">
+                                    <h5 class="apple-card-title"><i class="fas fa-link"></i> Select a Link to View Geolocation Data</h5>
                                 </div>
                                 <div class="card-body">
                                     <?php if (empty($links)): ?>
@@ -356,7 +356,7 @@ if (empty($link_id)) {
                                             <i class="fas fa-link fa-3x text-muted mb-3"></i>
                                             <h4>No Links Found</h4>
                                             <p class="text-muted">You haven't created any links yet.</p>
-                                            <a href="create_link.php" class="btn btn-primary">
+                                            <a href="create_link.php" class="apple-btn apple-btn-primary">
                                                 <i class="fas fa-plus"></i> Create Your First Link
                                             </a>
                                         </div>
@@ -395,7 +395,7 @@ if (empty($link_id)) {
                                                                 <small class="text-muted">
                                                                     Created: <?php echo date('M j, Y', strtotime($link['created_at'])); ?>
                                                                 </small>
-                                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="btn btn-sm btn-primary">
+                                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="apple-btn apple-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
                                                                     <i class="fas fa-map-marker-alt"></i> View Map
                                                                 </a>
                                                             </div>
@@ -491,7 +491,7 @@ if (empty($password)) {
         <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -969,7 +969,7 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
         <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
     </div>

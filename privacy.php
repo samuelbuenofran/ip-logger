@@ -24,6 +24,10 @@ $conn = $db->getConnection();
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -107,10 +111,10 @@ $conn = $db->getConnection();
 <body>
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <div class="navbar-brand">
+        <a href="index.php" class="apple-nav-brand">
             <i class="fas fa-shield-alt"></i> IP Logger
-        </div>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        </a>
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -120,56 +124,58 @@ $conn = $db->getConnection();
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
+            <nav class="col-md-3 col-lg-2 apple-sidebar sidebar" id="sidebar">
                 <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                        <p class="text-muted">URL Shortener & Tracker</p>
+                    <div class="apple-sidebar-header text-center">
+                        <a href="index.php" class="apple-nav-brand">
+                            <i class="fas fa-shield-alt"></i> IP Logger
+                        </a>
+                        <p class="apple-subhead" style="color: var(--apple-text-secondary); margin-top: var(--apple-space-xs);">URL Shortener & Tracker</p>
                     </div>
                     
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php">
+                    <ul class="apple-sidebar-nav">
+                        <li>
+                            <a class="apple-nav-link" href="index.php">
                                 <i class="fas fa-home"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="links.php">
+                        <li>
+                            <a class="apple-nav-link" href="links.php">
                                 <i class="fas fa-link"></i> My Links
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="create_link.php">
+                        <li>
+                            <a class="apple-nav-link" href="create_link.php">
                                 <i class="fas fa-plus"></i> Create Link
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="view_targets.php">
+                        <li>
+                            <a class="apple-nav-link" href="view_targets.php">
                                 <i class="fas fa-map-marker-alt"></i> Geolocation
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="admin.php">
+                        <li>
+                            <a class="apple-nav-link" href="admin.php">
                                 <i class="fas fa-cog"></i> Admin Panel
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="privacy.php">
+                        <li>
+                            <a class="apple-nav-link active" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="terms.php">
+                        <li>
+                            <a class="apple-nav-link" href="terms.php">
                                 <i class="fas fa-file-contract"></i> Terms of Use
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="cookies.php">
+                        <li>
+                            <a class="apple-nav-link" href="cookies.php">
                                 <i class="fas fa-cookie-bite"></i> Cookie Policy
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="password_recovery.php">
+                        <li>
+                            <a class="apple-nav-link" href="password_recovery.php">
                                 <i class="fas fa-key"></i> Password Recovery
                             </a>
                         </li>
@@ -180,17 +186,17 @@ $conn = $db->getConnection();
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Privacy Policy</h1>
+                    <h1 class="apple-title-1">Privacy Policy</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="index.php" class="btn btn-secondary">
+                        <a href="index.php" class="apple-btn apple-btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-body">
-                        <h3>Privacy Policy for IP Logger</h3>
+                <div class="apple-card">
+                    <div class="apple-card-body">
+                        <h3 class="apple-title-2">Privacy Policy for IP Logger</h3>
                         <p class="text-muted">Last updated: <?php echo date('F j, Y'); ?></p>
                         
                         <div class="privacy-notice">

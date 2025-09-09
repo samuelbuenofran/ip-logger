@@ -81,6 +81,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     
     <style>
         /* Mobile Navigation Styles */
@@ -204,10 +208,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
 <body class="bg-light">
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <div class="navbar-brand">
+        <a href="index.php" class="apple-nav-brand">
             <i class="fas fa-shield-alt"></i> IP Logger
-        </div>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        </a>
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -278,9 +282,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2"><i class="fas fa-key"></i> Password Recovery</h1>
+                    <h1 class="apple-title-1"><i class="fas fa-key"></i> Password Recovery</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="index.php" class="btn btn-secondary">
+                        <a href="index.php" class="apple-btn apple-btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
@@ -308,19 +312,19 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="short_code_gen" class="form-label">Short Code</label>
-                                    <input type="text" class="form-control" id="short_code_gen" name="short_code" required>
+                                    <label for="short_code_gen" class="apple-body-emphasized">Short Code</label>
+                                    <input type="text" class="apple-input" id="short_code_gen" name="short_code" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="password_gen" class="form-label">Current Password</label>
-                                    <input type="password" class="form-control" id="password_gen" name="password" required>
+                                    <label for="password_gen" class="apple-body-emphasized">Current Password</label>
+                                    <input type="password" class="apple-input" id="password_gen" name="password" required>
                                 </div>
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="apple-btn apple-btn-primary">
                             <i class="fas fa-key"></i> Generate Recovery Code
                         </button>
                     </form>
@@ -337,19 +341,19 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="short_code_rec" class="form-label">Short Code</label>
-                                    <input type="text" class="form-control" id="short_code_rec" name="short_code" required>
+                                    <label for="short_code_rec" class="apple-body-emphasized">Short Code</label>
+                                    <input type="text" class="apple-input" id="short_code_rec" name="short_code" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="recovery_code" class="form-label">Recovery Code</label>
-                                    <input type="text" class="form-control" id="recovery_code" name="recovery_code" required>
+                                    <label for="recovery_code" class="apple-body-emphasized">Recovery Code</label>
+                                    <input type="text" class="apple-input" id="recovery_code" name="recovery_code" required>
                                 </div>
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-warning">
+                        <button type="submit" class="apple-btn apple-btn-warning">
                             <i class="fas fa-unlock"></i> Recover Password
                         </button>
                     </form>
