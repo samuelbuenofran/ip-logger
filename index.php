@@ -149,9 +149,9 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <div class="navbar-brand">
+        <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
-        </div>
+        </a>
         <button class="btn btn-outline-light" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
@@ -166,8 +166,10 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                        <p class="text-muted">Encurtador de URL & Rastreador</p>
+                        <a href="index.php" class="text-decoration-none">
+                            <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
+                            <p class="text-muted">URL Shortener & Tracker</p>
+                        </a>
                     </div>
                     
                     <ul class="nav flex-column">
@@ -364,7 +366,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             </div>
                                             <div class="resize-handle"></div>
                                         </th>
-                                        <th style="width: 120px;" draggable="true" data-column="5">
+                                        <th style="width: 80px;" draggable="true" data-column="5">
                                             <div class="column-header">
                                                 <i class="fas fa-grip-vertical drag-handle me-2"></i>
                                                 <span class="column-title">Ações</span>
@@ -413,10 +415,18 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             echo $stmt->fetch(PDO::FETCH_ASSOC)['clicks'];
                                             ?>
                                         </td>
-                                        <td>
-                                            <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i> View
-                                            </a>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-secondary expand-btn" 
+                                                    onclick="toggleRowActions(this)" 
+                                                    title="Expandir ações">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                            <div class="row-actions" style="display: none;">
+                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" 
+                                                   class="btn btn-sm btn-primary text-white fw-bold mt-1">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -606,8 +616,10 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         
                         if (newWidth >= minWidth && newWidth <= maxWidth) {
                             currentHeader.style.width = newWidth + 'px';
+                            
                             // Update all cells in this column
-                            const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                            const columnIndex = Array.from(headers).indexOf(currentHeader);
+                            const cells = table.querySelectorAll(`td:nth-child(${columnIndex + 1})`);
                             cells.forEach(cell => {
                                 cell.style.width = newWidth + 'px';
                             });
@@ -783,10 +795,18 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 headers.forEach((header, index) => {
                     if (widths[index]) {
                         header.style.width = widths[index];
+                        
                         // Apply width to all cells in this column
                         const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
                         cells.forEach(cell => {
                             cell.style.width = widths[index];
+                        });
+                        
+                        // Also apply to any nested elements that might affect width
+                        const expandBtns = table.querySelectorAll(`td:nth-child(${index + 1}) .expand-btn`);
+                        expandBtns.forEach(btn => {
+                            btn.style.width = '32px';
+                            btn.style.height = '32px';
                         });
                     }
                 });
@@ -904,11 +924,57 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
         
+        // Row expansion functionality
+        function toggleRowActions(button) {
+            const rowActions = button.nextElementSibling;
+            const isExpanded = button.classList.contains('expanded');
+            
+            // Close all other expanded rows
+            document.querySelectorAll('.expand-btn.expanded').forEach(btn => {
+                if (btn !== button) {
+                    btn.classList.remove('expanded');
+                    btn.nextElementSibling.style.display = 'none';
+                }
+            });
+            
+            // Toggle current row
+            if (isExpanded) {
+                button.classList.remove('expanded');
+                rowActions.style.display = 'none';
+            } else {
+                button.classList.add('expanded');
+                rowActions.style.display = 'block';
+            }
+        }
+        
+        // Force column auto-adjustment
+        function forceColumnAdjustment(table) {
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                const currentWidth = header.style.width || header.offsetWidth + 'px';
+                
+                // Apply to all cells in this column
+                const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
+                cells.forEach(cell => {
+                    cell.style.width = currentWidth;
+                });
+            });
+        }
+        
         // Initialize resizable tables when page loads
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing resizable tables...');
             try {
                 initResizableTables();
+                
+                // Force column adjustment after initialization
+                setTimeout(() => {
+                    const tables = document.querySelectorAll('.resizable-table');
+                    tables.forEach(table => {
+                        forceColumnAdjustment(table);
+                    });
+                }, 100);
+                
                 console.log('Resizable tables initialized successfully');
             } catch (error) {
                 console.error('Error initializing resizable tables:', error);
@@ -1127,6 +1193,59 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-width: 6px;
             border-style: solid;
             border-color: #333 transparent transparent transparent;
+        }
+        
+        /* Row Expansion Styles */
+        .expand-btn {
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .expand-btn:hover {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .expand-btn.expanded {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .expand-btn.expanded i {
+            transform: rotate(180deg);
+        }
+        
+        .expand-btn i {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .row-actions {
+            margin-top: 0.5rem;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .row-actions.hidden {
+            display: none !important;
         }
         
         /* Responsive adjustments */

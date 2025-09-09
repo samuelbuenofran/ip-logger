@@ -263,9 +263,9 @@ if (empty($link_id)) {
     <body class="bg-light">
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <div class="navbar-brand">
+        <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
-        </div>
+        </a>
         <button class="btn btn-outline-light" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
@@ -488,9 +488,9 @@ if (empty($password)) {
     <body class="bg-light">
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <div class="navbar-brand">
+        <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
-        </div>
+        </a>
         <button class="btn btn-outline-light" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
@@ -962,9 +962,9 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
 <body>
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <div class="navbar-brand">
+        <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
-        </div>
+        </a>
         <button class="btn btn-outline-light" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
@@ -978,8 +978,10 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
             <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                        <p class="text-muted">URL Shortener & Tracker</p>
+                        <a href="index.php" class="text-decoration-none">
+                            <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
+                            <p class="text-muted">URL Shortener & Tracker</p>
+                        </a>
                     </div>
                     
                     <ul class="nav flex-column">
