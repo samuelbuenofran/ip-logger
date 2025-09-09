@@ -336,9 +336,9 @@ if (empty($link_id)) {
                 <!-- Main content -->
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="fas fa-map-marker-alt"></i> Geolocation</h1>
+                        <h1 class="apple-title-1"><i class="fas fa-map-marker-alt"></i> Geolocation</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="index.php" class="btn btn-secondary">
+                            <a href="index.php" class="apple-btn apple-btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Back to Dashboard
                             </a>
                         </div>
@@ -655,6 +655,10 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {

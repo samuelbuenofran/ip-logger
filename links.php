@@ -44,6 +44,10 @@ $activeLinks = count(array_filter($links, function($link) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     
     <style>
         /* Mobile Navigation Styles */
@@ -128,10 +132,10 @@ $activeLinks = count(array_filter($links, function($link) {
 <body>
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <a href="index.php" class="navbar-brand text-decoration-none">
+        <a href="index.php" class="apple-nav-brand">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle" style="padding: 0.5rem;">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -142,58 +146,58 @@ $activeLinks = count(array_filter($links, function($link) {
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
+            <nav class="col-md-3 col-lg-2 apple-sidebar sidebar" id="sidebar">
                 <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <a href="index.php" class="text-decoration-none">
-                            <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                            <p class="text-muted">URL Shortener & Tracker</p>
+                    <div class="apple-sidebar-header text-center">
+                        <a href="index.php" class="apple-nav-brand">
+                            <i class="fas fa-shield-alt"></i> IP Logger
                         </a>
+                        <p class="apple-subhead" style="color: var(--apple-text-secondary); margin-top: var(--apple-space-xs);">URL Shortener & Tracker</p>
                     </div>
                     
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php">
+                    <ul class="apple-sidebar-nav">
+                        <li>
+                            <a class="apple-nav-link" href="index.php">
                                 <i class="fas fa-home"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="links.php">
+                        <li>
+                            <a class="apple-nav-link active" href="links.php">
                                 <i class="fas fa-link"></i> My Links
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="create_link.php">
+                        <li>
+                            <a class="apple-nav-link" href="create_link.php">
                                 <i class="fas fa-plus"></i> Create Link
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="view_targets.php">
+                        <li>
+                            <a class="apple-nav-link" href="view_targets.php">
                                 <i class="fas fa-map-marker-alt"></i> Geolocation
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="admin.php">
+                        <li>
+                            <a class="apple-nav-link" href="admin.php">
                                 <i class="fas fa-cog"></i> Admin Panel
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="privacy.php">
+                        <li>
+                            <a class="apple-nav-link" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Privacy Policy
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="terms.php">
+                        <li>
+                            <a class="apple-nav-link" href="terms.php">
                                 <i class="fas fa-file-contract"></i> Terms of Use
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="cookies.php">
+                        <li>
+                            <a class="apple-nav-link" href="cookies.php">
                                 <i class="fas fa-cookie-bite"></i> Cookie Policy
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="password_recovery.php">
+                        <li>
+                            <a class="apple-nav-link" href="password_recovery.php">
                                 <i class="fas fa-key"></i> Password Recovery
                             </a>
                         </li>
@@ -204,8 +208,8 @@ $activeLinks = count(array_filter($links, function($link) {
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">My Links</h1>
-                    <a href="create_link.php" class="btn btn-primary">
+                    <h1 class="apple-title-1">My Links</h1>
+                    <a href="create_link.php" class="apple-btn apple-btn-primary">
                         <i class="fas fa-plus"></i> Create New Link
                     </a>
                 </div>
@@ -213,61 +217,53 @@ $activeLinks = count(array_filter($links, function($link) {
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
                     <div class="col-md-3">
-                        <div class="card text-white bg-primary">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title"><?php echo $totalLinks; ?></h4>
-                                        <p class="card-text">Total Links</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-link fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-blue) 0%, var(--apple-blue-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="apple-title-1" style="color: white;"><?php echo $totalLinks; ?></h4>
+                                    <p class="apple-subhead" style="color: white;">Total Links</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-link fa-2x"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title"><?php echo $totalClicks; ?></h4>
-                                        <p class="card-text">Total Clicks</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-mouse-pointer fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-green) 0%, var(--apple-green-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="apple-title-1" style="color: white;"><?php echo $totalClicks; ?></h4>
+                                    <p class="apple-subhead" style="color: white;">Total Clicks</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-mouse-pointer fa-2x"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-white bg-info">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title"><?php echo $activeLinks; ?></h4>
-                                        <p class="card-text">Active Links</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-check-circle fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-teal) 0%, var(--apple-teal-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="apple-title-1" style="color: white;"><?php echo $activeLinks; ?></h4>
+                                    <p class="apple-subhead" style="color: white;">Active Links</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-check-circle fa-2x"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title"><?php echo $totalLinks - $activeLinks; ?></h4>
-                                        <p class="card-text">Expired Links</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-clock fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-orange) 0%, var(--apple-orange-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="apple-title-1" style="color: white;"><?php echo $totalLinks - $activeLinks; ?></h4>
+                                    <p class="apple-subhead" style="color: white;">Expired Links</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-clock fa-2x"></i>
                                 </div>
                             </div>
                         </div>
@@ -275,9 +271,9 @@ $activeLinks = count(array_filter($links, function($link) {
                 </div>
 
                 <!-- Links Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-list"></i> All Links</h5>
+                <div class="apple-card">
+                    <div class="apple-card-header">
+                        <h5 class="apple-card-title"><i class="fas fa-list"></i> All Links</h5>
                     </div>
                     <div class="card-body">
                         <?php if (empty($links)): ?>
@@ -291,7 +287,7 @@ $activeLinks = count(array_filter($links, function($link) {
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
-                                <table class="table table-hover resizable-table" id="links-table">
+                                <table class="apple-table resizable-table" id="links-table">
                                     <thead>
                                         <tr>
                                             <th style="width: 200px;" draggable="true" data-column="0">

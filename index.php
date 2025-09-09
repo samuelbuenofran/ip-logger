@@ -65,6 +65,10 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     
     <style>
         /* Mobile Navigation Styles */
@@ -149,10 +153,10 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <!-- Mobile Header -->
     <div class="mobile-header d-flex justify-content-between align-items-center">
-        <a href="index.php" class="navbar-brand text-decoration-none">
+        <a href="index.php" class="apple-nav-brand">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle" style="padding: 0.5rem;">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -163,58 +167,58 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
+            <nav class="col-md-3 col-lg-2 apple-sidebar sidebar" id="sidebar">
                 <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <a href="index.php" class="text-decoration-none">
-                            <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                            <p class="text-muted">URL Shortener & Tracker</p>
+                    <div class="apple-sidebar-header text-center">
+                        <a href="index.php" class="apple-nav-brand">
+                            <i class="fas fa-shield-alt"></i> IP Logger
                         </a>
+                        <p class="apple-subhead" style="color: var(--apple-text-secondary); margin-top: var(--apple-space-xs);">URL Shortener & Tracker</p>
                     </div>
                     
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="index.php">
+                    <ul class="apple-sidebar-nav">
+                        <li>
+                            <a class="apple-nav-link active" href="index.php">
                                 <i class="fas fa-home"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="links.php">
+                        <li>
+                            <a class="apple-nav-link" href="links.php">
                                 <i class="fas fa-link"></i> Meus Links
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="create_link.php">
+                        <li>
+                            <a class="apple-nav-link" href="create_link.php">
                                 <i class="fas fa-plus"></i> Criar Link
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="view_targets.php">
+                        <li>
+                            <a class="apple-nav-link" href="view_targets.php">
                                 <i class="fas fa-map-marker-alt"></i> Geolocalização
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="admin.php">
+                        <li>
+                            <a class="apple-nav-link" href="admin.php">
                                 <i class="fas fa-cog"></i> Painel Admin
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="privacy.php">
+                        <li>
+                            <a class="apple-nav-link" href="privacy.php">
                                 <i class="fas fa-user-shield"></i> Política de Privacidade
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="terms.php">
+                        <li>
+                            <a class="apple-nav-link" href="terms.php">
                                 <i class="fas fa-file-contract"></i> Termos de Uso
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="cookies.php">
+                        <li>
+                            <a class="apple-nav-link" href="cookies.php">
                                 <i class="fas fa-cookie-bite"></i> Política de Cookies
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="password_recovery.php">
+                        <li>
+                            <a class="apple-nav-link" href="password_recovery.php">
                                 <i class="fas fa-key"></i> Recuperar Senha
                             </a>
                         </li>
@@ -225,9 +229,9 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Dashboard</h1>
+                    <h1 class="apple-title-1">Dashboard</h1>
                                          <div class="btn-toolbar mb-2 mb-md-0">
-                         <a href="create_link.php" class="btn btn-primary me-2">
+                         <a href="create_link.php" class="apple-btn apple-btn-primary me-2">
                              <i class="fas fa-plus"></i> Criar Novo Link
                          </a>
                      </div>
@@ -239,70 +243,62 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
                     <div class="col-xl-3 col-md-6">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="card-title">Total de Links</h5>
-                                        <h2><?php echo count($links); ?></h2>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-link fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-blue) 0%, var(--apple-blue-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="apple-headline" style="color: white;">Total de Links</h5>
+                                    <h2 class="apple-title-1" style="color: white;"><?php echo count($links); ?></h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-link fa-2x"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-xl-3 col-md-6">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="card-title">Links Ativos</h5>
-                                        <h2><?php echo count(array_filter($links, function($link) { return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); })); ?></h2>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-check-circle fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-green) 0%, var(--apple-green-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="apple-headline" style="color: white;">Links Ativos</h5>
+                                    <h2 class="apple-title-1" style="color: white;"><?php echo count(array_filter($links, function($link) { return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); })); ?></h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-check-circle fa-2x"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-xl-3 col-md-6">
-                        <div class="card bg-info text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="card-title">Total de Cliques</h5>
-                                        <h2><?php 
-                                            $stmt = $conn->query("SELECT COUNT(*) as total FROM targets");
-                                            echo $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-                                        ?></h2>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-mouse-pointer fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-teal) 0%, var(--apple-teal-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="apple-headline" style="color: white;">Total de Cliques</h5>
+                                    <h2 class="apple-title-1" style="color: white;"><?php 
+                                        $stmt = $conn->query("SELECT COUNT(*) as total FROM targets");
+                                        echo $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                                    ?></h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-mouse-pointer fa-2x"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-xl-3 col-md-6">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="card-title">Visitantes Únicos</h5>
-                                        <h2><?php 
-                                            $stmt = $conn->query("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets");
-                                            echo $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
-                                        ?></h2>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-users fa-2x"></i>
-                                    </div>
+                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-orange) 0%, var(--apple-orange-dark) 100%); color: white;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="apple-headline" style="color: white;">Visitantes Únicos</h5>
+                                    <h2 class="apple-title-1" style="color: white;"><?php 
+                                        $stmt = $conn->query("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets");
+                                        echo $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
+                                    ?></h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-users fa-2x"></i>
                                 </div>
                             </div>
                         </div>
@@ -310,13 +306,13 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <!-- Recent Links Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-link"></i> Links Recentes</h5>
+                <div class="apple-card">
+                    <div class="apple-card-header">
+                        <h5 class="apple-card-title"><i class="fas fa-link"></i> Links Recentes</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped resizable-table" id="dashboard-table">
+                            <table class="apple-table resizable-table" id="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 60px;">
@@ -382,7 +378,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <td><?php echo $link['id']; ?></td>
                                         <td>
                                             <code><?php echo $link['short_code']; ?></code>
-                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')" title="Copiar URL">
+                                            <button class="apple-btn apple-btn-secondary ms-2" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')" title="Copiar URL">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </td>
@@ -416,14 +412,15 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             ?>
                                         </td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-secondary expand-btn" 
+                                            <button class="apple-btn apple-btn-secondary expand-btn" 
+                                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
                                                     onclick="toggleRowActions(this)" 
                                                     title="Expandir ações">
                                                 <i class="fas fa-chevron-down"></i>
                                             </button>
                                             <div class="row-actions" style="display: none;">
                                                 <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" 
-                                                   class="btn btn-sm btn-primary text-white fw-bold mt-1">
+                                                   class="apple-btn apple-btn-primary mt-1" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
                                             </div>

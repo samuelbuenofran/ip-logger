@@ -81,6 +81,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     
     <style>
         /* Mobile Navigation Styles */
@@ -512,32 +516,32 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
 
                     <!-- Create Link Form -->
                     <div class="form-card">
-                        <h3><i class="fas fa-link"></i> Criar Novo Link</h3>
+                        <h3 class="apple-title-2"><i class="fas fa-link"></i> Criar Novo Link</h3>
                         
                         <form method="POST">
                             <input type="hidden" name="action" value="create_link">
                             
                             <div class="mb-3">
-                                <label for="original_url" class="form-label">
+                                <label for="original_url" class="apple-body-emphasized">
                                     <i class="fas fa-globe"></i> URL de Destino
                                 </label>
-                                <input type="text" class="form-control" id="original_url" name="original_url" 
+                                <input type="text" class="apple-input" id="original_url" name="original_url" 
                                        placeholder="www.joblinerh.com.br ou https://example.com/documento.pdf..." 
                                        required>
-                                <div class="form-text">Cole aqui a URL que você quer enviar (imagem, documento, website, etc.) - não precisa incluir https://</div>
+                                <div class="apple-footnote" style="margin-top: var(--apple-space-xs);">Cole aqui a URL que você quer enviar (imagem, documento, website, etc.) - não precisa incluir https://</div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="password" class="form-label">
+                                <label for="password" class="apple-body-emphasized">
                                     <i class="fas fa-lock"></i> Senha para Ver Logs
                                 </label>
-                                <input type="password" class="form-control" id="password" name="password" 
+                                <input type="password" class="apple-input" id="password" name="password" 
                                        placeholder="Digite uma senha..." 
                                        required>
-                                <div class="form-text">Esta senha será usada para acessar os logs de localização</div>
+                                <div class="apple-footnote" style="margin-top: var(--apple-space-xs);">Esta senha será usada para acessar os logs de localização</div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="apple-btn apple-btn-primary">
                                 <i class="fas fa-plus"></i> Criar Link
                             </button>
                         </form>

@@ -145,6 +145,10 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Apple Fonts -->
+    <link rel="stylesheet" href="assets/css/apple-fonts.css">
+    <!-- Apple Design System -->
+    <link rel="stylesheet" href="assets/css/apple-design-system.css">
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -562,12 +566,12 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="admin-content">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="fas fa-cog"></i> Admin Panel</h1>
+                        <h1 class="apple-title-1"><i class="fas fa-cog"></i> Admin Panel</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="create_link.php" class="btn btn-primary me-2">
+                            <a href="create_link.php" class="apple-btn apple-btn-primary me-2">
                                 <i class="fas fa-plus"></i> Create New Link
                             </a>
-                            <a href="?logout=1" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to logout?')">
+                            <a href="?logout=1" class="apple-btn apple-btn-danger" onclick="return confirm('Are you sure you want to logout?')">
                                 <i class="fas fa-sign-out-alt"></i> Logout
                             </a>
                         </div>
