@@ -7,7 +7,7 @@
 class QRCodeGenerator {
     
     /**
-     * Generate QR Code URL using Google Charts API
+     * Generate QR Code URL using multiple APIs with fallback
      */
     public static function generateQRCode($url, $size = 200) {
         // Validate size
@@ -16,10 +16,50 @@ class QRCodeGenerator {
         // Encode URL for QR Code
         $encodedUrl = urlencode($url);
         
-        // Google Charts QR Code API
-        $qrUrl = "https://chart.googleapis.com/chart?chs={$size}x{$size}&cht=qr&chl={$encodedUrl}";
+        // Try multiple QR Code APIs with fallback
+        $apis = [
+            // QR Server API (most reliable)
+            "https://api.qrserver.com/v1/create-qr-code/?size={$size}x{$size}&data={$encodedUrl}",
+            
+            // Google Charts API (backup)
+            "https://chart.googleapis.com/chart?chs={$size}x{$size}&cht=qr&chl={$encodedUrl}",
+            
+            // QR Code API (backup)
+            "https://qr-code-generator.com/api/qr?size={$size}&data={$encodedUrl}",
+            
+            // QR Code Monkey (backup)
+            "https://api.qrserver.com/v1/create-qr-code/?size={$size}x{$size}&data={$encodedUrl}&format=png"
+        ];
         
-        return $qrUrl;
+        // Test each API and return the first working one
+        foreach ($apis as $apiUrl) {
+            if (self::testQRCodeUrl($apiUrl)) {
+                return $apiUrl;
+            }
+        }
+        
+        // If all APIs fail, return the first one anyway
+        return $apis[0];
+    }
+    
+    /**
+     * Test if QR Code URL is accessible
+     */
+    private static function testQRCodeUrl($url) {
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 5, // 5 second timeout
+                'method' => 'HEAD'
+            ]
+        ]);
+        
+        $headers = @get_headers($url, 1, $context);
+        
+        if ($headers && strpos($headers[0], '200') !== false) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**

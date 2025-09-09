@@ -293,6 +293,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         .qr-code-container {
             text-align: center;
             margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
         
         .qr-code-image {
@@ -301,9 +306,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
             padding: 0.5rem;
             background: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-            max-width: 100%;
-            height: auto;
+            margin: 0 auto 1rem auto;
+            width: 150px;
+            height: 150px;
+            display: block;
+            object-fit: contain;
         }
         
         .qr-code-actions {
@@ -320,6 +327,25 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         
         .qr-code-actions .copy-btn i {
             margin-right: 0.3rem;
+        }
+        
+        .qr-code-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            color: #6c757d;
+            margin: 0 auto 1rem auto;
+            width: 150px;
+        }
+        
+        .qr-code-loading .spinner-border {
+            width: 2rem;
+            height: 2rem;
+            margin-right: 0.5rem;
         }
         
         @media (max-width: 576px) {
@@ -449,10 +475,18 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                             <div class="url-display">
                                 <strong>QR Code:</strong>
                                 <div class="qr-code-container">
+                                    <div class="qr-code-loading" id="qrCodeLoading">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                        <span>Gerando QR Code...</span>
+                                    </div>
                                     <img src="<?php echo QRCodeGenerator::generateQRCode($link['short_url'], 150); ?>" 
                                          alt="QR Code" 
                                          class="qr-code-image"
-                                         id="qrCodeImage">
+                                         id="qrCodeImage"
+                                         data-url="<?php echo htmlspecialchars($link['short_url']); ?>"
+                                         style="display: none;">
                                     <div class="qr-code-actions">
                                         <button class="copy-btn" onclick="downloadQRCode('<?php echo $link['short_url']; ?>')">
                                             <i class="fas fa-download"></i> Baixar QR Code
@@ -560,6 +594,79 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         function copyQRCodeUrl(qrUrl) {
             copyToClipboard(qrUrl);
         }
+        
+        // QR Code fallback system
+        function initQRCodeFallback() {
+            const qrImage = document.getElementById('qrCodeImage');
+            const qrLoading = document.getElementById('qrCodeLoading');
+            if (!qrImage || !qrLoading) return;
+            
+            const targetUrl = qrImage.getAttribute('data-url');
+            if (!targetUrl) return;
+            
+            const fallbackAPIs = [
+                'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=',
+                'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=',
+                'https://qr-code-generator.com/api/qr?size=150&data=',
+                'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=&format=png'
+            ];
+            
+            let currentAPI = 0;
+            let isLoaded = false;
+            
+            function hideLoading() {
+                qrLoading.style.display = 'none';
+                qrImage.style.display = 'block';
+            }
+            
+            function showError() {
+                qrLoading.style.display = 'none';
+                qrImage.style.display = 'none';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-warning text-center mt-2';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> QR Code temporariamente indisponível. Tente novamente mais tarde.';
+                qrImage.parentNode.appendChild(errorDiv);
+            }
+            
+            function tryNextAPI() {
+                if (isLoaded) return;
+                
+                if (currentAPI < fallbackAPIs.length) {
+                    const newSrc = fallbackAPIs[currentAPI] + encodeURIComponent(targetUrl);
+                    console.log(`Trying QR Code API ${currentAPI + 1}:`, newSrc);
+                    qrImage.src = newSrc;
+                    currentAPI++;
+                } else {
+                    // All APIs failed, show error message
+                    console.log('All QR Code APIs failed');
+                    showError();
+                }
+            }
+            
+            qrImage.addEventListener('error', function() {
+                console.log('QR Code failed to load, trying next API...');
+                setTimeout(tryNextAPI, 1000); // Wait 1 second before trying next API
+            });
+            
+            qrImage.addEventListener('load', function() {
+                console.log('QR Code loaded successfully');
+                isLoaded = true;
+                hideLoading();
+            });
+            
+            // Test if current image loads, if not, start fallback
+            setTimeout(function() {
+                if (!isLoaded && qrImage.complete && qrImage.naturalHeight === 0) {
+                    console.log('Initial QR Code failed, starting fallback...');
+                    tryNextAPI();
+                }
+            }, 2000);
+        }
+        
+        // Initialize QR Code fallback when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initQRCodeFallback();
+        });
     </script>
 
     <!-- Mobile Navigation Script -->
