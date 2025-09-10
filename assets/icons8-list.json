@@ -13,6 +13,14 @@
       "cdn_link": "https://img.icons8.com/3d-fluency/1500/home.png",
       "file_type": "PNG",
       "tags": ["home", "main", "3d-fluency"]
+    },
+    {
+      "name": "Log Cabin 3D Fluency",
+      "style": "3D Fluency",
+      "cdn_link": "https://img.icons8.com/3d-fluency/100/log-cabin.png",
+      "file_type": "PNG",
+      "tags": ["log-cabin", "main", "3d-fluency"]
     }
   ]
 }
+
