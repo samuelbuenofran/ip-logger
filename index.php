@@ -243,62 +243,62 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-blue) 0%, var(--apple-blue-dark) 100%); color: white;">
+                        <div class="apple-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline" style="color: white;">Total de Links</h5>
-                                    <h2 class="apple-title-1" style="color: white;"><?php echo count($links); ?></h2>
+                                    <h5 class="apple-headline">Total de Links</h5>
+                                    <h2 class="apple-title-1"><?php echo count($links); ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-link fa-2x"></i>
+                                    <i class="fas fa-link fa-2x" style="color: var(--apple-blue);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-green) 0%, var(--apple-green-dark) 100%); color: white;">
+                        <div class="apple-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline" style="color: white;">Links Ativos</h5>
-                                    <h2 class="apple-title-1" style="color: white;"><?php echo count(array_filter($links, function($link) { return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); })); ?></h2>
+                                    <h5 class="apple-headline">Links Ativos</h5>
+                                    <h2 class="apple-title-1"><?php echo count(array_filter($links, function($link) { return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); })); ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-check-circle fa-2x"></i>
+                                    <i class="fas fa-check-circle fa-2x" style="color: var(--apple-green);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-teal) 0%, var(--apple-teal-dark) 100%); color: white;">
+                        <div class="apple-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline" style="color: white;">Total de Cliques</h5>
-                                    <h2 class="apple-title-1" style="color: white;"><?php 
+                                    <h5 class="apple-headline">Total de Cliques</h5>
+                                    <h2 class="apple-title-1"><?php 
                                         $stmt = $conn->query("SELECT COUNT(*) as total FROM targets");
                                         echo $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                     ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-mouse-pointer fa-2x"></i>
+                                    <i class="fas fa-mouse-pointer fa-2x" style="color: var(--apple-teal);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card" style="background: linear-gradient(135deg, var(--apple-orange) 0%, var(--apple-orange-dark) 100%); color: white;">
+                        <div class="apple-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline" style="color: white;">Visitantes Únicos</h5>
-                                    <h2 class="apple-title-1" style="color: white;"><?php 
+                                    <h5 class="apple-headline">Visitantes Únicos</h5>
+                                    <h2 class="apple-title-1"><?php 
                                         $stmt = $conn->query("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets");
                                         echo $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
                                     ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-users fa-2x"></i>
+                                    <i class="fas fa-users fa-2x" style="color: var(--apple-orange);"></i>
                                 </div>
                             </div>
                         </div>
@@ -467,8 +467,8 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Link</button>
+                        <button type="button" class="apple-btn apple-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="apple-btn apple-btn-primary">Create Link</button>
                     </div>
                 </form>
             </div>

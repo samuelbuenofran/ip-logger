@@ -371,7 +371,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
         <a href="index.php" class="navbar-brand text-decoration-none">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -447,7 +447,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-plus"></i> Criar Novo Link</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="index.php" class="btn btn-outline-secondary">
+                            <a href="index.php" class="apple-btn apple-btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
                             </a>
                         </div>

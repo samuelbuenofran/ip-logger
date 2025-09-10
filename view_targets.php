@@ -512,8 +512,8 @@ if (empty($password)) {
                                     <label for="password" class="form-label">Password</label>
                                     <input type="password" class="form-control" id="password" name="password" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary">View Data</button>
-                                <a href="index.php" class="btn btn-secondary">Back to Dashboard</a>
+                                <button type="submit" class="apple-btn apple-btn-primary">View Data</button>
+                                <a href="index.php" class="apple-btn apple-btn-secondary">Back to Dashboard</a>
                             </form>
                         </div>
                     </div>
@@ -1043,10 +1043,10 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Target Data</h1>
                                          <div class="btn-toolbar mb-2 mb-md-0">
-                         <a href="index.php" class="btn btn-secondary me-2">
+                         <a href="index.php" class="apple-btn apple-btn-secondary me-2">
                              <i class="fas fa-arrow-left"></i> Back to Dashboard
                          </a>
-                         <a href="test_maps.php" class="btn btn-info" target="_blank">
+                         <a href="test_maps.php" class="apple-btn apple-btn-info" target="_blank">
                              <i class="fas fa-map"></i> Test Maps
                          </a>
                      </div>

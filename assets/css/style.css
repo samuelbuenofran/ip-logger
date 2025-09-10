@@ -2,7 +2,8 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f8f9fa;
+    background-color: var(--apple-bg-page);
+    color: var(--apple-text-primary);
 }
 
 /* Sidebar Styling */
@@ -62,8 +63,8 @@ body {
 .table th {
     border-top: none;
     font-weight: 600;
-    color: #495057;
-    background-color: #f8f9fa;
+    color: var(--apple-text-primary);
+    background-color: var(--apple-bg-primary);
 }
 
 .table td {

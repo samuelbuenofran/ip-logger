@@ -281,7 +281,7 @@ $activeLinks = count(array_filter($links, function($link) {
                                 <i class="fas fa-link fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">No links created yet</h5>
                                 <p class="text-muted">Create your first link to start tracking visitors</p>
-                                <a href="index.php" class="btn btn-primary">
+                                <a href="index.php" class="apple-btn apple-btn-primary">
                                     <i class="fas fa-plus"></i> Create First Link
                                 </a>
                             </div>
@@ -366,7 +366,8 @@ $activeLinks = count(array_filter($links, function($link) {
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <code class="me-2"><?php echo $link['short_code']; ?></code>
-                                                        <button class="btn btn-sm btn-outline-secondary" 
+                                                        <button class="apple-btn apple-btn-secondary" 
+                                                                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
                                                                 onclick="copyToClipboard('<?php echo $shortUrl; ?>')"
                                                                 title="Copy URL">
                                                             <i class="fas fa-copy"></i>
@@ -400,7 +401,8 @@ $activeLinks = count(array_filter($links, function($link) {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-outline-secondary expand-btn" 
+                                                    <button class="apple-btn apple-btn-secondary expand-btn" 
+                                                            style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
                                                             onclick="toggleRowActions(this)" 
                                                             title="Expandir ações">
                                                         <i class="fas fa-chevron-down"></i>
@@ -409,16 +411,19 @@ $activeLinks = count(array_filter($links, function($link) {
                                                         <div class="btn-group-vertical" role="group">
                                                             <a href="<?php echo $shortUrl; ?>" 
                                                                target="_blank" 
-                                                               class="btn btn-sm btn-outline-primary mb-1"
+                                                               class="apple-btn apple-btn-secondary mb-1"
+                                                               style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
                                                                title="Test Link">
                                                                 <i class="fas fa-external-link-alt"></i> Test
                                                             </a>
                                                             <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" 
-                                                               class="btn btn-sm btn-primary text-white fw-bold mb-1"
+                                                               class="apple-btn apple-btn-primary mb-1"
+                                                               style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
                                                                title="View Targets">
                                                                 <i class="fas fa-eye"></i> View
                                                             </a>
-                                                            <button class="btn btn-sm btn-outline-secondary"
+                                                            <button class="apple-btn apple-btn-secondary"
+                                                                    style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
                                                                     onclick="showLinkDetails('<?php echo $shortUrl; ?>', '<?php echo htmlspecialchars($link['original_url']); ?>')"
                                                                     title="Link Details">
                                                                 <i class="fas fa-info-circle"></i> Details
@@ -451,7 +456,7 @@ $activeLinks = count(array_filter($links, function($link) {
                         <label class="form-label">Short URL</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="modalShortUrl" readonly>
-                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(document.getElementById('modalShortUrl').value)" title="Copy URL">
+                            <button class="apple-btn apple-btn-secondary" type="button" onclick="copyToClipboard(document.getElementById('modalShortUrl').value)" title="Copy URL">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
@@ -462,7 +467,7 @@ $activeLinks = count(array_filter($links, function($link) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="apple-btn apple-btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
