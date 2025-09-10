@@ -1,0 +1,78 @@
+index.php:1216 DOM loaded, initializing resizable tables...
+index.php:816 initResizableTables called
+index.php:818 Found tables: 1
+index.php:821 Processing table 0: <table class=​"apple-table resizable-table" id=​"dashboard-table">​…​</table>​
+index.php:823 Found 7 headers in table 0
+index.php:840 Header 0: <th style=​"width:​ 60px;​">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:840 Header 1: <th style=​"width:​ 120px;​" draggable=​"true" data-column=​"0">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:840 Header 2: <th style=​"width:​ 250px;​" draggable=​"true" data-column=​"1">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:840 Header 3: <th style=​"width:​ 120px;​" draggable=​"true" data-column=​"2">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:840 Header 4: <th style=​"width:​ 120px;​" draggable=​"true" data-column=​"3">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:840 Header 5: <th style=​"width:​ 80px;​" draggable=​"true" data-column=​"4">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:840 Header 6: <th style=​"width:​ 80px;​" draggable=​"true" data-column=​"5">​…​</th>​ Resize handle: <div class=​"resize-handle">​</div>​
+index.php:1228 Resizable tables initialized successfully
+index.php:1  Unchecked runtime.lastError: The message port closed before a response was received.
+bundle.js:2  Uncaught (in promise) Error: Cannot read properties of undefined (reading 'merchant')
+    at p (bundle.js:2:254002)
+contentScript.js:2 Content script initialized successfully.
+index.php:915 Cell text: "0", cellWidth: 136, textWidth: 8.83203125
+index.php:915 Cell text: "View", cellWidth: 137, textWidth: 32.416015625
+index.php:915 Cell text: "View", cellWidth: 137, textWidth: 32.416015625
+index.php:915 Cell text: "0", cellWidth: 136, textWidth: 8.83203125
+index.php:908 URL cell detected, showing full URL: https://www.example.com
+index.php:942 Tooltip shown: https://www.example.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://example.com
+index.php:942 Tooltip shown: https://example.com
+index.php:908 URL cell detected, showing full URL: https://example.com
+index.php:942 Tooltip shown: https://example.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:915 Cell text: "Sep 8, 2025", cellWidth: 205, textWidth: 80.185546875
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Sep 5, 2025", cellWidth: 205, textWidth: 79.7685546875
+index.php:915 Cell text: "Hx4pJjF6", cellWidth: 205, textWidth: 63.9912109375
+index.php:915 Cell text: "13", cellWidth: 102, textWidth: 14.341796875
+index.php:915 Cell text: "Hx4pJjF6", cellWidth: 205, textWidth: 63.9912109375
+index.php:908 URL cell detected, showing full URL: https://fatecid.com.br/cursos/
+index.php:942 Tooltip shown: https://fatecid.com.br/cursos/
+index.php:915 Cell text: "Hx4pJjF6", cellWidth: 205, textWidth: 63.9912109375
+index.php:915 Cell text: "13", cellWidth: 102, textWidth: 14.341796875
+index.php:915 Cell text: "12", cellWidth: 102, textWidth: 14.232421875
+index.php:915 Cell text: "13", cellWidth: 102, textWidth: 14.341796875
+index.php:915 Cell text: "Hx4pJjF6", cellWidth: 205, textWidth: 63.9912109375
+index.php:915 Cell text: "nQyxtaqW", cellWidth: 205, textWidth: 69.6376953125
+index.php:908 URL cell detected, showing full URL: https://www.example.com
+index.php:942 Tooltip shown: https://www.example.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:908 URL cell detected, showing full URL: https://example.com
+index.php:942 Tooltip shown: https://example.com
+index.php:908 URL cell detected, showing full URL: https://example.com
+index.php:942 Tooltip shown: https://example.com
+index.php:915 Cell text: "75aD9HLZ", cellWidth: 205, textWidth: 69.86328125
+index.php:915 Cell text: "POhrhtXv", cellWidth: 205, textWidth: 63.6904296875
+index.php:915 Cell text: "KiT4OY40", cellWidth: 205, textWidth: 66.8076171875
+index.php:915 Cell text: "15", cellWidth: 102, textWidth: 14
+index.php:915 Cell text: "KiT4OY40", cellWidth: 205, textWidth: 66.8076171875
+index.php:908 URL cell detected, showing full URL: https://youtube.com
+index.php:942 Tooltip shown: https://youtube.com
+index.php:915 Cell text: "Sep 8, 2025", cellWidth: 205, textWidth: 80.185546875
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375
+index.php:915 Cell text: "Nunca", cellWidth: 205, textWidth: 43.09375

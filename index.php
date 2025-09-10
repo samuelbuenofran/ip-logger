@@ -109,26 +109,27 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             .mobile-header {
                 display: block;
-                background: #343a40;
+                background: var(--apple-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
+                border-bottom: 1px solid var(--apple-gray-5);
             }
             
             .mobile-header .navbar-brand {
-                color: white;
+                color: var(--apple-text-primary);
                 font-weight: 600;
             }
             
             .mobile-header .btn {
-                color: white;
-                border-color: rgba(255, 255, 255, 0.2);
+                color: var(--apple-text-primary);
+                border-color: var(--apple-gray-4);
             }
             
             .mobile-header .btn:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.3);
+                background-color: var(--apple-gray-6);
+                border-color: var(--apple-gray-3);
             }
         }
         
@@ -156,8 +157,12 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <a href="index.php" class="apple-nav-brand">
             <i class="fas fa-shield-alt"></i> IP Logger
         </a>
-        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle" style="padding: 0.5rem;">
-            <i class="fas fa-bars"></i>
+        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle" style="padding: 0.75rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;" title="Abrir Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
         </button>
     </div>
     
@@ -413,10 +418,12 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </td>
                                         <td class="text-center">
                                             <button class="apple-btn apple-btn-secondary expand-btn" 
-                                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                                                    style="padding: 0.5rem; font-size: 0.8rem; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
                                                     onclick="toggleRowActions(this)" 
                                                     title="Expandir ações">
-                                                <i class="fas fa-chevron-down"></i>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="6,9 12,15 18,9"></polyline>
+                                                </svg>
                                             </button>
                                             <div class="row-actions" style="display: none;">
                                                 <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" 
