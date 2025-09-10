@@ -3,6 +3,7 @@ session_start();
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/sidebar_helper.php';
 
 // Initialize database connection
 $db = new Database();
@@ -125,26 +126,27 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
             
             .mobile-header {
                 display: block;
-                background: #343a40;
+                background: var(--apple-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
+                border-bottom: 1px solid var(--apple-gray-5);
             }
             
             .mobile-header .navbar-brand {
-                color: white;
+                color: var(--apple-text-primary);
                 font-weight: 600;
             }
             
             .mobile-header .btn {
-                color: white;
-                border-color: rgba(255, 255, 255, 0.2);
+                color: var(--apple-text-primary);
+                border-color: var(--apple-gray-4);
             }
             
             .mobile-header .btn:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.3);
+                background-color: var(--apple-gray-6);
+                border-color: var(--apple-gray-3);
             }
         }
         
@@ -206,78 +208,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
     </style>
 </head>
 <body class="bg-light">
-    <!-- Mobile Header -->
-    <div class="mobile-header d-flex justify-content-between align-items-center">
-        <a href="index.php" class="apple-nav-brand">
-            <i class="fas fa-shield-alt"></i> IP Logger
-        </a>
-        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
-    
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <?php echo generateMobileHeader(); ?>\n    <?php echo generateSidebarOverlay(); ?>
     
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 bg-dark sidebar" id="sidebar">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="fas fa-shield-alt"></i> IP Logger</h4>
-                        <p class="text-muted">URL Shortener & Tracker</p>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="links.php">
-                                <i class="fas fa-link"></i> My Links
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="create_link.php">
-                                <i class="fas fa-plus"></i> Create Link
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Geolocation
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="admin.php">
-                                <i class="fas fa-cog"></i> Admin Panel
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="privacy.php">
-                                <i class="fas fa-user-shield"></i> Privacy Policy
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="terms.php">
-                                <i class="fas fa-file-contract"></i> Terms of Use
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="cookies.php">
-                                <i class="fas fa-cookie-bite"></i> Cookie Policy
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="password_recovery.php">
-                                <i class="fas fa-key"></i> Password Recovery
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <!-- Sidebar -->\n            <?php echo generateSidebar(); ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
@@ -392,45 +327,5 @@ if (isset($_POST['action']) && $_POST['action'] === 'generate_recovery') {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Mobile Navigation Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            
-            // Toggle sidebar
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
-            
-            // Close sidebar when clicking overlay
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-            
-            // Close sidebar when clicking on nav links (mobile only)
-            const navLinks = document.querySelectorAll('.sidebar .nav-link');
-            navLinks.forEach(function(link) {
-                link.addEventListener('click', function(e) {
-                    // Only close sidebar on mobile, don't prevent default navigation
-                    if (window.innerWidth < 768) {
-                        sidebar.classList.remove('show');
-                        sidebarOverlay.classList.remove('show');
-                    }
-                    // Don't prevent default - let normal navigation work
-                });
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                }
-            });
-        });
-    </script></body>
+    </body>
 </html>

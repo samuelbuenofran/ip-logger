@@ -3,6 +3,7 @@ session_start();
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/sidebar_helper.php';
 
 // Initialize database connection
 $db = new Database();
@@ -152,84 +153,13 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <!-- Mobile Header -->
-    <div class="mobile-header d-flex justify-content-between align-items-center">
-        <a href="index.php" class="apple-nav-brand">
-            <i class="fas fa-shield-alt"></i> IP Logger
-        </a>
-        <button class="apple-btn apple-btn-secondary" type="button" id="sidebarToggle" style="padding: 0.75rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;" title="Abrir Menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </button>
-    </div>
-    
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <?php echo generateMobileHeader(); ?>
+    <?php echo generateSidebarOverlay(); ?>
     
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 apple-sidebar sidebar" id="sidebar">
-                <div class="position-sticky pt-3">
-                    <div class="apple-sidebar-header text-center">
-                        <a href="index.php" class="apple-nav-brand">
-                            <i class="fas fa-shield-alt"></i> IP Logger
-                        </a>
-                        <p class="apple-subhead" style="color: var(--apple-text-secondary); margin-top: var(--apple-space-xs);">URL Shortener & Tracker</p>
-                    </div>
-                    
-                    <ul class="apple-sidebar-nav">
-                        <li>
-                            <a class="apple-nav-link active" href="index.php">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="links.php">
-                                <i class="fas fa-link"></i> Meus Links
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="create_link.php">
-                                <i class="fas fa-plus"></i> Criar Link
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="view_targets.php">
-                                <i class="fas fa-map-marker-alt"></i> Geolocalização
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="admin.php">
-                                <i class="fas fa-cog"></i> Painel Admin
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="privacy.php">
-                                <i class="fas fa-user-shield"></i> Política de Privacidade
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="terms.php">
-                                <i class="fas fa-file-contract"></i> Termos de Uso
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="cookies.php">
-                                <i class="fas fa-cookie-bite"></i> Política de Cookies
-                            </a>
-                        </li>
-                        <li>
-                            <a class="apple-nav-link" href="password_recovery.php">
-                                <i class="fas fa-key"></i> Recuperar Senha
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <?php echo generateSidebar(); ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
@@ -417,17 +347,16 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             ?>
                                         </td>
                                         <td class="text-center">
-                                            <button class="apple-btn apple-btn-secondary expand-btn" 
-                                                    style="padding: 0.5rem; font-size: 0.8rem; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
+                                            <button class="expand-btn" 
                                                     onclick="toggleRowActions(this)" 
                                                     title="Expandir ações">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <polyline points="6,9 12,15 18,9"></polyline>
                                                 </svg>
                                             </button>
                                             <div class="row-actions" style="display: none;">
                                                 <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" 
-                                                   class="apple-btn apple-btn-primary mt-1" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                                   class="btn btn-sm btn-primary">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
                                             </div>
@@ -488,6 +417,62 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
+    
+    <!-- Mobile Navigation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing mobile navigation...');
+            
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (!sidebarToggle || !sidebar || !sidebarOverlay) {
+                console.error('Mobile navigation elements not found');
+                return;
+            }
+            
+            console.log('Mobile navigation elements found');
+            
+            // Toggle sidebar
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Sidebar toggle clicked');
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', function() {
+                console.log('Overlay clicked, closing sidebar');
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+            
+            // Close sidebar when clicking on nav links (mobile only)
+            const navLinks = document.querySelectorAll('.sidebar .apple-nav-link');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    if (window.innerWidth < 768) {
+                        console.log('Nav link clicked on mobile, closing sidebar');
+                        sidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+            });
+            
+            console.log('Mobile navigation initialized successfully');
+        });
+    </script>
     
     <!-- Copy to Clipboard Function -->
     <script>
@@ -1270,46 +1255,5 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </style>
     
-    <!-- Mobile Navigation Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            
-            // Toggle sidebar
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
-            
-            // Close sidebar when clicking overlay
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-            
-            // Close sidebar when clicking on nav links (mobile only)
-            const navLinks = document.querySelectorAll('.sidebar .nav-link');
-            navLinks.forEach(function(link) {
-                link.addEventListener('click', function(e) {
-                    // Only close sidebar on mobile, don't prevent default navigation
-                    if (window.innerWidth < 768) {
-                        sidebar.classList.remove('show');
-                        sidebarOverlay.classList.remove('show');
-                    }
-                    // Don't prevent default - let normal navigation work
-                });
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                }
-            });
-        });
-    </script>
 </body>
 </html>

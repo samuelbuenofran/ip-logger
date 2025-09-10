@@ -447,3 +447,90 @@ function lazyLoadImages() {
 $(document).ready(function() {
     lazyLoadImages();
 });
+
+// Mobile Navigation Functions
+function initMobileNavigation() {
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    if (!sidebarToggle || !sidebar || !sidebarOverlay) {
+        console.error('Mobile navigation elements not found');
+        return;
+    }
+    
+    // Toggle sidebar
+    sidebarToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        } else {
+            sidebar.classList.add('show');
+            sidebarOverlay.classList.add('show');
+        }
+    });
+    
+    // Close sidebar when clicking overlay
+    sidebarOverlay.addEventListener('click', function() {
+        sidebar.classList.remove('show');
+        sidebarOverlay.classList.remove('show');
+    });
+    
+    // Close sidebar when clicking on nav links (mobile only)
+    const navLinks = document.querySelectorAll('.sidebar .apple-nav-link');
+    navLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            if (window.innerWidth < 768) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+        });
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        }
+    });
+    
+}
+
+// Row Actions Functions
+function toggleRowActions(button) {
+    const rowActions = button.nextElementSibling;
+    const isExpanded = button.classList.contains('expanded');
+    
+    // Close all other expanded rows
+    document.querySelectorAll('.expand-btn.expanded').forEach(btn => {
+        if (btn !== button) {
+            btn.classList.remove('expanded');
+            btn.nextElementSibling.style.display = 'none';
+        }
+    });
+    
+    // Toggle current row
+    if (isExpanded) {
+        button.classList.remove('expanded');
+        rowActions.style.display = 'none';
+    } else {
+        button.classList.add('expanded');
+        rowActions.style.display = 'block';
+    }
+}
+
+// Initialize mobile navigation when DOM is ready
+$(document).ready(function() {
+    console.log('DOM ready, initializing mobile navigation...');
+    initMobileNavigation();
+});
+
+// Also try vanilla JS approach
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded with vanilla JS, initializing mobile navigation...');
+    initMobileNavigation();
+});
