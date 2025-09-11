@@ -37,14 +37,15 @@ define('SMTP_FROM_NAME', 'IP Logger');
 // Enhanced Geolocation API Keys (Optional - for maximum precision)
 // IP API charges users in Euros, which makes the platform unfeasable for us in Brazil
 // Get from https://ip-api.com/
-// define('IP_API_KEY', '');\
+// define('IP_API_KEY', '');
 
 // Also expensive
 // Get from https://www.ip2location.com/
 //define('IP2LOCATION_API_KEY', '');
 
 
-define('MAXMIND_LICENSE_KEY', ''); // Get from https://www.maxmind.com/
+define('MAXMIND_ACCOUNT_ID', '1225647');
+define('MAXMIND_LICENSE_KEY', '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 '); // Get from https://www.maxmind.com/
 define('IP_GEOLOCATION_API_KEY', ''); // Get from https://ipgeolocation.io/
 
 // Debug Mode (set to false in production)
