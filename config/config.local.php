@@ -8,7 +8,7 @@ define('DB_PASS', '123qwe');
 // Application Configuration
 define('BASE_URL', 'http://localhost/ip-logger/');
 define('SITE_NAME', 'IP Logger');
-define('SITE_DESCRIPTION', 'URL Shortener & IP Tracker');
+define('SITE_DESCRIPTION', 'Encurtador de URL e rastreador de IP');
 
 // Google Maps API Configuration
 define('GOOGLE_MAPS_API_KEY', 'AIzaSyC5gMYj7gqRiwNlE6BxyLAdG9IMCCJZsrs');
@@ -27,11 +27,11 @@ define('MAX_REQUESTS_PER_MINUTE', 60);
 define('MAX_LINKS_PER_HOUR', 10);
 
 // Email Configuration (for notifications)
-define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_HOST', '	mail.keizai-tech.com');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'your-email@gmail.com');
-define('SMTP_PASSWORD', 'your-app-password');
-define('SMTP_FROM_EMAIL', 'your-email@gmail.com');
+define('SMTP_USERNAME', 'iplogger@gmail.com');
+define('SMTP_PASSWORD', 'YS^aL&fctdzcQ5');
+define('SMTP_FROM_EMAIL', '	iplogger@keizai-tech.com');
 define('SMTP_FROM_NAME', 'IP Logger');
 
 // Enhanced Geolocation API Keys (Optional - for maximum precision)
