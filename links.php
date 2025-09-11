@@ -143,9 +143,9 @@ $activeLinks = count(array_filter($links, function($link) {
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="apple-title-1">My Links</h1>
+                    <h1 class="apple-title-1">Meus Links</h1>
                     <a href="create_link.php" class="apple-btn apple-btn-primary">
-                        <i class="fas fa-plus"></i> Create New Link
+                        <i class="fas fa-plus"></i> Criar Novo Link
                     </a>
                 </div>
 

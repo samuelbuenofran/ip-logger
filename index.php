@@ -174,6 +174,13 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- Alert Messages -->
                 <?php echo displayMessage(); ?>
+                
+                <!-- Public Service Warning -->
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>⚠️ Aviso Importante:</strong> Este serviço é público. Qualquer link que você criar será visível para todos os visitantes. Use com responsabilidade.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
 
                 <!-- Statistics Cards -->
                 <div class="row mb-4">

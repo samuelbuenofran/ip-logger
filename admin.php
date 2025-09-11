@@ -9,18 +9,45 @@ require_once 'includes/sidebar_helper.php';
 $db = new Database();
 $conn = $db->getConnection();
 
-// Simple admin authentication
+// Enhanced admin authentication with rate limiting
 $admin_password = 'admin123'; // Change this to a secure password
 $is_authenticated = isset($_SESSION['admin_authenticated']) && $_SESSION['admin_authenticated'];
 
-// Handle admin login
-if (isset($_POST['admin_login'])) {
-    $password = $_POST['admin_password'];
-    if ($password === $admin_password) {
-        $_SESSION['admin_authenticated'] = true;
-        $is_authenticated = true;
-    } else {
-        $login_error = 'Invalid admin password';
+// Rate limiting for admin login attempts
+$max_attempts = 5;
+$lockout_time = 300; // 5 minutes
+$client_ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+// Check if IP is locked out
+$lockout_key = "admin_lockout_$client_ip";
+if (isset($_SESSION[$lockout_key]) && $_SESSION[$lockout_key] > time()) {
+    $lockout_remaining = $_SESSION[$lockout_key] - time();
+    $login_error = "Too many failed attempts. Try again in " . ceil($lockout_remaining / 60) . " minutes.";
+} else {
+    // Handle admin login
+    if (isset($_POST['admin_login'])) {
+        $password = $_POST['admin_password'];
+        
+        // Initialize attempt counter
+        if (!isset($_SESSION['admin_attempts'])) {
+            $_SESSION['admin_attempts'] = 0;
+        }
+        
+        if ($password === $admin_password) {
+            $_SESSION['admin_authenticated'] = true;
+            $_SESSION['admin_attempts'] = 0; // Reset attempts on success
+            unset($_SESSION[$lockout_key]); // Remove lockout
+            $is_authenticated = true;
+        } else {
+            $_SESSION['admin_attempts']++;
+            if ($_SESSION['admin_attempts'] >= $max_attempts) {
+                $_SESSION[$lockout_key] = time() + $lockout_time;
+                $login_error = "Too many failed attempts. Account locked for 5 minutes.";
+            } else {
+                $remaining = $max_attempts - $_SESSION['admin_attempts'];
+                $login_error = "Invalid admin password. $remaining attempts remaining.";
+            }
+        }
     }
 }
 
@@ -136,6 +163,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Admin Panel - IP Logger</title>
     
     <!-- Bootstrap CSS -->

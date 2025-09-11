@@ -152,6 +152,72 @@ code {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Mobile table improvements */
+    .table-responsive {
+        border: none;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table-responsive table {
+        min-width: 600px;
+    }
+    
+    .table-responsive th,
+    .table-responsive td {
+        white-space: nowrap;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Mobile card layout for better UX */
+    .mobile-card-view {
+        display: none;
+    }
+    
+    @media (max-width: 576px) {
+        .desktop-table-view {
+            display: none;
+        }
+        
+        .mobile-card-view {
+            display: block;
+        }
+        
+        .mobile-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .mobile-card .card-body {
+            padding: 0;
+        }
+        
+        .mobile-card .card-body .row {
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-card .card-body .col-4 {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .mobile-card .card-body .col-8 {
+            color: #495057;
+        }
+    }
     .sidebar {
         position: fixed;
         top: 0;

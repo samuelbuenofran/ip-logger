@@ -1,0 +1,887 @@
+/* PEARLIGHT - Clean Corporate Style based on pearlight's Human Interface Guidelines */
+
+/* Base styles for light mode */
+body {
+    background-color: var(--pearlight-bg-page);
+    color: var(--pearlight-text-primary);
+    font-family: var(--font-text);
+}
+
+:root {
+    /* pearlight Font System */
+    --font-display: 'SF Pro Display', -pearlight-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-text: 'SF Pro Text', -pearlight-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    
+    /* pearlight Font Sizes */
+    --font-size-large-title: 2.125rem;    /* 34px */
+    --font-size-title-1: 1.75rem;         /* 28px */
+    --font-size-title-2: 1.375rem;        /* 22px */
+    --font-size-title-3: 1.25rem;         /* 20px */
+    --font-size-headline: 1.125rem;       /* 18px */
+    --font-size-body: 1rem;               /* 16px */
+    --font-size-callout: 0.9375rem;       /* 15px */
+    --font-size-subhead: 0.875rem;        /* 14px */
+    --font-size-footnote: 0.8125rem;      /* 13px */
+    --font-size-caption-1: 0.75rem;       /* 12px */
+    --font-size-caption-2: 0.6875rem;     /* 11px */
+    
+    /* pearlight Color System */
+    --pearlight-blue: #007AFF;
+    --pearlight-blue-dark: #0051D5;
+    --pearlight-blue-light: #4DA2FF;
+    
+    --pearlight-green: #34C759;
+    --pearlight-green-dark: #248A3D;
+    --pearlight-green-light: #5DD679;
+    
+    --pearlight-orange: #FF9500;
+    --pearlight-orange-dark: #CC7700;
+    --pearlight-orange-light: #FFB340;
+    
+    --pearlight-red: #FF3B30;
+    --pearlight-red-dark: #D70015;
+    --pearlight-red-light: #FF6961;
+    
+    --pearlight-purple: #AF52DE;
+    --pearlight-purple-dark: #8E44AD;
+    --pearlight-purple-light: #C77DFF;
+    
+    --pearlight-pink: #FF2D92;
+    --pearlight-pink-dark: #E91E63;
+    --pearlight-pink-light: #FF5BAE;
+    
+    --pearlight-teal: #5AC8FA;
+    --pearlight-teal-dark: #007AFF;
+    --pearlight-teal-light: #7DD3FC;
+    
+    --pearlight-indigo: #5856D6;
+    --pearlight-indigo-dark: #3F51B5;
+    --pearlight-indigo-light: #7C7CFF;
+    
+    /* pearlight Gray System */
+    --pearlight-gray-1: #8E8E93;
+    --pearlight-gray-2: #AEAEB2;
+    --pearlight-gray-3: #C7C7CC;
+    --pearlight-gray-4: #D1D1D6;
+    --pearlight-gray-5: #E5E5EA;
+    --pearlight-gray-6: #F2F2F7;
+    
+    /* pearlight Background Colors - Light Mode */
+    --pearlight-bg-primary: #FFFFFF;
+    --pearlight-bg-secondary: #F2F2F7;
+    --pearlight-bg-tertiary: #FFFFFF;
+    --pearlight-bg-grouped: #F2F2F7;
+    --pearlight-bg-grouped-secondary: #FFFFFF;
+    --pearlight-bg-page: #FFFFFF;
+    
+    /* pearlight Text Colors - Light Mode */
+    --pearlight-text-primary: #000000;
+    --pearlight-text-secondary: #3C3C43;
+    --pearlight-text-tertiary: #3C3C43;
+    --pearlight-text-quaternary: #3C3C43;
+    --pearlight-text-placeholder: #3C3C43;
+    --pearlight-text-white: #FFFFFF;
+    
+    /* pearlight Dark Mode Colors */
+    --pearlight-dark-bg-primary: #000000;
+    --pearlight-dark-bg-secondary: #1C1C1E;
+    --pearlight-dark-bg-tertiary: #2C2C2E;
+    --pearlight-dark-bg-grouped: #000000;
+    --pearlight-dark-bg-grouped-secondary: #1C1C1E;
+    
+    --pearlight-dark-text-primary: #FFFFFF;
+    --pearlight-dark-text-secondary: #EBEBF5;
+    --pearlight-dark-text-tertiary: #EBEBF5;
+    --pearlight-dark-text-quaternary: #EBEBF5;
+    --pearlight-dark-text-placeholder: #EBEBF5;
+    
+    /* pearlight Spacing System */
+    --pearlight-space-xs: 0.25rem;   /* 4px */
+    --pearlight-space-sm: 0.5rem;     /* 8px */
+    --pearlight-space-md: 1rem;      /* 16px */
+    --pearlight-space-lg: 1.5rem;    /* 24px */
+    --pearlight-space-xl: 2rem;       /* 32px */
+    --pearlight-space-2xl: 3rem;     /* 48px */
+    --pearlight-space-3xl: 4rem;      /* 64px */
+    
+    /* pearlight Border Radius */
+    --pearlight-radius-xs: 0.25rem;   /* 4px */
+    --pearlight-radius-sm: 0.5rem;    /* 8px */
+    --pearlight-radius-md: 0.75rem;   /* 12px */
+    --pearlight-radius-lg: 1rem;     /* 16px */
+    --pearlight-radius-xl: 1.5rem;   /* 24px */
+    --pearlight-radius-full: 50%;
+    
+    /* pearlight Shadows */
+    --pearlight-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --pearlight-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --pearlight-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --pearlight-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
+    
+    /* pearlight Transitions */
+    --pearlight-transition-fast: 0.15s ease-out;
+    --pearlight-transition-normal: 0.25s ease-out;
+    --pearlight-transition-slow: 0.35s ease-out;
+}
+
+/* pearlight Design System Base Styles */
+.pearlight-design-system {
+    font-family: var(--font-text);
+    color: var(--pearlight-text-primary);
+    background-color: var(--pearlight-bg-primary);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* pearlight Card Component */
+.pearlight-card {
+    background-color: var(--pearlight-bg-primary);
+    border-radius: var(--pearlight-radius-lg);
+    box-shadow: var(--pearlight-shadow-sm);
+    padding: var(--pearlight-space-lg);
+    margin-bottom: var(--pearlight-space-md);
+    border: 1px solid var(--pearlight-gray-5);
+    transition: all var(--pearlight-transition-normal);
+    color: var(--pearlight-text-primary);
+}
+
+.pearlight-card:hover {
+    box-shadow: var(--pearlight-shadow-md);
+    transform: translateY(-1px);
+}
+
+.pearlight-card-header {
+    margin-bottom: var(--pearlight-space-md);
+    padding-bottom: var(--pearlight-space-sm);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-card-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-title-3);
+    font-weight: 600;
+    color: var(--pearlight-text-primary);
+    margin: 0;
+}
+
+.pearlight-card-subtitle {
+    font-family: var(--font-text);
+    font-size: var(--font-size-subhead);
+    color: var(--pearlight-text-secondary);
+    margin: var(--pearlight-space-xs) 0 0 0;
+}
+
+/* pearlight Button System */
+.pearlight-btn {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    padding: var(--pearlight-space-sm) var(--pearlight-space-lg);
+    border-radius: var(--pearlight-radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all var(--pearlight-transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pearlight-space-xs);
+    text-decoration: none;
+    min-height: 44px; /* pearlight's minimum touch target */
+}
+
+.pearlight-btn-primary {
+    background-color: var(--pearlight-blue);
+    color: white;
+}
+
+.pearlight-btn-primary:hover {
+    background-color: var(--pearlight-blue-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--pearlight-shadow-sm);
+}
+
+.pearlight-btn-secondary {
+    background-color: var(--pearlight-gray-6);
+    color: var(--pearlight-text-primary);
+    border: 1px solid var(--pearlight-gray-4);
+}
+
+.pearlight-btn-secondary:hover {
+    background-color: var(--pearlight-gray-5);
+    transform: translateY(-1px);
+    box-shadow: var(--pearlight-shadow-sm);
+}
+
+.pearlight-btn-success {
+    background-color: var(--pearlight-green);
+    color: white;
+}
+
+.pearlight-btn-success:hover {
+    background-color: var(--pearlight-green-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--pearlight-shadow-sm);
+}
+
+.pearlight-btn-warning {
+    background-color: var(--pearlight-orange);
+    color: white;
+}
+
+.pearlight-btn-warning:hover {
+    background-color: var(--pearlight-orange-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--pearlight-shadow-sm);
+}
+
+.pearlight-btn-danger {
+    background-color: var(--pearlight-red);
+    color: white;
+}
+
+.pearlight-btn-danger:hover {
+    background-color: var(--pearlight-red-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--pearlight-shadow-sm);
+}
+
+.pearlight-btn-ghost {
+    background-color: transparent;
+    color: var(--pearlight-blue);
+    border: 1px solid var(--pearlight-blue);
+}
+
+.pearlight-btn-ghost:hover {
+    background-color: var(--pearlight-blue);
+    color: white;
+}
+
+/* pearlight Form Elements */
+.pearlight-input {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    padding: var(--pearlight-space-sm) var(--pearlight-space-md);
+    border: 1px solid var(--pearlight-gray-4);
+    border-radius: var(--pearlight-radius-md);
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    transition: all var(--pearlight-transition-fast);
+    min-height: 44px;
+}
+
+.pearlight-input:focus {
+    outline: none;
+    border-color: var(--pearlight-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.pearlight-input::placeholder {
+    color: var(--pearlight-text-placeholder);
+}
+
+.pearlight-select {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    padding: var(--pearlight-space-sm) var(--pearlight-space-md);
+    border: 1px solid var(--pearlight-gray-4);
+    border-radius: var(--pearlight-radius-md);
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    transition: all var(--pearlight-transition-fast);
+    min-height: 44px;
+}
+
+.pearlight-select:focus {
+    outline: none;
+    border-color: var(--pearlight-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* pearlight Navigation */
+.pearlight-nav {
+    background-color: var(--pearlight-bg-primary);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+    padding: var(--pearlight-space-md) 0;
+}
+
+.pearlight-nav-brand {
+    font-family: var(--font-display);
+    font-size: var(--font-size-title-2);
+    font-weight: 700;
+    color: var(--pearlight-text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: var(--pearlight-space-sm);
+}
+
+.pearlight-nav-brand:hover {
+    color: var(--pearlight-blue);
+    text-decoration: none;
+}
+
+.pearlight-nav-link {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    color: var(--pearlight-text-secondary);
+    text-decoration: none;
+    padding: var(--pearlight-space-sm) var(--pearlight-space-md);
+    border-radius: var(--pearlight-radius-sm);
+    transition: all var(--pearlight-transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--pearlight-space-xs);
+}
+
+.pearlight-nav-link:hover {
+    color: var(--pearlight-blue);
+    background-color: var(--pearlight-gray-6);
+    text-decoration: none;
+}
+
+.pearlight-nav-link.active {
+    color: var(--pearlight-blue);
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+/* pearlight Sidebar */
+.pearlight-sidebar {
+    background-color: var(--pearlight-dark-bg-secondary);
+    border-right: 1px solid var(--pearlight-gray-5);
+    padding: var(--pearlight-space-lg);
+    min-height: 100vh;
+}
+
+.pearlight-sidebar-header {
+    margin-bottom: var(--pearlight-space-xl);
+    padding-bottom: var(--pearlight-space-md);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-sidebar-header .pearlight-nav-brand {
+    color: var(--pearlight-text-white);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.pearlight-sidebar-header .pearlight-subhead {
+    color: var(--pearlight-text-white);
+    opacity: 0.85;
+}
+
+.pearlight-sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pearlight-sidebar-nav li {
+    margin-bottom: var(--pearlight-space-xs);
+}
+
+.pearlight-sidebar-nav a {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    color: var(--pearlight-text-white);
+    text-decoration: none;
+    padding: var(--pearlight-space-sm) var(--pearlight-space-md);
+    border-radius: var(--pearlight-radius-md);
+    transition: all var(--pearlight-transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--pearlight-space-sm);
+}
+
+.pearlight-sidebar-nav a:hover {
+    color: var(--pearlight-text-white);
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.pearlight-sidebar-nav a.active {
+    color: var(--pearlight-text-white);
+    background-color: var(--pearlight-blue);
+}
+
+/* pearlight Table */
+.pearlight-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--pearlight-bg-primary);
+    border-radius: var(--pearlight-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--pearlight-shadow-sm);
+    color: var(--pearlight-text-primary);
+}
+
+.pearlight-table th {
+    font-family: var(--font-text);
+    font-size: var(--font-size-subhead);
+    font-weight: 600;
+    color: var(--pearlight-text-primary);
+    background-color: var(--pearlight-gray-6);
+    padding: var(--pearlight-space-md);
+    text-align: left;
+    border-bottom: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-table td {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    color: var(--pearlight-text-primary);
+    padding: var(--pearlight-space-md);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-table tbody tr:hover {
+    background-color: var(--pearlight-gray-6);
+}
+
+/* pearlight Badge */
+.pearlight-badge {
+    font-family: var(--font-text);
+    font-size: var(--font-size-caption-1);
+    font-weight: 600;
+    padding: var(--pearlight-space-xs) var(--pearlight-space-sm);
+    border-radius: var(--pearlight-radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pearlight-space-xs);
+}
+
+.pearlight-badge-primary {
+    background-color: var(--pearlight-blue);
+    color: white;
+}
+
+.pearlight-badge-success {
+    background-color: var(--pearlight-green);
+    color: white;
+}
+
+.pearlight-badge-warning {
+    background-color: var(--pearlight-orange);
+    color: white;
+}
+
+.pearlight-badge-danger {
+    background-color: var(--pearlight-red);
+    color: white;
+}
+
+.pearlight-badge-secondary {
+    background-color: var(--pearlight-gray-4);
+    color: var(--pearlight-text-primary);
+}
+
+/* pearlight Alert */
+.pearlight-alert {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    padding: var(--pearlight-space-md);
+    border-radius: var(--pearlight-radius-md);
+    margin-bottom: var(--pearlight-space-md);
+    border-left: 4px solid;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pearlight-space-sm);
+}
+
+.pearlight-alert-success {
+    background-color: rgba(52, 199, 89, 0.1);
+    border-left-color: var(--pearlight-green);
+    color: var(--pearlight-green-dark);
+}
+
+.pearlight-alert-warning {
+    background-color: rgba(255, 149, 0, 0.1);
+    border-left-color: var(--pearlight-orange);
+    color: var(--pearlight-orange-dark);
+}
+
+.pearlight-alert-danger {
+    background-color: rgba(255, 59, 48, 0.1);
+    border-left-color: var(--pearlight-red);
+    color: var(--pearlight-red-dark);
+}
+
+.pearlight-alert-info {
+    background-color: rgba(0, 122, 255, 0.1);
+    border-left-color: var(--pearlight-blue);
+    color: var(--pearlight-blue-dark);
+}
+
+/* pearlight Modal */
+.pearlight-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--pearlight-transition-normal);
+}
+
+.pearlight-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pearlight-modal-content {
+    background-color: var(--pearlight-bg-primary);
+    border-radius: var(--pearlight-radius-lg);
+    padding: var(--pearlight-space-xl);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--pearlight-shadow-xl);
+    transform: scale(0.9);
+    transition: all var(--pearlight-transition-normal);
+}
+
+.pearlight-modal.show .pearlight-modal-content {
+    transform: scale(1);
+}
+
+.pearlight-modal-header {
+    margin-bottom: var(--pearlight-space-lg);
+    padding-bottom: var(--pearlight-space-md);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-modal-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-title-2);
+    font-weight: 600;
+    color: var(--pearlight-text-primary);
+    margin: 0;
+}
+
+.pearlight-modal-body {
+    margin-bottom: var(--pearlight-space-lg);
+}
+
+.pearlight-modal-footer {
+    display: flex;
+    gap: var(--pearlight-space-sm);
+    justify-content: flex-end;
+}
+
+/* pearlight Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .pearlight-design-system {
+        background-color: var(--pearlight-dark-bg-primary);
+        color: var(--pearlight-dark-text-primary);
+    }
+    
+    .pearlight-card {
+        background-color: var(--pearlight-dark-bg-secondary);
+        border-color: var(--pearlight-gray-3);
+    }
+    
+    .pearlight-input,
+    .pearlight-select {
+        background-color: var(--pearlight-dark-bg-secondary);
+        border-color: var(--pearlight-gray-3);
+        color: var(--pearlight-dark-text-primary);
+    }
+    
+    .pearlight-table {
+        background-color: var(--pearlight-dark-bg-secondary);
+    }
+    
+    .pearlight-table th {
+        background-color: var(--pearlight-dark-bg-tertiary);
+        border-color: var(--pearlight-gray-3);
+    }
+    
+    .pearlight-table td {
+        border-color: var(--pearlight-gray-3);
+    }
+    
+    .pearlight-sidebar {
+        background-color: var(--pearlight-dark-bg-secondary);
+        border-color: var(--pearlight-gray-3);
+    }
+}
+
+/* pearlight Responsive Design */
+@media (max-width: 768px) {
+    .pearlight-modal-content {
+        width: 95%;
+        padding: var(--pearlight-space-lg);
+    }
+    
+    .pearlight-card {
+        padding: var(--pearlight-space-md);
+    }
+    
+    .pearlight-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .pearlight-modal-footer {
+        flex-direction: column;
+    }
+    
+    .pearlight-modal-footer .pearlight-btn {
+        width: 100%;
+    }
+}
+
+/* Icon Fixes */
+.pearlight-btn i.fas.fa-bars {
+    font-size: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.expand-btn i.fas.fa-chevron-down {
+    font-size: 0.75rem;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    text-align: center;
+}
+
+.expand-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--pearlight-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--pearlight-gray-4);
+    background-color: var(--pearlight-bg-primary);
+    transition: all var(--pearlight-transition-fast);
+}
+
+.expand-btn:hover {
+    background-color: var(--pearlight-gray-6);
+    border-color: var(--pearlight-gray-3);
+    transform: translateY(-1px);
+}
+
+.expand-btn.expanded {
+    background-color: var(--pearlight-blue);
+    border-color: var(--pearlight-blue);
+    color: white;
+}
+
+.expand-btn.expanded i.fas.fa-chevron-down {
+    transform: rotate(180deg);
+    transition: transform var(--pearlight-transition-fast);
+}
+
+/* Mobile hamburger icon fix */
+.mobile-header .pearlight-btn i.fas.fa-bars {
+    font-size: 1.125rem;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+}
+
+.mobile-header .pearlight-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* pearlight Additional Classes */
+.pearlight-body-emphasized {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--pearlight-text-primary);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.pearlight-card-body {
+    padding: var(--pearlight-space-lg);
+}
+
+.pearlight-select {
+    font-family: var(--font-text);
+    font-size: var(--font-size-body);
+    padding: var(--pearlight-space-sm) var(--pearlight-space-md);
+    border: 1px solid var(--pearlight-gray-4);
+    border-radius: var(--pearlight-radius-sm);
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all var(--pearlight-transition-fast);
+}
+
+.pearlight-select:focus {
+    outline: none;
+    border-color: var(--pearlight-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.pearlight-btn-info {
+    background-color: var(--pearlight-teal);
+    color: white;
+}
+
+.pearlight-btn-info:hover {
+    background-color: var(--pearlight-teal-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--pearlight-shadow-sm);
+}
+
+/* pearlight Card Components */
+.pearlight-card {
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    border: 1px solid var(--pearlight-gray-5);
+    border-radius: var(--pearlight-radius-lg);
+    box-shadow: var(--pearlight-shadow-sm);
+    overflow: hidden;
+    margin-bottom: var(--pearlight-space-md);
+}
+
+.pearlight-card-header {
+    background-color: var(--pearlight-bg-primary);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+    padding: var(--pearlight-space-md) var(--pearlight-space-lg);
+}
+
+.pearlight-card-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-headline);
+    font-weight: 600;
+    color: var(--pearlight-text-primary);
+    margin: 0;
+}
+
+.pearlight-card-body {
+    padding: var(--pearlight-space-lg);
+}
+
+/* pearlight Table Components */
+.pearlight-table {
+    width: 100%;
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.pearlight-table th {
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    font-weight: 600;
+    text-align: left;
+    padding: var(--pearlight-space-md);
+    border-bottom: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-table td {
+    background-color: var(--pearlight-bg-primary);
+    color: var(--pearlight-text-primary);
+    padding: var(--pearlight-space-md);
+    border-bottom: 1px solid var(--pearlight-gray-6);
+    vertical-align: middle;
+}
+
+.pearlight-table tbody tr:hover {
+    background-color: var(--pearlight-gray-6);
+}
+
+/* pearlight Sidebar Components */
+.pearlight-sidebar {
+    background-color: var(--pearlight-dark-bg-secondary);
+    min-height: 100vh;
+    border-right: 1px solid var(--pearlight-gray-5);
+}
+
+.pearlight-sidebar-header {
+    padding: var(--pearlight-space-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pearlight-nav-brand {
+    color: var(--pearlight-text-white);
+    font-family: var(--font-display);
+    font-size: var(--font-size-title-3);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.pearlight-nav-brand:hover {
+    color: var(--pearlight-text-white);
+    text-decoration: none;
+}
+
+.pearlight-subhead {
+    color: var(--pearlight-text-white);
+    font-size: var(--font-size-caption-1);
+    opacity: 0.85;
+    margin: 0;
+}
+
+.pearlight-sidebar-nav {
+    padding: var(--pearlight-space-md);
+}
+
+.pearlight-sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pearlight-sidebar-nav li {
+    margin-bottom: var(--pearlight-space-xs);
+}
+
+.pearlight-sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--pearlight-space-sm) var(--pearlight-space-md);
+    color: var(--pearlight-text-white);
+    text-decoration: none;
+    border-radius: var(--pearlight-radius-md);
+    transition: all var(--pearlight-transition-fast);
+    font-size: var(--font-size-body);
+}
+
+.pearlight-sidebar-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--pearlight-text-white);
+    text-decoration: none;
+}
+
+.pearlight-sidebar-nav a.active {
+    background-color: var(--pearlight-blue);
+    color: var(--pearlight-text-white);
+}
+
+.pearlight-sidebar-nav a i {
+    margin-right: var(--pearlight-space-sm);
+    width: 20px;
+    text-align: center;
+}

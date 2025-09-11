@@ -16,79 +16,14 @@ if (!$link) {
     exit;
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consent Required - IP Logger</title>
+    <title>Consentimento necessário - IP Logger</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-        .consent-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .consent-header {
-            background: #007bff;
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .consent-body {
-            padding: 30px;
-        }
-        .consent-option {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            transition: all 0.3s ease;
-        }
-        .consent-option:hover {
-            border-color: #007bff;
-            background: #f0f8ff;
-        }
-        .consent-option input:checked + label {
-            color: #007bff;
-            font-weight: 600;
-        }
-        .btn-consent {
-            background: #28a745;
-            border: none;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .btn-consent:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-        .btn-decline {
-            background: #dc3545;
-            border: none;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .btn-decline:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/pearlight.css"> 
 </head>
 <body>
     <div class="container">
@@ -97,23 +32,23 @@ if (!$link) {
                 <div class="consent-card">
                     <div class="consent-header">
                         <i class="fas fa-shield-alt fa-3x mb-3"></i>
-                        <h2>Consent Required</h2>
-                        <p class="mb-0">This link requires your consent before proceeding</p>
+                        <h2>Consentimento necessário</h2>
+                        <p class="mb-0">Este link requer seu consentimento antes de prosseguir</p>
                     </div>
                     
                     <div class="consent-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Privacy Notice:</strong> This link uses tracking technology to collect information about your visit. 
-                            Your data will be used solely for analytics purposes and will not be shared with third parties.
+                            <p id="privacy-notice" class="warning-subtitle">Aviso de privacidade:</p><p>This link uses tracking technology to collect information about your visit. 
+                            Your data will be used solely for analytics purposes and will not be shared with third parties.</p>
                         </div>
                         
-                        <h5>What information we collect:</h5>
+                        <h5>Quais informações coletamos:</h5>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-check text-success me-2"></i>IP address and location data</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Device and browser information</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Visit timestamp and duration</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Referring website (if applicable)</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Endereço IP e dados de localização</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Informações do dispositivo e do navegador</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Timestamp* de data e hora da visita e duração</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Site de referência (se aplicável)</li>
                         </ul>
                         
                         <div class="consent-option">
