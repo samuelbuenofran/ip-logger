@@ -1,9 +1,9 @@
 <?php
 // Local Database Configuration for Testing
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'ip_logger_test');
+define('DB_HOST', 'https://localhost/');
+define('DB_NAME', 'techeletric_ip_logger');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', '123qwe');
 
 // Application Configuration
 define('BASE_URL', 'http://localhost/ip-logger/');
