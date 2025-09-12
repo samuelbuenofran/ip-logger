@@ -1,18 +1,17 @@
 <?php
 // Utility Functions for IP Logger
 
-// Include PHPMailer classes
-require_once __DIR__ . '/PHPMailer/PHPMailer.php';
-require_once __DIR__ . '/PHPMailer/SMTP.php';
-require_once __DIR__ . '/PHPMailer/Exception.php';
+// PHPMailer classes not available - using native mail() function
 
 /**
  * Generate a random base62 short code (cryptographically secure).
- * ~62^8 ≈ 2.18e14 possibilities (~47.6 bits of entropy) for length=8.
+ *
  */
 function generateShortCode(int $length = 8): string
 {
+    // The array of possible characters
     $alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    // The length of the alphabet
     $n = strlen($alphabet);
 
     $code = '';
@@ -24,26 +23,52 @@ function generateShortCode(int $length = 8): string
 }
 
 
-/**
- * Get client IP address
- */
-function getClientIP()
+function getClientIP(array $trustedProxies = []): string
 {
-    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
+    $server = $_SERVER;
 
-    foreach ($ipKeys as $key) {
-        if (array_key_exists($key, $_SERVER) === true) {
-            foreach (explode(',', $_SERVER[$key]) as $ip) {
-                $ip = trim($ip);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                    return $ip;
-                }
-            }
+    // Prefer canonical vendor headers if you use them (uncomment as appropriate)
+    // if (!empty($server['HTTP_CF_CONNECTING_IP'])) {
+    //     $ip = trim($server['HTTP_CF_CONNECTING_IP']);
+    //     if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+    //         return $ip;
+    //     }
+    // }
+
+    // Start from the direct peer first
+    $remote = $server['REMOTE_ADDR'] ?? null;
+    $xff    = $server['HTTP_X_FORWARDED_FOR'] ?? '';
+
+    // Build the chain: client, proxy1, proxy2, ..., REMOTE_ADDR (rightmost)
+    $chain = [];
+    if ($xff !== '') {
+        foreach (explode(',', $xff) as $h) {
+            $chain[] = trim($h);
+        }
+    }
+    if ($remote) {
+        $chain[] = $remote;
+    }
+
+    // Walk left→right: return the first IP that is public and not a trusted proxy
+    foreach ($chain as $ip) {
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) continue;
+
+        $isPublic = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+        $isTrustedProxy = in_array($ip, $trustedProxies, true);
+
+        if ($isPublic && !$isTrustedProxy) {
+            return $ip;
         }
     }
 
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    // Fallback to REMOTE_ADDR if valid, else 0.0.0.0
+    if ($remote && filter_var($remote, FILTER_VALIDATE_IP)) {
+        return $remote;
+    }
+    return '0.0.0.0';
 }
+
 
 /**
  * Get device type from user agent
@@ -464,51 +489,12 @@ function sendEmailNotification($to, $subject, $message, $htmlMessage = null)
         return false;
     }
 
-    // Use PHPMailer if available, otherwise fallback to mail()
-    if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-        return sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage);
-    } else {
-        return sendEmailWithMail($to, $subject, $message, $htmlMessage);
-    }
+    // Use native mail() function
+    return sendEmailWithMail($to, $subject, $message, $htmlMessage);
 }
 
 /**
- * Send email using PHPMailer (recommended)
- */
-function sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage = null)
-{
-    try {
-        $mail = new PHPMailer(true);
-
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host = SMTP_HOST;
-        $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USERNAME;
-        $mail->Password = SMTP_PASSWORD;
-        $mail->SMTPSecure = SMTP_SECURE;
-        $mail->Port = SMTP_PORT;
-
-        // Recipients
-        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
-        $mail->addAddress($to);
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $htmlMessage ?: $message;
-        $mail->AltBody = $message;
-
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        error_log("Email sending failed: " . $e->getMessage());
-        return false;
-    }
-}
-
-/**
- * Send email using PHP mail() function (fallback)
+ * Send email using native mail() function
  */
 function sendEmailWithMail($to, $subject, $message, $htmlMessage = null)
 {
@@ -527,6 +513,7 @@ function sendEmailWithMail($to, $subject, $message, $htmlMessage = null)
 
     return mail($to, $subject, $message, implode("\r\n", $headers));
 }
+
 
 /**
  * Send link click notification
