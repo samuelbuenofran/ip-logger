@@ -1,34 +1,36 @@
 <?php
 // Utility Functions for IP Logger
 
+// Include PHPMailer classes
+require_once __DIR__ . '/PHPMailer/PHPMailer.php';
+require_once __DIR__ . '/PHPMailer/SMTP.php';
+require_once __DIR__ . '/PHPMailer/Exception.php';
+
 /**
- * Generate a unique short code for URLs
+ * Generate a random base62 short code (cryptographically secure).
+ * ~62^8 ≈ 2.18e14 possibilities (~47.6 bits of entropy) for length=8.
  */
-function generateShortCode($length = 8) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $shortCode = '';
-    
-    do {
-        $shortCode = '';
-        for ($i = 0; $i < $length; $i++) {
-            $shortCode .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        
-        // Check if code already exists
-        global $conn;
-        $stmt = $conn->prepare("SELECT id FROM links WHERE short_code = ?");
-        $stmt->execute([$shortCode]);
-    } while ($stmt->fetch());
-    
-    return $shortCode;
+function generateShortCode(int $length = 8): string
+{
+    $alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $n = strlen($alphabet);
+
+    $code = '';
+    for ($i = 0; $i < $length; $i++) {
+        // random_int() is cryptographically secure (PHP 7+)
+        $code .= $alphabet[random_int(0, $n - 1)];
+    }
+    return $code;
 }
+
 
 /**
  * Get client IP address
  */
-function getClientIP() {
+function getClientIP()
+{
     $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-    
+
     foreach ($ipKeys as $key) {
         if (array_key_exists($key, $_SERVER) === true) {
             foreach (explode(',', $_SERVER[$key]) as $ip) {
@@ -39,31 +41,33 @@ function getClientIP() {
             }
         }
     }
-    
+
     return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 }
 
 /**
  * Get device type from user agent
  */
-function getDeviceType() {
+function getDeviceType()
+{
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    
+
     $mobileKeywords = ['Mobile', 'Android', 'iPhone', 'iPad', 'Windows Phone', 'BlackBerry', 'Opera Mini'];
-    
+
     foreach ($mobileKeywords as $keyword) {
         if (stripos($userAgent, $keyword) !== false) {
             return 'mobile';
         }
     }
-    
+
     return 'desktop';
 }
 
 /**
  * Get geolocation data for IP address
  */
-function getGeolocationData($ip) {
+function getGeolocationData($ip)
+{
     // Skip private IPs
     if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
         return [
@@ -80,19 +84,19 @@ function getGeolocationData($ip) {
             'as' => ''
         ];
     }
-    
+
     // Use ipapi.co for geolocation (free tier available)
     $url = "http://ip-api.com/json/{$ip}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as";
-    
+
     $context = stream_context_create([
         'http' => [
             'timeout' => 5,
             'user_agent' => 'IP Logger/1.0'
         ]
     ]);
-    
+
     $response = @file_get_contents($url, false, $context);
-    
+
     if ($response === false) {
         return [
             'country' => 'Unknown',
@@ -108,9 +112,9 @@ function getGeolocationData($ip) {
             'as' => ''
         ];
     }
-    
+
     $data = json_decode($response, true);
-    
+
     if ($data && isset($data['status']) && $data['status'] === 'success') {
         return [
             'country' => $data['country'] ?? 'Unknown',
@@ -126,7 +130,7 @@ function getGeolocationData($ip) {
             'as' => $data['as'] ?? ''
         ];
     }
-    
+
     return [
         'country' => 'Unknown',
         'country_code' => 'UN',
@@ -145,27 +149,30 @@ function getGeolocationData($ip) {
 /**
  * Check if link is expired
  */
-function isLinkExpired($expiryDate) {
+function isLinkExpired($expiryDate)
+{
     if (!$expiryDate) {
         return false; // No expiration set
     }
-    
+
     return strtotime($expiryDate) < time();
 }
 
 /**
  * Format date for display
  */
-function formatDate($date, $format = 'M j, Y g:i A') {
+function formatDate($date, $format = 'M j, Y g:i A')
+{
     return date($format, strtotime($date));
 }
 
 /**
  * Get time ago string
  */
-function timeAgo($date) {
+function timeAgo($date)
+{
     $time = time() - strtotime($date);
-    
+
     if ($time < 60) {
         return $time . ' seconds ago';
     } elseif ($time < 3600) {
@@ -189,22 +196,24 @@ function timeAgo($date) {
 /**
  * Sanitize input
  */
-function sanitizeInput($input) {
+function sanitizeInput($input)
+{
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
 
 /**
  * Validate URL
  */
-function isValidUrl($url) {
+function isValidUrl($url)
+{
     // Remove espaços em branco
     $url = trim($url);
-    
+
     // Se já tem protocolo, valida normalmente
     if (preg_match('/^https?:\/\//', $url)) {
         return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
-    
+
     // Se não tem protocolo, adiciona https:// e valida
     $urlWithProtocol = 'https://' . $url;
     return filter_var($urlWithProtocol, FILTER_VALIDATE_URL) !== false;
@@ -213,14 +222,15 @@ function isValidUrl($url) {
 /**
  * Normalize URL by adding protocol if missing
  */
-function normalizeUrl($url) {
+function normalizeUrl($url)
+{
     $url = trim($url);
-    
+
     // Se já tem protocolo, retorna como está
     if (preg_match('/^https?:\/\//', $url)) {
         return $url;
     }
-    
+
     // Se não tem protocolo, adiciona https://
     return 'https://' . $url;
 }
@@ -228,7 +238,8 @@ function normalizeUrl($url) {
 /**
  * Generate CSRF token
  */
-function generateCSRFToken() {
+function generateCSRFToken()
+{
     if (!isset($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
@@ -238,16 +249,18 @@ function generateCSRFToken() {
 /**
  * Validate CSRF token
  */
-function validateCSRFToken($token) {
+function validateCSRFToken($token)
+{
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
 /**
  * Rate limiting check
  */
-function checkRateLimit($ip, $action = 'general', $limit = 60, $window = 60) {
+function checkRateLimit($ip, $action = 'general', $limit = 60, $window = 60)
+{
     global $conn;
-    
+
     $stmt = $conn->prepare("
         SELECT COUNT(*) as count 
         FROM rate_limits 
@@ -255,47 +268,48 @@ function checkRateLimit($ip, $action = 'general', $limit = 60, $window = 60) {
     ");
     $stmt->execute([$ip, $action, $window]);
     $result = $stmt->fetch();
-    
+
     if ($result['count'] >= $limit) {
         return false; // Rate limit exceeded
     }
-    
+
     // Log this request
     $stmt = $conn->prepare("
         INSERT INTO rate_limits (ip_address, action, created_at) 
         VALUES (?, ?, NOW())
     ");
     $stmt->execute([$ip, $action]);
-    
+
     return true; // Within rate limit
 }
 
 /**
  * Clean expired data
  */
-function cleanExpiredData() {
+function cleanExpiredData()
+{
     global $conn;
-    
+
     // Get data retention period from settings
     $stmt = $conn->prepare("SELECT setting_value FROM settings WHERE setting_key = 'data_retention_days'");
     $stmt->execute();
     $result = $stmt->fetch();
     $retentionDays = $result ? (int)$result['setting_value'] : 90;
-    
+
     // Delete expired links
     $stmt = $conn->prepare("
         DELETE FROM links 
         WHERE expiry_date IS NOT NULL AND expiry_date < NOW()
     ");
     $stmt->execute();
-    
+
     // Delete old target data
     $stmt = $conn->prepare("
         DELETE FROM targets 
         WHERE clicked_at < DATE_SUB(NOW(), INTERVAL ? DAY)
     ");
     $stmt->execute([$retentionDays]);
-    
+
     // Clean up rate limits
     $stmt = $conn->prepare("
         DELETE FROM rate_limits 
@@ -307,9 +321,10 @@ function cleanExpiredData() {
 /**
  * Get statistics for a link
  */
-function getLinkStats($linkId) {
+function getLinkStats($linkId)
+{
     global $conn;
-    
+
     $stmt = $conn->prepare("
         SELECT 
             COUNT(*) as total_clicks,
@@ -321,25 +336,26 @@ function getLinkStats($linkId) {
         WHERE link_id = ?
     ");
     $stmt->execute([$linkId]);
-    
+
     return $stmt->fetch();
 }
 
 /**
  * Export data to CSV
  */
-function exportToCSV($linkId, $password) {
+function exportToCSV($linkId, $password)
+{
     global $conn;
-    
+
     // Verify password
     $stmt = $conn->prepare("SELECT * FROM links WHERE id = ?");
     $stmt->execute([$linkId]);
     $link = $stmt->fetch();
-    
+
     if (!$link || !password_verify($password, $link['password'])) {
         return false;
     }
-    
+
     // Get targets
     $stmt = $conn->prepare("
         SELECT * FROM targets 
@@ -348,10 +364,10 @@ function exportToCSV($linkId, $password) {
     ");
     $stmt->execute([$linkId]);
     $targets = $stmt->fetchAll();
-    
+
     // Generate CSV
     $csv = "IP Address,Device Type,Country,City,ISP,Clicked At\n";
-    
+
     foreach ($targets as $target) {
         $csv .= sprintf(
             '"%s","%s","%s","%s","%s","%s"' . "\n",
@@ -363,16 +379,17 @@ function exportToCSV($linkId, $password) {
             $target['clicked_at']
         );
     }
-    
+
     return $csv;
 }
 
 /**
  * Log activity
  */
-function logActivity($action, $details = '') {
+function logActivity($action, $details = '')
+{
     global $conn;
-    
+
     $stmt = $conn->prepare("
         INSERT INTO audit_log (action, details, ip_address, user_agent, created_at) 
         VALUES (?, ?, ?, ?, NOW())
@@ -388,22 +405,24 @@ function logActivity($action, $details = '') {
 /**
  * Get setting value
  */
-function getSetting($key, $default = '') {
+function getSetting($key, $default = '')
+{
     global $conn;
-    
+
     $stmt = $conn->prepare("SELECT setting_value FROM settings WHERE setting_key = ?");
     $stmt->execute([$key]);
     $result = $stmt->fetch();
-    
+
     return $result ? $result['setting_value'] : $default;
 }
 
 /**
  * Update setting value
  */
-function updateSetting($key, $value) {
+function updateSetting($key, $value)
+{
     global $conn;
-    
+
     $stmt = $conn->prepare("
         INSERT INTO settings (setting_key, setting_value) 
         VALUES (?, ?) 
@@ -415,33 +434,36 @@ function updateSetting($key, $value) {
 /**
  * Generate random string
  */
-function generateRandomString($length = 10) {
+function generateRandomString($length = 10)
+{
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $string = '';
-    
+
     for ($i = 0; $i < $length; $i++) {
         $string .= $characters[rand(0, strlen($characters) - 1)];
     }
-    
+
     return $string;
 }
 
 /**
  * Check if request is AJAX
  */
-function isAjaxRequest() {
-    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+function isAjaxRequest()
+{
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 }
 
 /**
  * Send email notification
  */
-function sendEmailNotification($to, $subject, $message, $htmlMessage = null) {
+function sendEmailNotification($to, $subject, $message, $htmlMessage = null)
+{
     if (!EMAIL_NOTIFICATIONS_ENABLED) {
         return false;
     }
-    
+
     // Use PHPMailer if available, otherwise fallback to mail()
     if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
         return sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage);
@@ -453,10 +475,11 @@ function sendEmailNotification($to, $subject, $message, $htmlMessage = null) {
 /**
  * Send email using PHPMailer (recommended)
  */
-function sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage = null) {
+function sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage = null)
+{
     try {
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
+        $mail = new PHPMailer(true);
+
         // Server settings
         $mail->isSMTP();
         $mail->Host = SMTP_HOST;
@@ -465,17 +488,17 @@ function sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage = null) {
         $mail->Password = SMTP_PASSWORD;
         $mail->SMTPSecure = SMTP_SECURE;
         $mail->Port = SMTP_PORT;
-        
+
         // Recipients
         $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
         $mail->addAddress($to);
-        
+
         // Content
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body = $htmlMessage ?: $message;
         $mail->AltBody = $message;
-        
+
         $mail->send();
         return true;
     } catch (Exception $e) {
@@ -487,12 +510,13 @@ function sendEmailWithPHPMailer($to, $subject, $message, $htmlMessage = null) {
 /**
  * Send email using PHP mail() function (fallback)
  */
-function sendEmailWithMail($to, $subject, $message, $htmlMessage = null) {
+function sendEmailWithMail($to, $subject, $message, $htmlMessage = null)
+{
     $headers = [];
     $headers[] = 'From: ' . SMTP_FROM_NAME . ' <' . SMTP_FROM_EMAIL . '>';
     $headers[] = 'Reply-To: ' . SMTP_FROM_EMAIL;
     $headers[] = 'X-Mailer: IP Logger System';
-    
+
     if ($htmlMessage) {
         $headers[] = 'MIME-Version: 1.0';
         $headers[] = 'Content-Type: text/html; charset=UTF-8';
@@ -500,37 +524,38 @@ function sendEmailWithMail($to, $subject, $message, $htmlMessage = null) {
     } else {
         $headers[] = 'Content-Type: text/plain; charset=UTF-8';
     }
-    
+
     return mail($to, $subject, $message, implode("\r\n", $headers));
 }
 
 /**
  * Send link click notification
  */
-function sendLinkClickNotification($linkId, $targetData) {
+function sendLinkClickNotification($linkId, $targetData)
+{
     global $conn;
-    
+
     if (!NOTIFY_ON_LINK_CLICK) {
         return false;
     }
-    
+
     // Get link details
     $stmt = $conn->prepare("SELECT * FROM links WHERE id = ?");
     $stmt->execute([$linkId]);
     $link = $stmt->fetch();
-    
+
     if (!$link) {
         return false;
     }
-    
+
     // Get notification email from settings
     $notificationEmail = getSetting('notification_email', '');
-    
+
     // Check if email is set to no notification
     if (!$notificationEmail || $notificationEmail === 'NO_NOTIFICATION_EMAIL') {
         return false;
     }
-    
+
     $subject = "Link Clicked: " . $link['short_code'];
     $message = "Your IP Logger link has been clicked!\n\n";
     $message .= "Short Code: " . $link['short_code'] . "\n";
@@ -542,57 +567,59 @@ function sendLinkClickNotification($linkId, $targetData) {
     $message .= "City: " . ($targetData['city'] ?? 'Unknown') . "\n";
     $message .= "Device: " . $targetData['device_type'] . "\n";
     $message .= "ISP: " . ($targetData['isp'] ?? 'Unknown') . "\n";
-    
+
     $htmlMessage = createEmailHTML($subject, $message, $link, $targetData);
-    
+
     return sendEmailNotification($notificationEmail, $subject, $message, $htmlMessage);
 }
 
 /**
  * Send new link creation notification
  */
-function sendNewLinkNotification($linkId) {
+function sendNewLinkNotification($linkId)
+{
     global $conn;
-    
+
     if (!NOTIFY_ON_NEW_LINK) {
         return false;
     }
-    
+
     // Get link details
     $stmt = $conn->prepare("SELECT * FROM links WHERE id = ?");
     $stmt->execute([$linkId]);
     $link = $stmt->fetch();
-    
+
     if (!$link) {
         return false;
     }
-    
+
     // Get notification email from settings
     $notificationEmail = getSetting('notification_email', '');
-    
+
     // Check if email is set to no notification
     if (!$notificationEmail || $notificationEmail === 'NO_NOTIFICATION_EMAIL') {
         return false;
     }
-    
+
     $subject = "New Link Created: " . $link['short_code'];
     $message = "A new IP Logger link has been created!\n\n";
     $message .= "Short Code: " . $link['short_code'] . "\n";
     $message .= "Original URL: " . $link['original_url'] . "\n";
     $message .= "Created At: " . formatDate($link['created_at']) . "\n";
     $message .= "Expires: " . ($link['expiry_date'] ? formatDate($link['expiry_date']) : 'Never') . "\n";
-    
+
     $htmlMessage = createEmailHTML($subject, $message, $link);
-    
+
     return sendEmailNotification($notificationEmail, $subject, $message, $htmlMessage);
 }
 
 /**
  * Test email functionality
  */
-function testEmailFunctionality() {
+function testEmailFunctionality()
+{
     $notificationEmail = getSetting('notification_email', '');
-    
+
     // Check if email is set to no notification
     if (!$notificationEmail || $notificationEmail === 'NO_NOTIFICATION_EMAIL') {
         return [
@@ -601,7 +628,7 @@ function testEmailFunctionality() {
             'message' => 'No notification email configured. Please add an email address in the settings.'
         ];
     }
-    
+
     $subject = "IP Logger Email Test";
     $message = "This is a test email from your IP Logger system.\n\n";
     $message .= "If you receive this email, your email configuration is working correctly.\n";
@@ -609,11 +636,11 @@ function testEmailFunctionality() {
     $message .= "SMTP Host: " . SMTP_HOST . "\n";
     $message .= "SMTP Port: " . SMTP_PORT . "\n";
     $message .= "From Email: " . SMTP_FROM_EMAIL . "\n";
-    
+
     $htmlMessage = createEmailHTML($subject, $message);
-    
+
     $result = sendEmailNotification($notificationEmail, $subject, $message, $htmlMessage);
-    
+
     return [
         'success' => $result,
         'email' => $notificationEmail,
@@ -624,7 +651,8 @@ function testEmailFunctionality() {
 /**
  * Create HTML email template
  */
-function createEmailHTML($subject, $textMessage, $link = null, $targetData = null) {
+function createEmailHTML($subject, $textMessage, $link = null, $targetData = null)
+{
     $html = '<!DOCTYPE html>
     <html>
     <head>
@@ -647,24 +675,24 @@ function createEmailHTML($subject, $textMessage, $link = null, $targetData = nul
                 <h1>IP Logger Notification</h1>
             </div>
             <div class="content">';
-    
+
     // Convert text message to HTML
     $html .= '<p>' . nl2br(htmlspecialchars($textMessage)) . '</p>';
-    
+
     if ($link) {
         $html .= '<div class="info-box">
             <h3>Link Details</h3>
             <p><strong>Short URL:</strong> <a href="' . BASE_URL . $link['short_code'] . '">' . BASE_URL . $link['short_code'] . '</a></p>
             <p><strong>Original URL:</strong> <a href="' . htmlspecialchars($link['original_url']) . '">' . htmlspecialchars($link['original_url']) . '</a></p>
             <p><strong>Created:</strong> ' . formatDate($link['created_at']) . '</p>';
-        
+
         if ($link['expiry_date']) {
             $html .= '<p><strong>Expires:</strong> ' . formatDate($link['expiry_date']) . '</p>';
         }
-        
+
         $html .= '</div>';
     }
-    
+
     if ($targetData) {
         $html .= '<div class="info-box">
             <h3>Visitor Information</h3>
@@ -675,7 +703,7 @@ function createEmailHTML($subject, $textMessage, $link = null, $targetData = nul
             <p><strong>Time:</strong> ' . formatDate($targetData['clicked_at']) . '</p>
         </div>';
     }
-    
+
     $html .= '</div>
             <div class="footer">
                 <p>This is an automated notification from IP Logger System</p>
@@ -684,14 +712,15 @@ function createEmailHTML($subject, $textMessage, $link = null, $targetData = nul
         </div>
     </body>
     </html>';
-    
+
     return $html;
 }
 
 /**
  * Send JSON response
  */
-function sendJsonResponse($data, $statusCode = 200) {
+function sendJsonResponse($data, $statusCode = 200)
+{
     http_response_code($statusCode);
     header('Content-Type: application/json');
     echo json_encode($data);
@@ -701,7 +730,8 @@ function sendJsonResponse($data, $statusCode = 200) {
 /**
  * Redirect with message
  */
-function redirectWithMessage($url, $message, $type = 'success') {
+function redirectWithMessage($url, $message, $type = 'success')
+{
     $_SESSION['message'] = $message;
     $_SESSION['message_type'] = $type;
     header('Location: ' . $url);
@@ -711,20 +741,21 @@ function redirectWithMessage($url, $message, $type = 'success') {
 /**
  * Display message from session
  */
-function displayMessage() {
+function displayMessage()
+{
     if (isset($_SESSION['message'])) {
         $type = $_SESSION['message_type'] ?? 'info';
         $message = $_SESSION['message'];
-        
+
         unset($_SESSION['message'], $_SESSION['message_type']);
-        
+
         return sprintf(
             '<div class="alert alert-%s alert-dismissible fade show" role="alert">%s<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>',
             $type,
             htmlspecialchars($message)
         );
     }
-    
+
     return '';
 }
 
@@ -732,7 +763,8 @@ function displayMessage() {
  * Enhanced Geolocation with Multiple Data Sources
  * Uses state-of-the-art methodologies for precise location tracking
  */
-function getEnhancedGeolocationData($ip_address, $user_agent = '') {
+function getEnhancedGeolocationData($ip_address, $user_agent = '')
+{
     $geo_data = [
         'ip_address' => $ip_address,
         'country' => null,
@@ -767,14 +799,16 @@ function getEnhancedGeolocationData($ip_address, $user_agent = '') {
     $ip2location_result = getIP2LocationGeolocation($ip_address);
     if ($ip2location_result) {
         $geo_data['data_sources'][] = 'ip2location';
-        
+
         // Cross-validate coordinates
         if ($geo_data['latitude'] && $ip2location_result['latitude']) {
             $distance = calculateDistance(
-                $geo_data['latitude'], $geo_data['longitude'],
-                $ip2location_result['latitude'], $ip2location_result['longitude']
+                $geo_data['latitude'],
+                $geo_data['longitude'],
+                $ip2location_result['latitude'],
+                $ip2location_result['longitude']
             );
-            
+
             if ($distance < 50) { // Within 50km, consider accurate
                 $geo_data['confidence'] += 10;
                 $geo_data['precision_level'] = 'neighborhood_level';
@@ -789,10 +823,12 @@ function getEnhancedGeolocationData($ip_address, $user_agent = '') {
     $maxmind_result = getMaxMindGeolocation($ip_address);
     if ($maxmind_result) {
         $geo_data['data_sources'][] = 'maxmind';
-        
+
         // Additional validation
-        if ($geo_data['country'] && $maxmind_result['country'] && 
-            $geo_data['country'] === $maxmind_result['country']) {
+        if (
+            $geo_data['country'] && $maxmind_result['country'] &&
+            $geo_data['country'] === $maxmind_result['country']
+        ) {
             $geo_data['confidence'] += 5;
         }
     }
@@ -809,7 +845,7 @@ function getEnhancedGeolocationData($ip_address, $user_agent = '') {
     if ($network_analysis) {
         $geo_data['data_sources'][] = 'network_analysis';
         $geo_data['network_info'] = $network_analysis;
-        
+
         // Adjust confidence based on network type
         if ($network_analysis['type'] === 'mobile_carrier') {
             $geo_data['confidence'] += 5;
@@ -832,7 +868,7 @@ function getEnhancedGeolocationData($ip_address, $user_agent = '') {
     if ($historical_analysis) {
         $geo_data['data_sources'][] = 'historical_analysis';
         $geo_data['historical_data'] = $historical_analysis;
-        
+
         // Use historical data to improve accuracy
         if ($historical_analysis['consistency_score'] > 0.8) {
             $geo_data['confidence'] += 8;
@@ -850,23 +886,24 @@ function getEnhancedGeolocationData($ip_address, $user_agent = '') {
 
     // Cap confidence at 100
     $geo_data['confidence'] = min(100, $geo_data['confidence']);
-    
+
     return $geo_data;
 }
 
 /**
  * IP-API Geolocation (Primary Source)
  */
-function getIPAPIGeolocation($ip_address) {
+function getIPAPIGeolocation($ip_address)
+{
     $url = "http://ip-api.com/json/{$ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query";
-    
+
     $response = @file_get_contents($url);
     if (!$response) {
         return false;
     }
-    
+
     $data = json_decode($response, true);
-    
+
     if ($data && $data['status'] === 'success') {
         return [
             'country' => $data['country'] ?? null,
@@ -882,25 +919,26 @@ function getIPAPIGeolocation($ip_address) {
             'as_number' => $data['as'] ?? null
         ];
     }
-    
+
     return false;
 }
 
 /**
  * IP2Location Geolocation (Secondary Source)
  */
-function getIP2LocationGeolocation($ip_address) {
+function getIP2LocationGeolocation($ip_address)
+{
     // Using IP2Location Web Service (you would need an API key)
     $api_key = 'YOUR_IP2LOCATION_API_KEY'; // Replace with actual API key
     $url = "https://api.ip2location.io/?ip={$ip_address}&key={$api_key}";
-    
+
     $response = @file_get_contents($url);
     if (!$response) {
         return false;
     }
-    
+
     $data = json_decode($response, true);
-    
+
     if ($data && isset($data['latitude'])) {
         return [
             'latitude' => $data['latitude'] ?? null,
@@ -913,81 +951,89 @@ function getIP2LocationGeolocation($ip_address) {
             'isp' => $data['isp'] ?? null
         ];
     }
-    
+
     return false;
 }
 
 /**
  * MaxMind GeoIP2 Geolocation (Tertiary Source)
  */
-function getMaxMindGeolocation($ip_address) {
+function getMaxMindGeolocation($ip_address)
+{
     // Using MaxMind GeoIP2 Web Service (you would need an API key)
     $account_id = 'YOUR_MAXMIND_ACCOUNT_ID'; // Replace with actual account ID
     $license_key = 'YOUR_MAXMIND_LICENSE_KEY'; // Replace with actual license key
     $url = "https://geoip.maxmind.com/geoip/v2.1/country/{$ip_address}";
-    
+
     $context = stream_context_create([
         'http' => [
             'header' => "Authorization: Basic " . base64_encode("{$account_id}:{$license_key}")
         ]
     ]);
-    
+
     $response = @file_get_contents($url, false, $context);
     if (!$response) {
         return false;
     }
-    
+
     $data = json_decode($response, true);
-    
+
     if ($data && isset($data['country'])) {
         return [
             'country' => $data['country']['names']['en'] ?? null,
             'country_code' => $data['country']['iso_code'] ?? null
         ];
     }
-    
+
     return false;
 }
 
 /**
  * Device Fingerprinting for Enhanced Accuracy
  */
-function getDeviceFingerprint($user_agent) {
+function getDeviceFingerprint($user_agent)
+{
     $fingerprint = [];
-    
+
     // Parse User Agent
     $browser_info = parseUserAgent($user_agent);
     $fingerprint['browser'] = $browser_info;
-    
+
     // Device Type Detection
     $device_type = detectDeviceType($user_agent);
     $fingerprint['device_type'] = $device_type;
-    
+
     // Screen Resolution (if available via JavaScript)
     // This would be passed from client-side JavaScript
     $fingerprint['screen_resolution'] = $_POST['screen_resolution'] ?? null;
-    
+
     // Timezone (if available via JavaScript)
     $fingerprint['timezone'] = $_POST['timezone'] ?? null;
-    
+
     // Language Preferences
     $fingerprint['language'] = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
-    
+
     return $fingerprint;
 }
 
 /**
  * Network Analysis for Location Refinement
  */
-function analyzeNetworkCharacteristics($ip_address) {
+function analyzeNetworkCharacteristics($ip_address)
+{
     $analysis = [];
-    
+
     // Check if it's a mobile carrier IP
     $mobile_carriers = [
-        'att.com', 'verizon.com', 'tmobile.com', 'sprint.com',
-        'vodafone.com', 'orange.com', 'telefonica.com'
+        'att.com',
+        'verizon.com',
+        'tmobile.com',
+        'sprint.com',
+        'vodafone.com',
+        'orange.com',
+        'telefonica.com'
     ];
-    
+
     $reverse_dns = gethostbyaddr($ip_address);
     foreach ($mobile_carriers as $carrier) {
         if (strpos($reverse_dns, $carrier) !== false) {
@@ -996,50 +1042,54 @@ function analyzeNetworkCharacteristics($ip_address) {
             break;
         }
     }
-    
+
     if (!isset($analysis['type'])) {
         $analysis['type'] = 'isp';
     }
-    
+
     // Check for VPN/Proxy indicators
     $vpn_indicators = checkVPNIndicators($ip_address);
     $analysis['vpn_detected'] = $vpn_indicators['detected'];
     $analysis['proxy_type'] = $vpn_indicators['type'];
-    
+
     return $analysis;
 }
 
 /**
  * Timezone-based Location Validation
  */
-function validateLocationByTimezone($geo_data) {
+function validateLocationByTimezone($geo_data)
+{
     $result = ['valid' => false, 'confidence_boost' => 0];
-    
+
     if (!$geo_data['timezone'] || !$geo_data['latitude'] || !$geo_data['longitude']) {
         return $result;
     }
-    
+
     // Get timezone from coordinates
     $coordinate_timezone = getTimezoneFromCoordinates($geo_data['latitude'], $geo_data['longitude']);
-    
+
     if ($coordinate_timezone === $geo_data['timezone']) {
         $result['valid'] = true;
         $result['confidence_boost'] = 15;
-    } elseif (strpos($coordinate_timezone, $geo_data['timezone']) !== false || 
-              strpos($geo_data['timezone'], $coordinate_timezone) !== false) {
+    } elseif (
+        strpos($coordinate_timezone, $geo_data['timezone']) !== false ||
+        strpos($geo_data['timezone'], $coordinate_timezone) !== false
+    ) {
         $result['valid'] = true;
         $result['confidence_boost'] = 8;
     }
-    
+
     return $result;
 }
 
 /**
  * Historical Location Data Analysis
  */
-function analyzeHistoricalLocationData($ip_address) {
+function analyzeHistoricalLocationData($ip_address)
+{
     global $conn;
-    
+
     // Get historical data for this IP
     $stmt = $conn->prepare("
         SELECT latitude, longitude, country, city, clicked_at 
@@ -1052,17 +1102,17 @@ function analyzeHistoricalLocationData($ip_address) {
     ");
     $stmt->execute([$ip_address]);
     $historical_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     if (empty($historical_data)) {
         return null;
     }
-    
+
     $analysis = [
         'total_records' => count($historical_data),
         'locations' => [],
         'consistency_score' => 0
     ];
-    
+
     // Group by location
     $location_groups = [];
     foreach ($historical_data as $record) {
@@ -1078,44 +1128,49 @@ function analyzeHistoricalLocationData($ip_address) {
         }
         $location_groups[$location_key]['count']++;
     }
-    
+
     $analysis['locations'] = array_values($location_groups);
-    
+
     // Calculate consistency score
     $max_count = max(array_column($location_groups, 'count'));
     $analysis['consistency_score'] = $max_count / count($historical_data);
-    
+
     return $analysis;
 }
 
 /**
  * Advanced Coordinate Refinement
  */
-function refineCoordinates($geo_data) {
+function refineCoordinates($geo_data)
+{
     if (!$geo_data['latitude'] || !$geo_data['longitude']) {
         return false;
     }
-    
+
     $refined = [
         'latitude' => $geo_data['latitude'],
         'longitude' => $geo_data['longitude'],
         'accuracy' => 1000 // Default accuracy in meters
     ];
-    
+
     // Apply coordinate refinement algorithms
-    
+
     // 1. Cell Tower Triangulation (if mobile carrier)
-    if (isset($geo_data['network_info']['type']) && 
-        $geo_data['network_info']['type'] === 'mobile_carrier') {
+    if (
+        isset($geo_data['network_info']['type']) &&
+        $geo_data['network_info']['type'] === 'mobile_carrier'
+    ) {
         $refined['accuracy'] = 500; // Cell tower accuracy
     }
-    
+
     // 2. ISP-based refinement
-    if (isset($geo_data['network_info']['type']) && 
-        $geo_data['network_info']['type'] === 'isp') {
+    if (
+        isset($geo_data['network_info']['type']) &&
+        $geo_data['network_info']['type'] === 'isp'
+    ) {
         $refined['accuracy'] = 2000; // ISP accuracy
     }
-    
+
     // 3. Historical data refinement
     if (isset($geo_data['historical_data'])) {
         $historical = $geo_data['historical_data'];
@@ -1127,55 +1182,63 @@ function refineCoordinates($geo_data) {
             $refined['accuracy'] = 100; // High confidence
         }
     }
-    
+
     // 4. Timezone validation refinement
     if (isset($geo_data['timezone']) && $geo_data['timezone']) {
         $timezone_coords = getTimezoneCenterCoordinates($geo_data['timezone']);
         if ($timezone_coords) {
             $distance = calculateDistance(
-                $refined['latitude'], $refined['longitude'],
-                $timezone_coords['lat'], $timezone_coords['lng']
+                $refined['latitude'],
+                $refined['longitude'],
+                $timezone_coords['lat'],
+                $timezone_coords['lng']
             );
-            
+
             if ($distance < 100) { // Within 100km of timezone center
                 $refined['accuracy'] = min($refined['accuracy'], 500);
             }
         }
     }
-    
+
     return $refined;
 }
 
 /**
  * Calculate Distance Between Two Points (Haversine Formula)
  */
-function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+function calculateDistance($lat1, $lon1, $lat2, $lon2)
+{
     $earth_radius = 6371; // Earth's radius in kilometers
-    
+
     $lat_diff = deg2rad($lat2 - $lat1);
     $lon_diff = deg2rad($lon2 - $lon1);
-    
-    $a = sin($lat_diff/2) * sin($lat_diff/2) +
-         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-         sin($lon_diff/2) * sin($lon_diff/2);
-    
-    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+
+    $a = sin($lat_diff / 2) * sin($lat_diff / 2) +
+        cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+        sin($lon_diff / 2) * sin($lon_diff / 2);
+
+    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
     $distance = $earth_radius * $c;
-    
+
     return $distance;
 }
 
 /**
  * Check for VPN/Proxy Indicators
  */
-function checkVPNIndicators($ip_address) {
+function checkVPNIndicators($ip_address)
+{
     $indicators = ['detected' => false, 'type' => 'none'];
-    
+
     // Check against known VPN/Proxy databases
     $vpn_indicators = [
-        'vpn', 'proxy', 'tor', 'anonymous', 'privacy'
+        'vpn',
+        'proxy',
+        'tor',
+        'anonymous',
+        'privacy'
     ];
-    
+
     $reverse_dns = gethostbyaddr($ip_address);
     foreach ($vpn_indicators as $indicator) {
         if (strpos(strtolower($reverse_dns), $indicator) !== false) {
@@ -1184,14 +1247,15 @@ function checkVPNIndicators($ip_address) {
             break;
         }
     }
-    
+
     return $indicators;
 }
 
 /**
  * Get Timezone from Coordinates
  */
-function getTimezoneFromCoordinates($latitude, $longitude) {
+function getTimezoneFromCoordinates($latitude, $longitude)
+{
     // This would typically use a timezone database
     // For simplicity, we'll use a basic implementation
     $timezone_map = [
@@ -1204,21 +1268,24 @@ function getTimezoneFromCoordinates($latitude, $longitude) {
         'Asia/Tokyo' => ['lat_min' => 30, 'lat_max' => 45, 'lon_min' => 130, 'lon_max' => 145],
         'Australia/Sydney' => ['lat_min' => -45, 'lat_max' => -10, 'lon_min' => 110, 'lon_max' => 155]
     ];
-    
+
     foreach ($timezone_map as $timezone => $bounds) {
-        if ($latitude >= $bounds['lat_min'] && $latitude <= $bounds['lat_max'] &&
-            $longitude >= $bounds['lon_min'] && $longitude <= $bounds['lon_max']) {
+        if (
+            $latitude >= $bounds['lat_min'] && $latitude <= $bounds['lat_max'] &&
+            $longitude >= $bounds['lon_min'] && $longitude <= $bounds['lon_max']
+        ) {
             return $timezone;
         }
     }
-    
+
     return 'UTC';
 }
 
 /**
  * Get Timezone Center Coordinates
  */
-function getTimezoneCenterCoordinates($timezone) {
+function getTimezoneCenterCoordinates($timezone)
+{
     $timezone_centers = [
         'America/New_York' => ['lat' => 40.7128, 'lng' => -74.0060],
         'America/Chicago' => ['lat' => 41.8781, 'lng' => -87.6298],
@@ -1229,21 +1296,22 @@ function getTimezoneCenterCoordinates($timezone) {
         'Asia/Tokyo' => ['lat' => 35.6762, 'lng' => 139.6503],
         'Australia/Sydney' => ['lat' => -33.8688, 'lng' => 151.2093]
     ];
-    
+
     return $timezone_centers[$timezone] ?? null;
 }
 
 /**
  * Parse User Agent for Device Information
  */
-function parseUserAgent($user_agent) {
+function parseUserAgent($user_agent)
+{
     $browser_info = [
         'browser' => 'Unknown',
         'version' => 'Unknown',
         'os' => 'Unknown',
         'device' => 'Unknown'
     ];
-    
+
     // Browser detection
     if (preg_match('/Chrome\/([0-9.]+)/', $user_agent, $matches)) {
         $browser_info['browser'] = 'Chrome';
@@ -1258,7 +1326,7 @@ function parseUserAgent($user_agent) {
         $browser_info['browser'] = 'Edge';
         $browser_info['version'] = $matches[1];
     }
-    
+
     // OS detection
     if (preg_match('/Windows NT ([0-9.]+)/', $user_agent, $matches)) {
         $browser_info['os'] = 'Windows ' . $matches[1];
@@ -1271,23 +1339,28 @@ function parseUserAgent($user_agent) {
     } elseif (preg_match('/iPhone OS ([0-9._]+)/', $user_agent, $matches)) {
         $browser_info['os'] = 'iOS ' . str_replace('_', '.', $matches[1]);
     }
-    
+
     return $browser_info;
 }
 
 /**
  * Detect Device Type
  */
-function detectDeviceType($user_agent) {
+function detectDeviceType($user_agent)
+{
     $user_agent_lower = strtolower($user_agent);
-    
-    if (strpos($user_agent_lower, 'mobile') !== false || 
+
+    if (
+        strpos($user_agent_lower, 'mobile') !== false ||
         strpos($user_agent_lower, 'android') !== false ||
         strpos($user_agent_lower, 'iphone') !== false ||
-        strpos($user_agent_lower, 'ipad') !== false) {
+        strpos($user_agent_lower, 'ipad') !== false
+    ) {
         return 'mobile';
-    } elseif (strpos($user_agent_lower, 'tablet') !== false ||
-              strpos($user_agent_lower, 'ipad') !== false) {
+    } elseif (
+        strpos($user_agent_lower, 'tablet') !== false ||
+        strpos($user_agent_lower, 'ipad') !== false
+    ) {
         return 'tablet';
     } else {
         return 'desktop';
@@ -1297,12 +1370,13 @@ function detectDeviceType($user_agent) {
 /**
  * Get detailed browser and OS information
  */
-function getDetailedBrowserInfo($userAgent) {
+function getDetailedBrowserInfo($userAgent)
+{
     $browser = 'Unknown';
     $browserVersion = '';
     $os = 'Unknown';
     $osVersion = '';
-    
+
     // Browser detection
     if (preg_match('/Chrome\/([0-9.]+)/', $userAgent, $matches)) {
         $browser = 'Chrome';
@@ -1320,7 +1394,7 @@ function getDetailedBrowserInfo($userAgent) {
         $browser = 'Internet Explorer';
         $browserVersion = $matches[1];
     }
-    
+
     // OS detection
     if (preg_match('/Windows NT ([0-9.]+)/', $userAgent, $matches)) {
         $os = 'Windows';
@@ -1337,7 +1411,7 @@ function getDetailedBrowserInfo($userAgent) {
         $os = 'iOS';
         $osVersion = $matches[1];
     }
-    
+
     return [
         'browser_name' => $browser,
         'browser_version' => $browserVersion,
@@ -1349,12 +1423,13 @@ function getDetailedBrowserInfo($userAgent) {
 /**
  * Detect proxy/VPN usage
  */
-function detectProxyVPN($ip) {
+function detectProxyVPN($ip)
+{
     // Simple proxy/VPN detection based on common patterns
     $proxyDetected = false;
     $vpnDetected = false;
     $torDetected = false;
-    
+
     // Check for common proxy/VPN IP ranges
     $proxyRanges = [
         '10.0.0.0/8',
@@ -1362,18 +1437,18 @@ function detectProxyVPN($ip) {
         '192.168.0.0/16',
         '127.0.0.0/8'
     ];
-    
+
     foreach ($proxyRanges as $range) {
         if (ipInRange($ip, $range)) {
             $proxyDetected = true;
             break;
         }
     }
-    
+
     // Check for known VPN providers (simplified)
     $vpnProviders = ['nordvpn', 'expressvpn', 'surfshark', 'protonvpn'];
     $reverseIp = @gethostbyaddr($ip);
-    
+
     if ($reverseIp && $reverseIp !== $ip) {
         foreach ($vpnProviders as $provider) {
             if (stripos($reverseIp, $provider) !== false) {
@@ -1382,7 +1457,7 @@ function detectProxyVPN($ip) {
             }
         }
     }
-    
+
     return [
         'proxy_detected' => $proxyDetected,
         'vpn_detected' => $vpnDetected,
@@ -1393,27 +1468,29 @@ function detectProxyVPN($ip) {
 /**
  * Check if IP is in range
  */
-function ipInRange($ip, $range) {
+function ipInRange($ip, $range)
+{
     list($range, $netmask) = explode('/', $range, 2);
     $rangeDecimal = ip2long($range);
     $ipDecimal = ip2long($ip);
     $wildcardDecimal = pow(2, (32 - $netmask)) - 1;
-    $netmaskDecimal = ~ $wildcardDecimal;
-    
+    $netmaskDecimal = ~$wildcardDecimal;
+
     return (($ipDecimal & $netmaskDecimal) == ($rangeDecimal & $netmaskDecimal));
 }
 
 /**
  * Parse UTM parameters from URL
  */
-function parseUTMParameters($url) {
+function parseUTMParameters($url)
+{
     $parsed = parse_url($url);
     if (!isset($parsed['query'])) {
         return [];
     }
-    
+
     parse_str($parsed['query'], $params);
-    
+
     return [
         'utm_source' => $params['utm_source'] ?? null,
         'utm_medium' => $params['utm_medium'] ?? null,
@@ -1426,13 +1503,14 @@ function parseUTMParameters($url) {
 /**
  * Get referrer information
  */
-function getReferrerInfo($referrer) {
+function getReferrerInfo($referrer)
+{
     if (empty($referrer)) {
         return ['domain' => null, 'path' => null];
     }
-    
+
     $parsed = parse_url($referrer);
-    
+
     return [
         'domain' => $parsed['host'] ?? null,
         'path' => $parsed['path'] ?? null
@@ -1442,14 +1520,16 @@ function getReferrerInfo($referrer) {
 /**
  * Generate tracking code
  */
-function generateTrackingCode() {
+function generateTrackingCode()
+{
     return 'TRK' . strtoupper(substr(md5(uniqid()), 0, 8));
 }
 
 /**
  * Get custom domains
  */
-function getCustomDomains() {
+function getCustomDomains()
+{
     global $conn;
     $stmt = $conn->query("SELECT * FROM custom_domains WHERE is_active = 1 ORDER BY domain");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1458,7 +1538,8 @@ function getCustomDomains() {
 /**
  * Get link extensions
  */
-function getLinkExtensions() {
+function getLinkExtensions()
+{
     global $conn;
     $stmt = $conn->query("SELECT * FROM link_extensions WHERE is_active = 1 ORDER BY extension");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1467,9 +1548,10 @@ function getLinkExtensions() {
 /**
  * Update link statistics
  */
-function updateLinkStats($linkId) {
+function updateLinkStats($linkId)
+{
     global $conn;
-    
+
     // Update click count
     $stmt = $conn->prepare("
         UPDATE links 
@@ -1490,13 +1572,13 @@ function updateLinkStats($linkId) {
 /**
  * Log consent
  */
-function logConsent($targetId, $consentType, $consentGiven, $consentText = null) {
+function logConsent($targetId, $consentType, $consentGiven, $consentText = null)
+{
     global $conn;
-    
+
     $stmt = $conn->prepare("
         INSERT INTO consent_logs (target_id, consent_type, consent_given, consent_text, ip_address)
         VALUES (?, ?, ?, ?, ?)
     ");
     $stmt->execute([$targetId, $consentType, $consentGiven ? 1 : 0, $consentText, getClientIP()]);
 }
-?>
