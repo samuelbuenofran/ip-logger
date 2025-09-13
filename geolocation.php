@@ -272,9 +272,9 @@ if (empty($link_id)) {
                 <!-- Main content -->
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="apple-title-1"><i class="fas fa-map-marker-alt"></i> Geolocation</h1>
+                        <h1 class="pearlight-title-1"><i class="fas fa-map-marker-alt"></i> Geolocation</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="index.php" class="apple-btn apple-btn-secondary">
+                            <a href="index.php" class="pearlight-btn pearlight-btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Back to Dashboard
                             </a>
                         </div>
@@ -282,9 +282,9 @@ if (empty($link_id)) {
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="apple-card">
-                                <div class="apple-card-header">
-                                    <h5 class="apple-card-title"><i class="fas fa-link"></i> Select a Link to View Geolocation Data</h5>
+                            <div class="pearlight-card">
+                                <div class="pearlight-card-header">
+                                    <h5 class="pearlight-card-title"><i class="fas fa-link"></i> Select a Link to View Geolocation Data</h5>
                                 </div>
                                 <div class="card-body">
                                     <?php if (empty($links)): ?>
@@ -292,7 +292,7 @@ if (empty($link_id)) {
                                             <i class="fas fa-link fa-3x text-muted mb-3"></i>
                                             <h4>No Links Found</h4>
                                             <p class="text-muted">You haven't created any links yet.</p>
-                                            <a href="create_link.php" class="apple-btn apple-btn-primary">
+                                            <a href="create_link.php" class="pearlight-btn pearlight-btn-primary">
                                                 <i class="fas fa-plus"></i> Create Your First Link
                                             </a>
                                         </div>
@@ -331,7 +331,7 @@ if (empty($link_id)) {
                                                                 <small class="text-muted">
                                                                     Created: <?php echo date('M j, Y', strtotime($link['created_at'])); ?>
                                                                 </small>
-                                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="apple-btn apple-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="pearlight-btn pearlight-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
                                                                     <i class="fas fa-map-marker-alt"></i> View Map
                                                                 </a>
                                                             </div>
@@ -400,8 +400,8 @@ if (empty($password)) {
                                     <label for="password" class="form-label">Password</label>
                                     <input type="password" class="form-control" id="password" name="password" required>
                                 </div>
-                                <button type="submit" class="apple-btn apple-btn-primary">View Data</button>
-                                <a href="index.php" class="apple-btn apple-btn-secondary">Back to Dashboard</a>
+                                <button type="submit" class="pearlight-btn pearlight-btn-primary">View Data</button>
+                                <a href="index.php" class="pearlight-btn pearlight-btn-secondary">Back to Dashboard</a>
                             </form>
                         </div>
                     </div>
@@ -505,9 +505,9 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Apple Fonts -->
-    <link rel="stylesheet" href="assets/css/apple-fonts.css">
-    <!-- Apple Design System -->
+    <!-- Pearlight Fonts -->
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
+    <!-- Pearlight Design System -->
     <link rel="stylesheet" href="assets/css/pearlight.css">
     <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
     <style>
@@ -549,27 +549,27 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
 
             .mobile-header {
                 display: block;
-                background: var(--apple-bg-primary);
+                background: var(--pearlight-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
-                border-bottom: 1px solid var(--apple-gray-5);
+                border-bottom: 1px solid var(--pearlight-gray-5);
             }
 
             .mobile-header .navbar-brand {
-                color: var(--apple-text-primary);
+                color: var(--pearlight-text-primary);
                 font-weight: 600;
             }
 
             .mobile-header .btn {
-                color: var(--apple-text-primary);
-                border-color: var(--apple-gray-4);
+                color: var(--pearlight-text-primary);
+                border-color: var(--pearlight-gray-4);
             }
 
             .mobile-header .btn:hover {
-                background-color: var(--apple-gray-6);
-                border-color: var(--apple-gray-3);
+                background-color: var(--pearlight-gray-6);
+                border-color: var(--pearlight-gray-3);
             }
         }
 
@@ -890,10 +890,10 @@ $most_common_device = !empty($device_types) ? array_keys($device_types, max($dev
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Target Data</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="index.php" class="apple-btn apple-btn-secondary me-2">
+                        <a href="index.php" class="pearlight-btn pearlight-btn-secondary me-2">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
                         </a>
-                        <a href="test_maps.php" class="apple-btn apple-btn-info" target="_blank">
+                        <a href="test_maps.php" class="pearlight-btn pearlight-btn-info" target="_blank">
                             <i class="fas fa-map"></i> Test Maps
                         </a>
                     </div>

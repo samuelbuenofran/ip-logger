@@ -75,11 +75,11 @@ if (!$is_authenticated) {
         <div class="container mt-5">
             <div class="row justify-content-center">
                 <div class="col-md-6">
-                    <div class="apple-card">
-                        <div class="apple-card-header">
-                            <h4 class="apple-title-2"><i class="fas fa-shield-alt"></i> Admin Login</h4>
+                    <div class="pearlight-card">
+                        <div class="pearlight-card-header">
+                            <h4 class="pearlight-title-2"><i class="fas fa-shield-alt"></i> Admin Login</h4>
                         </div>
-                        <div class="apple-card-body">
+                        <div class="pearlight-card-body">
                             <?php if (isset($login_error)): ?>
                                 <div class="alert alert-danger">
                                     <i class="fas fa-exclamation-triangle"></i> <?php echo $login_error; ?>
@@ -87,15 +87,15 @@ if (!$is_authenticated) {
                             <?php endif; ?>
                             <form method="POST">
                                 <div class="mb-3">
-                                    <label for="admin_password" class="apple-body-emphasized">Admin Password</label>
-                                    <input type="password" class="apple-input" id="admin_password" name="admin_password" required>
+                                    <label for="admin_password" class="pearlight-body-emphasized">Admin Password</label>
+                                    <input type="password" class="pearlight-input" id="admin_password" name="admin_password" required>
                                 </div>
-                                <button type="submit" name="admin_login" class="apple-btn apple-btn-primary w-100">
+                                <button type="submit" name="admin_login" class="pearlight-btn pearlight-btn-primary w-100">
                                     <i class="fas fa-sign-in-alt"></i> Login
                                 </button>
                             </form>
                             <div class="text-center mt-3">
-                                <a href="index.php" class="apple-btn apple-btn-secondary">
+                                <a href="index.php" class="pearlight-btn pearlight-btn-secondary">
                                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                                 </a>
                             </div>
@@ -178,9 +178,9 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Apple Fonts -->
-    <link rel="stylesheet" href="assets/css/apple-fonts.css">
-    <!-- Apple Design System -->
+    <!-- Pearlight Fonts -->
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
+    <!-- Pearlight Design System -->
     <link rel="stylesheet" href="assets/css/pearlight.css">
     <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
     <style>
@@ -222,27 +222,27 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
 
             .mobile-header {
                 display: block;
-                background: var(--apple-bg-primary);
+                background: var(--pearlight-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
-                border-bottom: 1px solid var(--apple-gray-5);
+                border-bottom: 1px solid var(--pearlight-gray-5);
             }
 
             .mobile-header .navbar-brand {
-                color: var(--apple-text-primary);
+                color: var(--pearlight-text-primary);
                 font-weight: 600;
             }
 
             .mobile-header .btn {
-                color: var(--apple-text-primary);
-                border-color: var(--apple-gray-4);
+                color: var(--pearlight-text-primary);
+                border-color: var(--pearlight-gray-4);
             }
 
             .mobile-header .btn:hover {
-                background-color: var(--apple-gray-6);
-                border-color: var(--apple-gray-3);
+                background-color: var(--pearlight-gray-6);
+                border-color: var(--pearlight-gray-3);
             }
         }
 
@@ -533,12 +533,12 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="admin-content">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="apple-title-1"><i class="fas fa-cog"></i> Admin Panel</h1>
+                        <h1 class="pearlight-title-1"><i class="fas fa-cog"></i> Admin Panel</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="create_link.php" class="apple-btn apple-btn-primary me-2">
+                            <a href="create_link.php" class="pearlight-btn pearlight-btn-primary me-2">
                                 <i class="fas fa-plus"></i> Create New Link
                             </a>
-                            <a href="?logout=1" class="apple-btn apple-btn-danger" onclick="return confirm('Are you sure you want to logout?')">
+                            <a href="?logout=1" class="pearlight-btn pearlight-btn-danger" onclick="return confirm('Are you sure you want to logout?')">
                                 <i class="fas fa-sign-out-alt"></i> Logout
                             </a>
                         </div>
@@ -550,11 +550,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                     <!-- Statistics Cards -->
                     <div class="row mb-4">
                         <div class="col-xl-3 col-md-6">
-                            <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-blue) 0%, var(--apple-blue-dark) 100%); color: white;">
+                            <div class="pearlight-card mb-3" style="background: linear-gradient(135deg, var(--pearlight-blue) 0%, var(--pearlight-blue-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
                                     <div>
-                                        <h3 class="apple-title-1 mb-1" style="color: white;"><?php echo $total_links; ?></h3>
-                                        <p class="apple-subhead mb-0" style="color: rgba(255,255,255,0.8);">Total Links</p>
+                                        <h3 class="pearlight-title-1 mb-1" style="color: white;"><?php echo $total_links; ?></h3>
+                                        <p class="pearlight-subhead mb-0" style="color: rgba(255,255,255,0.8);">Total Links</p>
                                     </div>
                                     <div>
                                         <i class="fas fa-link fa-2x" style="opacity: 0.8;"></i>
@@ -564,11 +564,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                         </div>
 
                         <div class="col-xl-3 col-md-6">
-                            <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-green) 0%, var(--apple-green-dark) 100%); color: white;">
+                            <div class="pearlight-card mb-3" style="background: linear-gradient(135deg, var(--pearlight-green) 0%, var(--pearlight-green-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
                                     <div>
-                                        <h3 class="apple-title-1 mb-1" style="color: white;"><?php echo $active_links; ?></h3>
-                                        <p class="apple-subhead mb-0" style="color: rgba(255,255,255,0.8);">Active Links</p>
+                                        <h3 class="pearlight-title-1 mb-1" style="color: white;"><?php echo $active_links; ?></h3>
+                                        <p class="pearlight-subhead mb-0" style="color: rgba(255,255,255,0.8);">Active Links</p>
                                     </div>
                                     <div>
                                         <i class="fas fa-check-circle fa-2x" style="opacity: 0.8;"></i>
@@ -578,11 +578,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                         </div>
 
                         <div class="col-xl-3 col-md-6">
-                            <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-orange) 0%, var(--apple-orange-dark) 100%); color: white;">
+                            <div class="pearlight-card mb-3" style="background: linear-gradient(135deg, var(--pearlight-orange) 0%, var(--pearlight-orange-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
                                     <div>
-                                        <h3 class="apple-title-1 mb-1" style="color: white;"><?php echo $total_clicks; ?></h3>
-                                        <p class="apple-subhead mb-0" style="color: rgba(255,255,255,0.8);">Total Clicks</p>
+                                        <h3 class="pearlight-title-1 mb-1" style="color: white;"><?php echo $total_clicks; ?></h3>
+                                        <p class="pearlight-subhead mb-0" style="color: rgba(255,255,255,0.8);">Total Clicks</p>
                                     </div>
                                     <div>
                                         <i class="fas fa-mouse-pointer fa-2x" style="opacity: 0.8;"></i>
@@ -592,11 +592,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                         </div>
 
                         <div class="col-xl-3 col-md-6">
-                            <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-purple) 0%, var(--apple-purple-dark) 100%); color: white;">
+                            <div class="pearlight-card mb-3" style="background: linear-gradient(135deg, var(--pearlight-purple) 0%, var(--pearlight-purple-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
                                     <div>
-                                        <h3 class="apple-title-1 mb-1" style="color: white;"><?php echo $total_visitors; ?></h3>
-                                        <p class="apple-subhead mb-0" style="color: rgba(255,255,255,0.8);">Unique Visitors</p>
+                                        <h3 class="pearlight-title-1 mb-1" style="color: white;"><?php echo $total_visitors; ?></h3>
+                                        <p class="pearlight-subhead mb-0" style="color: rgba(255,255,255,0.8);">Unique Visitors</p>
                                     </div>
                                     <div>
                                         <i class="fas fa-users fa-2x" style="opacity: 0.8;"></i>
@@ -607,16 +607,16 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                     </div>
 
                     <!-- Search and Filter -->
-                    <div class="apple-card mb-4">
-                        <div class="apple-card-body">
+                    <div class="pearlight-card mb-4">
+                        <div class="pearlight-card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="apple-body-emphasized mb-2">Search Links</label>
-                                    <input type="text" class="apple-input" id="searchInput" placeholder="Search by shortcode, URL, or tracking code...">
+                                    <label class="pearlight-body-emphasized mb-2">Search Links</label>
+                                    <input type="text" class="pearlight-input" id="searchInput" placeholder="Search by shortcode, URL, or tracking code...">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="apple-body-emphasized mb-2">Filter by Status</label>
-                                    <select class="apple-select" id="statusFilter">
+                                    <label class="pearlight-body-emphasized mb-2">Filter by Status</label>
+                                    <select class="pearlight-select" id="statusFilter">
                                         <option value="">All Status</option>
                                         <option value="active">Active</option>
                                         <option value="expired">Expired</option>
@@ -624,8 +624,8 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="apple-body-emphasized mb-2">Export Data</label>
-                                    <button class="apple-btn apple-btn-secondary w-100" onclick="exportToCSV()">
+                                    <label class="pearlight-body-emphasized mb-2">Export Data</label>
+                                    <button class="pearlight-btn pearlight-btn-secondary w-100" onclick="exportToCSV()">
                                         <i class="fas fa-download"></i> Export CSV
                                     </button>
                                 </div>
@@ -634,12 +634,12 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                     </div>
 
                     <!-- Links Table -->
-                    <div class="apple-card">
-                        <div class="apple-card-header">
-                            <h5 class="apple-card-title mb-0"><i class="fas fa-table"></i> Links Management</h5>
+                    <div class="pearlight-card">
+                        <div class="pearlight-card-header">
+                            <h5 class="pearlight-card-title mb-0"><i class="fas fa-table"></i> Links Management</h5>
                         </div>
                         <div class="table-responsive">
-                            <table class="apple-table resizable-table" id="admin-table">
+                            <table class="pearlight-table resizable-table" id="admin-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 60px;">
@@ -727,7 +727,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                                         <label class="url-label">Short URL:</label>
                                                         <div class="url-display">
                                                             <code class="url-text"><?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?></code>
-                                                            <button class="apple-btn apple-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?>')" title="Copy Short URL">
+                                                            <button class="pearlight-btn pearlight-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?>')" title="Copy Short URL">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
                                                         </div>
@@ -736,7 +736,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                                         <label class="url-label">Tracking URL:</label>
                                                         <div class="url-display">
                                                             <code class="url-text"><?php echo BASE_URL . $link['tracking_code']; ?></code>
-                                                            <button class="apple-btn apple-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['tracking_code']; ?>')" title="Copy Tracking URL">
+                                                            <button class="pearlight-btn pearlight-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['tracking_code']; ?>')" title="Copy Tracking URL">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
                                                         </div>
@@ -752,7 +752,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                             </td>
                                             <td>
                                                 <div class="password-field">
-                                                    <input type="password" class="apple-input" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;" value="<?php echo $link['password']; ?>" readonly>
+                                                    <input type="password" class="pearlight-input" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;" value="<?php echo $link['password']; ?>" readonly>
                                                     <button class="password-toggle" onclick="togglePassword(this)">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -788,16 +788,16 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                             <td><?php echo date('M j, Y', strtotime($link['created_at'])); ?></td>
                                             <td>
                                                 <div class="action-buttons">
-                                                    <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="apple-btn apple-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" title="View Targets">
+                                                    <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="pearlight-btn pearlight-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" title="View Targets">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <button class="apple-btn apple-btn-warning" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="toggleExpiry(<?php echo $link['id']; ?>, '<?php echo $link['expiry_date']; ?>')" title="Toggle Expiry">
+                                                    <button class="pearlight-btn pearlight-btn-warning" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="toggleExpiry(<?php echo $link['id']; ?>, '<?php echo $link['expiry_date']; ?>')" title="Toggle Expiry">
                                                         <i class="fas fa-clock"></i>
                                                     </button>
-                                                    <button class="apple-btn apple-btn-info" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="regenerateTracking(<?php echo $link['id']; ?>)" title="Regenerate Tracking Code">
+                                                    <button class="pearlight-btn pearlight-btn-info" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="regenerateTracking(<?php echo $link['id']; ?>)" title="Regenerate Tracking Code">
                                                         <i class="fas fa-sync"></i>
                                                     </button>
-                                                    <button class="apple-btn apple-btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="deleteLink(<?php echo $link['id']; ?>)" title="Delete Link">
+                                                    <button class="pearlight-btn pearlight-btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="deleteLink(<?php echo $link['id']; ?>)" title="Delete Link">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>

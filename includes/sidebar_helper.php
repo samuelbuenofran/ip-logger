@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sidebar Helper Functions
  * Provides consistent sidebar navigation across all pages
@@ -7,7 +8,8 @@
 /**
  * Get the current page name from the script name
  */
-function getCurrentPage() {
+function getCurrentPage()
+{
     $scriptName = basename($_SERVER['PHP_SELF']);
     return str_replace('.php', '', $scriptName);
 }
@@ -15,13 +17,14 @@ function getCurrentPage() {
 /**
  * Check if a navigation link should be active
  */
-function isNavLinkActive($pageName) {
+function isNavLinkActive($pageName)
+{
     $currentPage = getCurrentPage();
-    
+
     // Special cases for page mapping
     $pageMapping = [
         'index' => 'index',
-        'links' => 'links', 
+        'links' => 'links',
         'create_link' => 'create_link',
         'view_targets' => 'view_targets',
         'admin' => 'admin',
@@ -30,14 +33,15 @@ function isNavLinkActive($pageName) {
         'cookies' => 'cookies',
         'password_recovery' => 'password_recovery'
     ];
-    
+
     return isset($pageMapping[$currentPage]) && $pageMapping[$currentPage] === $pageName;
 }
 
 /**
  * Generate sidebar navigation HTML
  */
-function generateSidebarNav() {
+function generateSidebarNav()
+{
     $navItems = [
         [
             'url' => 'index.php',
@@ -94,32 +98,33 @@ function generateSidebarNav() {
             'page' => 'password_recovery'
         ]
     ];
-    
-    $html = '<ul class="apple-sidebar-nav">';
-    
+
+    $html = '<ul class="pearlight-sidebar-nav">';
+
     foreach ($navItems as $item) {
         $activeClass = isNavLinkActive($item['page']) ? ' active' : '';
         $html .= '<li>';
-        $html .= '<a class="apple-nav-link' . $activeClass . '" href="' . $item['url'] . '">';
+        $html .= '<a class="pearlight-nav-link' . $activeClass . '" href="' . $item['url'] . '">';
         $html .= '<i class="' . $item['icon'] . '"></i> ' . $item['text'];
         $html .= '</a>';
         $html .= '</li>';
     }
-    
+
     $html .= '</ul>';
-    
+
     return $html;
 }
 
 /**
  * Generate mobile header HTML
  */
-function generateMobileHeader() {
+function generateMobileHeader()
+{
     $html = '<div class="mobile-header">';
     $html .= '<a href="index.php" class="navbar-brand">';
     $html .= '<i class="fas fa-shield-alt"></i> IP Logger';
     $html .= '</a>';
-    $html .= '<button class="apple-btn" type="button" id="sidebarToggle" title="Abrir Menu">';
+    $html .= '<button class="pearlight-btn" type="button" id="sidebarToggle" title="Abrir Menu">';
     $html .= '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">';
     $html .= '<line x1="3" y1="6" x2="21" y2="6"></line>';
     $html .= '<line x1="3" y1="12" x2="21" y2="12"></line>';
@@ -127,33 +132,34 @@ function generateMobileHeader() {
     $html .= '</svg>';
     $html .= '</button>';
     $html .= '</div>';
-    
+
     return $html;
 }
 
 /**
  * Generate sidebar overlay HTML
  */
-function generateSidebarOverlay() {
+function generateSidebarOverlay()
+{
     return '<div class="sidebar-overlay" id="sidebarOverlay"></div>';
 }
 
 /**
  * Generate complete sidebar HTML
  */
-function generateSidebar() {
-    $html = '<nav class="col-md-3 col-lg-2 apple-sidebar sidebar" id="sidebar">';
+function generateSidebar()
+{
+    $html = '<nav class="col-md-3 col-lg-2 pearlight-sidebar sidebar" id="sidebar">';
     $html .= '<div class="position-sticky pt-3">';
-    $html .= '<div class="apple-sidebar-header text-center">';
-    $html .= '<a href="index.php" class="apple-nav-brand">';
+    $html .= '<div class="pearlight-sidebar-header text-center">';
+    $html .= '<a href="index.php" class="pearlight-nav-brand">';
     $html .= '<i class="fas fa-shield-alt"></i> IP Logger';
     $html .= '</a>';
-    $html .= '<p class="apple-subhead" style="color: var(--apple-text-white); opacity: 0.8; margin-top: var(--apple-space-xs);">URL Shortener & Tracker</p>';
+    $html .= '<p class="pearlight-subhead" style="color: var(--pearlight-text-white); opacity: 0.8; margin-top: var(--pearlight-space-xs);">URL Shortener & Tracker</p>';
     $html .= '</div>';
     $html .= generateSidebarNav();
     $html .= '</div>';
     $html .= '</nav>';
-    
+
     return $html;
 }
-?>

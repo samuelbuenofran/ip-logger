@@ -46,9 +46,9 @@ $activeLinks = count(array_filter($links, function ($link) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Apple Fonts -->
-    <link rel="stylesheet" href="assets/css/apple-fonts.css">
-    <!-- Apple Design System -->
+    <!-- Pearlight Fonts -->
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
+    <!-- Pearlight Design System -->
     <link rel="stylesheet" href="assets/css/pearlight.css">
     <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
 
@@ -91,27 +91,27 @@ $activeLinks = count(array_filter($links, function ($link) {
 
             .mobile-header {
                 display: block;
-                background: var(--apple-bg-primary);
+                background: var(--pearlight-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
-                border-bottom: 1px solid var(--apple-gray-5);
+                border-bottom: 1px solid var(--pearlight-gray-5);
             }
 
             .mobile-header .navbar-brand {
-                color: var(--apple-text-primary);
+                color: var(--pearlight-text-primary);
                 font-weight: 600;
             }
 
             .mobile-header .btn {
-                color: var(--apple-text-primary);
-                border-color: var(--apple-gray-4);
+                color: var(--pearlight-text-primary);
+                border-color: var(--pearlight-gray-4);
             }
 
             .mobile-header .btn:hover {
-                background-color: var(--apple-gray-6);
-                border-color: var(--apple-gray-3);
+                background-color: var(--pearlight-gray-6);
+                border-color: var(--pearlight-gray-3);
             }
         }
 
@@ -146,8 +146,8 @@ $activeLinks = count(array_filter($links, function ($link) {
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="apple-title-1">Meus Links</h1>
-                    <a href="create_link.php" class="apple-btn apple-btn-primary">
+                    <h1 class="pearlight-title-1">Meus Links</h1>
+                    <a href="create_link.php" class="pearlight-btn pearlight-btn-primary">
                         <i class="fas fa-plus"></i> Criar Novo Link
                     </a>
                 </div>
@@ -155,53 +155,53 @@ $activeLinks = count(array_filter($links, function ($link) {
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
                     <div class="col-md-3">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h4 class="apple-title-1"><?php echo $totalLinks; ?></h4>
-                                    <p class="apple-subhead">Total Links</p>
+                                    <h4 class="pearlight-title-1"><?php echo $totalLinks; ?></h4>
+                                    <p class="pearlight-subhead">Total Links</p>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-link fa-2x" style="color: var(--apple-blue);"></i>
+                                    <i class="fas fa-link fa-2x" style="color: var(--pearlight-blue);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h4 class="apple-title-1"><?php echo $totalClicks; ?></h4>
-                                    <p class="apple-subhead">Total Clicks</p>
+                                    <h4 class="pearlight-title-1"><?php echo $totalClicks; ?></h4>
+                                    <p class="pearlight-subhead">Total Clicks</p>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-mouse-pointer fa-2x" style="color: var(--apple-green);"></i>
+                                    <i class="fas fa-mouse-pointer fa-2x" style="color: var(--pearlight-green);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h4 class="apple-title-1"><?php echo $activeLinks; ?></h4>
-                                    <p class="apple-subhead">Active Links</p>
+                                    <h4 class="pearlight-title-1"><?php echo $activeLinks; ?></h4>
+                                    <p class="pearlight-subhead">Active Links</p>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-check-circle fa-2x" style="color: var(--apple-teal);"></i>
+                                    <i class="fas fa-check-circle fa-2x" style="color: var(--pearlight-teal);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h4 class="apple-title-1"><?php echo $totalLinks - $activeLinks; ?></h4>
-                                    <p class="apple-subhead">Expired Links</p>
+                                    <h4 class="pearlight-title-1"><?php echo $totalLinks - $activeLinks; ?></h4>
+                                    <p class="pearlight-subhead">Expired Links</p>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-clock fa-2x" style="color: var(--apple-orange);"></i>
+                                    <i class="fas fa-clock fa-2x" style="color: var(--pearlight-orange);"></i>
                                 </div>
                             </div>
                         </div>
@@ -209,9 +209,9 @@ $activeLinks = count(array_filter($links, function ($link) {
                 </div>
 
                 <!-- Links Table -->
-                <div class="apple-card">
-                    <div class="apple-card-header">
-                        <h5 class="apple-card-title"><i class="fas fa-list"></i> All Links</h5>
+                <div class="pearlight-card">
+                    <div class="pearlight-card-header">
+                        <h5 class="pearlight-card-title"><i class="fas fa-list"></i> All Links</h5>
                     </div>
                     <div class="card-body">
                         <?php if (empty($links)): ?>
@@ -219,13 +219,13 @@ $activeLinks = count(array_filter($links, function ($link) {
                                 <i class="fas fa-link fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">No links created yet</h5>
                                 <p class="text-muted">Create your first link to start tracking visitors</p>
-                                <a href="index.php" class="apple-btn apple-btn-primary">
+                                <a href="index.php" class="pearlight-btn pearlight-btn-primary">
                                     <i class="fas fa-plus"></i> Create First Link
                                 </a>
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
-                                <table class="apple-table resizable-table" id="links-table">
+                                <table class="pearlight-table resizable-table" id="links-table">
                                     <thead>
                                         <tr>
                                             <th style="width: 200px;" draggable="true" data-column="0">
@@ -304,9 +304,9 @@ $activeLinks = count(array_filter($links, function ($link) {
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <code class="me-2"><?php echo $link['short_code']; ?></code>
-                                                        <button class="apple-btn apple-btn-secondary"
+                                                        <button class="pearlight-btn pearlight-btn-secondary"
                                                             style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
-                                                            onclick="copyToClipboard('<?php echo $shortUrl; ?>')"
+                                                            data-copy-url="<?php echo $shortUrl; ?>"
                                                             title="Copy URL">
                                                             <i class="fas fa-copy"></i>
                                                         </button>
@@ -340,7 +340,7 @@ $activeLinks = count(array_filter($links, function ($link) {
                                                 </td>
                                                 <td>
                                                     <button class="expand-btn"
-                                                        onclick="toggleRowActions(this)"
+                                                        data-toggle-actions="true"
                                                         title="Expandir ações">
                                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                             <polyline points="6,9 12,15 18,9"></polyline>
@@ -360,7 +360,7 @@ $activeLinks = count(array_filter($links, function ($link) {
                                                                 <i class="fas fa-eye"></i> View
                                                             </a>
                                                             <button class="btn btn-sm btn-outline-info"
-                                                                onclick="showLinkDetails('<?php echo $shortUrl; ?>', '<?php echo htmlspecialchars($link['original_url']); ?>')"
+                                                                data-show-details="true" data-short-url="<?php echo $shortUrl; ?>" data-original-url="<?php echo htmlspecialchars($link['original_url']); ?>"
                                                                 title="Link Details">
                                                                 <i class="fas fa-info-circle"></i> Details
                                                             </button>
@@ -392,7 +392,7 @@ $activeLinks = count(array_filter($links, function ($link) {
                         <label class="form-label">Short URL</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="modalShortUrl" readonly>
-                            <button class="apple-btn apple-btn-secondary" type="button" onclick="copyToClipboard(document.getElementById('modalShortUrl').value)" title="Copy URL">
+                            <button class="pearlight-btn pearlight-btn-secondary" type="button" data-copy-modal="modalShortUrl" title="Copy URL">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
@@ -403,7 +403,7 @@ $activeLinks = count(array_filter($links, function ($link) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="apple-btn apple-btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="pearlight-btn pearlight-btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -449,7 +449,7 @@ $activeLinks = count(array_filter($links, function ($link) {
             });
 
             // Close sidebar when clicking on nav links (mobile only)
-            const navLinks = document.querySelectorAll('.sidebar .apple-nav-link');
+            const navLinks = document.querySelectorAll('.sidebar .pearlight-nav-link');
             navLinks.forEach(function(link) {
                 link.addEventListener('click', function(e) {
                     if (window.innerWidth < 768) {

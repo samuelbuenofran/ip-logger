@@ -480,7 +480,7 @@ function initMobileNavigation() {
     });
     
     // Close sidebar when clicking on nav links (mobile only)
-    const navLinks = document.querySelectorAll('.sidebar .apple-nav-link');
+    const navLinks = document.querySelectorAll('.sidebar .pearlight-nav-link');
     navLinks.forEach(function(link) {
         link.addEventListener('click', function(e) {
             if (window.innerWidth < 768) {

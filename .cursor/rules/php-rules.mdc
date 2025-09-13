@@ -1,0 +1,7 @@
+---
+description: "Rules for working with PHP files"
+globs:
+alwaysApply: true
+---
+
+// All PHP includes, classes, and functions should be organized within the "/includes/" directory, using subfolders like "/includes/classes/" and "/includes/functions/" as appropriate.

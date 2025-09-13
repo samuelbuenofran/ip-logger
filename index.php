@@ -4,7 +4,7 @@ require_once 'config/config.local.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 require_once 'includes/sidebar_helper.php';
-require_once 'includes/create_link_functions.php';
+require_once 'includes/functions/create_link_functions.php';
 require_once 'includes/classes/qr_generator.php';
 
 // Initialize database connection
@@ -58,9 +58,9 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="apple-title-1">Dashboard</h1>
+                    <h1 class="pearlight-title-1">Dashboard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="create_link.php" class="apple-btn apple-btn-primary me-2">
+                        <a href="create_link.php" class="pearlight-btn pearlight-btn-primary me-2">
                             <i class="fas fa-plus"></i> Criar Novo Link
                         </a>
                     </div>
@@ -79,61 +79,61 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline">Total de Links</h5>
-                                    <h2 class="apple-title-1"><?php echo count($links); ?></h2>
+                                    <h5 class="pearlight-headline">Total de Links</h5>
+                                    <h2 class="pearlight-title-1"><?php echo count($links); ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-link fa-2x" style="color: var(--apple-blue);"></i>
+                                    <i class="fas fa-link fa-2x" style="color: var(--pearlight-blue);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline">Links Ativos</h5>
-                                    <h2 class="apple-title-1"><?php echo count(array_filter($links, function ($link) {
-                                                                    return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time();
-                                                                })); ?></h2>
+                                    <h5 class="pearlight-headline">Links Ativos</h5>
+                                    <h2 class="pearlight-title-1"><?php echo count(array_filter($links, function ($link) {
+                                                                        return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time();
+                                                                    })); ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-check-circle fa-2x" style="color: var(--apple-green);"></i>
+                                    <i class="fas fa-check-circle fa-2x" style="color: var(--pearlight-green);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline">Total de Cliques</h5>
-                                    <h2 class="apple-title-1"><?php
-                                                                $stmt = $conn->query("SELECT COUNT(*) as total FROM targets");
-                                                                echo $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-                                                                ?></h2>
+                                    <h5 class="pearlight-headline">Total de Cliques</h5>
+                                    <h2 class="pearlight-title-1"><?php
+                                                                    $stmt = $conn->query("SELECT COUNT(*) as total FROM targets");
+                                                                    echo $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                                                                    ?></h2>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-mouse-pointer fa-2x" style="color: var(--apple-teal);"></i>
+                                    <i class="fas fa-mouse-pointer fa-2x" style="color: var(--pearlight-teal);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6">
-                        <div class="apple-card">
+                        <div class="pearlight-card">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="apple-headline">Visitantes Únicos</h5>
-                                    <h2 class="apple-title-1"><?php
-                                                                $stmt = $conn->query("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets");
-                                                                echo $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
-                                                                ?></h2>
+                                    <h5 class="pearlight-headline">Visitantes Únicos</h5>
+                                    <h2 class="pearlight-title-1"><?php
+                                                                    $stmt = $conn->query("SELECT COUNT(DISTINCT ip_address) as unique_visitors FROM targets");
+                                                                    echo $stmt->fetch(PDO::FETCH_ASSOC)['unique_visitors'];
+                                                                    ?></h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-users fa-2x" style="color: var(--apple-orange);"></i>
@@ -144,9 +144,9 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <!-- Recent Links Table -->
-                <div class="apple-card">
-                    <div class="apple-card-header">
-                        <h5 class="apple-card-title"><i class="fas fa-link"></i> Links Recentes</h5>
+                <div class="pearlight-card">
+                    <div class="pearlight-card-header">
+                        <h5 class="pearlight-card-title"><i class="fas fa-link"></i> Links Recentes</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -216,7 +216,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <td><?php echo $link['id']; ?></td>
                                             <td>
                                                 <code><?php echo $link['short_code']; ?></code>
-                                                <button class="apple-btn apple-btn-secondary ms-2" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code']; ?>')" title="Copiar URL">
+                                                <button class="pearlight-btn pearlight-btn-secondary ms-2" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" data-copy-url="<?php echo BASE_URL . $link['short_code']; ?>" title="Copiar URL">
                                                     <i class="fas fa-copy"></i>
                                                 </button>
                                             </td>
@@ -251,7 +251,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             </td>
                                             <td class="text-center">
                                                 <button class="expand-btn"
-                                                    onclick="toggleRowActions(this)"
+                                                    data-toggle-actions="true"
                                                     title="Expandir ações">
                                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <polyline points="6,9 12,15 18,9"></polyline>
@@ -306,8 +306,8 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="apple-btn apple-btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="apple-btn apple-btn-primary">Create Link</button>
+                        <button type="button" class="pearlight-btn pearlight-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="pearlight-btn pearlight-btn-primary">Create Link</button>
                     </div>
                 </form>
             </div>
@@ -320,62 +320,8 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
-
-    <!-- Mobile Navigation Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Initializing mobile navigation...');
-
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-            if (!sidebarToggle || !sidebar || !sidebarOverlay) {
-                console.error('Mobile navigation elements not found');
-                return;
-            }
-
-            console.log('Mobile navigation elements found');
-
-            // Toggle sidebar
-            sidebarToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Sidebar toggle clicked');
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
-
-            // Close sidebar when clicking overlay
-            sidebarOverlay.addEventListener('click', function() {
-                console.log('Overlay clicked, closing sidebar');
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-
-            // Close sidebar when clicking on nav links (mobile only)
-            const navLinks = document.querySelectorAll('.sidebar .apple-nav-link');
-            navLinks.forEach(function(link) {
-                link.addEventListener('click', function(e) {
-                    if (window.innerWidth < 768) {
-                        console.log('Nav link clicked on mobile, closing sidebar');
-                        sidebar.classList.remove('show');
-                        sidebarOverlay.classList.remove('show');
-                    }
-                });
-            });
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                }
-            });
-
-            console.log('Mobile navigation initialized successfully');
-        });
-    </script>
+    <script src="assets/js/functions/utility-functions.js"></script>
+    <script src="assets/js/functions/mobile-navigation.js"></script>
 
     <!-- Copy to Clipboard Function -->
     <script>

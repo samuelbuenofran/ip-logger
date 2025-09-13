@@ -26,9 +26,9 @@ $conn = $db->getConnection();
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Apple Fonts -->
-    <link rel="stylesheet" href="assets/css/apple-fonts.css">
-    <!-- Apple Design System -->
+    <!-- Pearlight Fonts -->
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
+    <!-- Pearlight Design System -->
     <link rel="stylesheet" href="assets/css/pearlight.css">
     <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
     <style>
@@ -70,27 +70,27 @@ $conn = $db->getConnection();
 
             .mobile-header {
                 display: block;
-                background: var(--apple-bg-primary);
+                background: var(--pearlight-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
-                border-bottom: 1px solid var(--apple-gray-5);
+                border-bottom: 1px solid var(--pearlight-gray-5);
             }
 
             .mobile-header .navbar-brand {
-                color: var(--apple-text-primary);
+                color: var(--pearlight-text-primary);
                 font-weight: 600;
             }
 
             .mobile-header .btn {
-                color: var(--apple-text-primary);
-                border-color: var(--apple-gray-4);
+                color: var(--pearlight-text-primary);
+                border-color: var(--pearlight-gray-4);
             }
 
             .mobile-header .btn:hover {
-                background-color: var(--apple-gray-6);
-                border-color: var(--apple-gray-3);
+                background-color: var(--pearlight-gray-6);
+                border-color: var(--pearlight-gray-3);
             }
         }
 
@@ -122,17 +122,17 @@ $conn = $db->getConnection();
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="apple-title-1">Privacy Policy</h1>
+                    <h1 class="pearlight-title-1">Privacy Policy</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <a href="index.php" class="apple-btn apple-btn-secondary">
+                        <a href="index.php" class="pearlight-btn pearlight-btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
                 </div>
 
-                <div class="apple-card">
-                    <div class="apple-card-body">
-                        <h3 class="apple-title-2">Privacy Policy for IP Logger</h3>
+                <div class="pearlight-card">
+                    <div class="pearlight-card-body">
+                        <h3 class="pearlight-title-2">Privacy Policy for IP Logger</h3>
                         <p class="text-muted">Last updated: <?php echo date('F j, Y'); ?></p>
 
                         <div class="privacy-notice">

@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+// All JavaScript code should be placed within the "/assets/js/" folder.
+
+// Inline JavaScript in HTML files should be avoided to maintain separation of concerns.
+
+// The "/assets/js/" folder contains two subfolders, "classes" and "functions", intended to house JavaScript classes and functions respectively.

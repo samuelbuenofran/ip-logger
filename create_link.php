@@ -83,9 +83,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Apple Fonts -->
-    <link rel="stylesheet" href="assets/css/apple-fonts.css">
-    <!-- Apple Design System -->
+    <!-- Pearlight Fonts -->
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
+    <!-- Pearlight Design System -->
     <link rel="stylesheet" href="assets/css/pearlight.css">
     <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
 
@@ -128,27 +128,27 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
 
             .mobile-header {
                 display: block;
-                background: var(--apple-bg-primary);
+                background: var(--pearlight-bg-primary);
                 padding: 1rem;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
-                border-bottom: 1px solid var(--apple-gray-5);
+                border-bottom: 1px solid var(--pearlight-gray-5);
             }
 
             .mobile-header .navbar-brand {
-                color: var(--apple-text-primary);
+                color: var(--pearlight-text-primary);
                 font-weight: 600;
             }
 
             .mobile-header .btn {
-                color: var(--apple-text-primary);
-                border-color: var(--apple-gray-4);
+                color: var(--pearlight-text-primary);
+                border-color: var(--pearlight-gray-4);
             }
 
             .mobile-header .btn:hover {
-                background-color: var(--apple-gray-6);
-                border-color: var(--apple-gray-3);
+                background-color: var(--pearlight-gray-6);
+                border-color: var(--pearlight-gray-3);
             }
         }
 
@@ -385,7 +385,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-plus"></i> Criar Novo Link</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <a href="index.php" class="apple-btn apple-btn-secondary">
+                            <a href="index.php" class="pearlight-btn pearlight-btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
                             </a>
                         </div>
@@ -454,32 +454,32 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_link') {
 
                     <!-- Create Link Form -->
                     <div class="form-card">
-                        <h3 class="apple-title-2"><i class="fas fa-link"></i> Criar Novo Link</h3>
+                        <h3 class="pearlight-title-2"><i class="fas fa-link"></i> Criar Novo Link</h3>
 
                         <form method="POST">
                             <input type="hidden" name="action" value="create_link">
 
                             <div class="mb-3">
-                                <label for="original_url" class="apple-body-emphasized">
+                                <label for="original_url" class="pearlight-body-emphasized">
                                     <i class="fas fa-globe"></i> URL de Destino
                                 </label>
-                                <input type="text" class="apple-input" id="original_url" name="original_url"
+                                <input type="text" class="pearlight-input" id="original_url" name="original_url"
                                     placeholder="www.joblinerh.com.br ou https://example.com/documento.pdf..."
                                     required>
-                                <div class="apple-footnote" style="margin-top: var(--apple-space-xs);">Cole aqui a URL que você quer enviar (imagem, documento, website, etc.) - não precisa incluir https://</div>
+                                <div class="pearlight-footnote" style="margin-top: var(--pearlight-space-xs);">Cole aqui a URL que você quer enviar (imagem, documento, website, etc.) - não precisa incluir https://</div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="password" class="apple-body-emphasized">
+                                <label for="password" class="pearlight-body-emphasized">
                                     <i class="fas fa-lock"></i> Senha para Ver Logs
                                 </label>
-                                <input type="password" class="apple-input" id="password" name="password"
+                                <input type="password" class="pearlight-input" id="password" name="password"
                                     placeholder="Digite uma senha..."
                                     required>
-                                <div class="apple-footnote" style="margin-top: var(--apple-space-xs);">Esta senha será usada para acessar os logs de localização</div>
+                                <div class="pearlight-footnote" style="margin-top: var(--pearlight-space-xs);">Esta senha será usada para acessar os logs de localização</div>
                             </div>
 
-                            <button type="submit" class="apple-btn apple-btn-primary">
+                            <button type="submit" class="pearlight-btn pearlight-btn-primary">
                                 <i class="fas fa-plus"></i> Criar Link
                             </button>
                         </form>

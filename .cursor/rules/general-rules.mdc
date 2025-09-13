@@ -1,0 +1,13 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+// All configuration files (such as database or app settings) should be placed in the "/config/" folder;
+
+// Our project should follow separation of concerns;
+
+// The config folder contains two configuration files: config.php for cloud/production deployment and config.local.php for local deployment on a user's PC;
+
+// All pure HTML files and templates should be placed in the dedicated "/templates/" folder, keeping markup separate from logic and assets;

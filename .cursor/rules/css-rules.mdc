@@ -1,0 +1,15 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+// All CSS code should always go inside a .css file within the "/assets/css/" folder.
+
+// All image assets (such as .png, .jpg, .gif, .webp) should be stored in the "/assets/img/" folder;
+
+// The project should work with the following image formats: .avif, .gif, .jpeg, .jpg, .png, .webp;
+
+// All icon assets should be placed inside the "/assets/ico";
+
+// An icon is an image used to convey the function of a button, feature, or element on a web page. It is distinct from an illustration.

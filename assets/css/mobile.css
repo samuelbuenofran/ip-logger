@@ -36,27 +36,27 @@
 
     .mobile-header {
         display: block;
-        background: var(--apple-bg-primary);
+        background: var(--pearlight-bg-primary);
         padding: 1rem;
         position: sticky;
         top: 0;
         z-index: 1030;
-        border-bottom: 1px solid var(--apple-gray-5);
+        border-bottom: 1px solid var(--pearlight-gray-5);
     }
 
     .mobile-header .navbar-brand {
-        color: var(--apple-text-primary);
+        color: var(--pearlight-text-primary);
         font-weight: 600;
     }
 
     .mobile-header .btn {
-        color: var(--apple-text-primary);
-        border-color: var(--apple-gray-4);
+        color: var(--pearlight-text-primary);
+        border-color: var(--pearlight-gray-4);
     }
 
     .mobile-header .btn:hover {
-        background-color: var(--apple-gray-6);
-        border-color: var(--apple-gray-3);
+        background-color: var(--pearlight-gray-6);
+        border-color: var(--pearlight-gray-3);
     }
 }
 
