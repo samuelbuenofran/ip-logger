@@ -25,18 +25,19 @@ $links = $stmt->fetchAll();
 // Get statistics
 $totalLinks = count($links);
 $totalClicks = array_sum(array_column($links, 'click_count'));
-$activeLinks = count(array_filter($links, function($link) {
+$activeLinks = count(array_filter($links, function ($link) {
     return !$link['expiry_date'] || strtotime($link['expiry_date']) > time();
 }));
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Links - IP Logger</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
@@ -48,8 +49,9 @@ $activeLinks = count(array_filter($links, function($link) {
     <!-- Apple Fonts -->
     <link rel="stylesheet" href="assets/css/apple-fonts.css">
     <!-- Apple Design System -->
-    <link rel="stylesheet" href="assets/css/apple-design-system.css">
-    
+    <link rel="stylesheet" href="assets/css/pearlight.css">
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
+
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -63,11 +65,11 @@ $activeLinks = count(array_filter($links, function($link) {
                 transition: left 0.3s ease;
                 overflow-y: auto;
             }
-            
+
             .sidebar.show {
                 left: 0;
             }
-            
+
             .sidebar-overlay {
                 position: fixed;
                 top: 0;
@@ -78,15 +80,15 @@ $activeLinks = count(array_filter($links, function($link) {
                 z-index: 1040;
                 display: none;
             }
-            
+
             .sidebar-overlay.show {
                 display: block;
             }
-            
+
             .main-content {
                 margin-left: 0 !important;
             }
-            
+
             .mobile-header {
                 display: block;
                 background: var(--apple-bg-primary);
@@ -96,33 +98,33 @@ $activeLinks = count(array_filter($links, function($link) {
                 z-index: 1030;
                 border-bottom: 1px solid var(--apple-gray-5);
             }
-            
+
             .mobile-header .navbar-brand {
                 color: var(--apple-text-primary);
                 font-weight: 600;
             }
-            
+
             .mobile-header .btn {
                 color: var(--apple-text-primary);
                 border-color: var(--apple-gray-4);
             }
-            
+
             .mobile-header .btn:hover {
                 background-color: var(--apple-gray-6);
                 border-color: var(--apple-gray-3);
             }
         }
-        
+
         @media (min-width: 768px) {
             .mobile-header {
                 display: none;
             }
-            
+
             .sidebar-overlay {
                 display: none !important;
             }
         }
-        
+
         /* Desktop sidebar adjustments */
         @media (min-width: 768px) {
             .main-content {
@@ -131,10 +133,11 @@ $activeLinks = count(array_filter($links, function($link) {
         }
     </style>
 </head>
+
 <body>
     <?php echo generateMobileHeader(); ?>
     <?php echo generateSidebarOverlay(); ?>
-    
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -293,7 +296,7 @@ $activeLinks = count(array_filter($links, function($link) {
                                     </thead>
                                     <tbody>
                                         <?php foreach ($links as $link): ?>
-                                            <?php 
+                                            <?php
                                             $isExpired = $link['expiry_date'] && strtotime($link['expiry_date']) < time();
                                             $shortUrl = BASE_URL . $link['short_code'];
                                             ?>
@@ -301,10 +304,10 @@ $activeLinks = count(array_filter($links, function($link) {
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <code class="me-2"><?php echo $link['short_code']; ?></code>
-                                                        <button class="apple-btn apple-btn-secondary" 
-                                                                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
-                                                                onclick="copyToClipboard('<?php echo $shortUrl; ?>')"
-                                                                title="Copy URL">
+                                                        <button class="apple-btn apple-btn-secondary"
+                                                            style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+                                                            onclick="copyToClipboard('<?php echo $shortUrl; ?>')"
+                                                            title="Copy URL">
                                                             <i class="fas fa-copy"></i>
                                                         </button>
                                                     </div>
@@ -336,29 +339,29 @@ $activeLinks = count(array_filter($links, function($link) {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <button class="expand-btn" 
-                                                            onclick="toggleRowActions(this)" 
-                                                            title="Expandir ações">
+                                                    <button class="expand-btn"
+                                                        onclick="toggleRowActions(this)"
+                                                        title="Expandir ações">
                                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                             <polyline points="6,9 12,15 18,9"></polyline>
                                                         </svg>
                                                     </button>
                                                     <div class="row-actions" style="display: none;">
                                                         <div class="btn-group-vertical" role="group">
-                                                            <a href="<?php echo $shortUrl; ?>" 
-                                                               target="_blank" 
-                                                               class="btn btn-sm btn-outline-secondary"
-                                                               title="Test Link">
+                                                            <a href="<?php echo $shortUrl; ?>"
+                                                                target="_blank"
+                                                                class="btn btn-sm btn-outline-secondary"
+                                                                title="Test Link">
                                                                 <i class="fas fa-external-link-alt"></i> Test
                                                             </a>
-                                                            <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" 
-                                                               class="btn btn-sm btn-primary"
-                                                               title="View Targets">
+                                                            <a href="view_targets.php?link_id=<?php echo $link['id']; ?>"
+                                                                class="btn btn-sm btn-primary"
+                                                                title="View Targets">
                                                                 <i class="fas fa-eye"></i> View
                                                             </a>
                                                             <button class="btn btn-sm btn-outline-info"
-                                                                    onclick="showLinkDetails('<?php echo $shortUrl; ?>', '<?php echo htmlspecialchars($link['original_url']); ?>')"
-                                                                    title="Link Details">
+                                                                onclick="showLinkDetails('<?php echo $shortUrl; ?>', '<?php echo htmlspecialchars($link['original_url']); ?>')"
+                                                                title="Link Details">
                                                                 <i class="fas fa-info-circle"></i> Details
                                                             </button>
                                                         </div>
@@ -412,23 +415,23 @@ $activeLinks = count(array_filter($links, function($link) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
-    
+
     <!-- Mobile Navigation Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Initializing mobile navigation...');
-            
+
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
-            
+
             if (!sidebarToggle || !sidebar || !sidebarOverlay) {
                 console.error('Mobile navigation elements not found');
                 return;
             }
-            
+
             console.log('Mobile navigation elements found');
-            
+
             // Toggle sidebar
             sidebarToggle.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -437,14 +440,14 @@ $activeLinks = count(array_filter($links, function($link) {
                 sidebar.classList.toggle('show');
                 sidebarOverlay.classList.toggle('show');
             });
-            
+
             // Close sidebar when clicking overlay
             sidebarOverlay.addEventListener('click', function() {
                 console.log('Overlay clicked, closing sidebar');
                 sidebar.classList.remove('show');
                 sidebarOverlay.classList.remove('show');
             });
-            
+
             // Close sidebar when clicking on nav links (mobile only)
             const navLinks = document.querySelectorAll('.sidebar .apple-nav-link');
             navLinks.forEach(function(link) {
@@ -456,7 +459,7 @@ $activeLinks = count(array_filter($links, function($link) {
                     }
                 });
             });
-            
+
             // Handle window resize
             window.addEventListener('resize', function() {
                 if (window.innerWidth >= 768) {
@@ -464,11 +467,11 @@ $activeLinks = count(array_filter($links, function($link) {
                     sidebarOverlay.classList.remove('show');
                 }
             });
-            
+
             console.log('Mobile navigation initialized successfully');
         });
     </script>
-    
+
     <!-- Toast Notification Styles -->
     <style>
         .toast-notification {
@@ -482,31 +485,31 @@ $activeLinks = count(array_filter($links, function($link) {
             z-index: 9999;
             transform: translateX(100%);
             transition: transform 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
+
         .toast-notification.show {
             transform: translateX(0);
         }
-        
+
         .toast-success {
             background-color: #28a745;
         }
-        
+
         .toast-error {
             background-color: #dc3545;
         }
-        
+
         .toast-notification i {
             margin-right: 8px;
         }
-        
+
         /* Resizable Table Columns */
         .resizable-table {
             table-layout: fixed;
             width: 100%;
         }
-        
+
         .resizable-table th,
         .resizable-table td {
             position: relative;
@@ -515,7 +518,7 @@ $activeLinks = count(array_filter($links, function($link) {
             white-space: nowrap;
             padding: 8px 12px;
         }
-        
+
         .resizable-table th {
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
@@ -523,21 +526,21 @@ $activeLinks = count(array_filter($links, function($link) {
             cursor: move;
             position: relative;
         }
-        
+
         .resizable-table th:hover {
             background-color: #e9ecef;
         }
-        
+
         .resizable-table th.dragging {
             opacity: 0.5;
             background-color: #007bff;
             color: white;
         }
-        
+
         .resizable-table th.drag-over {
             border-left: 3px solid #007bff;
         }
-        
+
         .resizable-table th.drag-over::before {
             content: '';
             position: absolute;
@@ -547,7 +550,7 @@ $activeLinks = count(array_filter($links, function($link) {
             width: 3px;
             background-color: #007bff;
         }
-        
+
         .resizable-table th .resize-handle {
             position: absolute;
             top: 0;
@@ -558,39 +561,39 @@ $activeLinks = count(array_filter($links, function($link) {
             cursor: col-resize;
             transition: background-color 0.2s ease;
         }
-        
+
         .resizable-table th .resize-handle:hover {
             background-color: #007bff;
         }
-        
+
         .resizable-table th .resize-handle.active {
             background-color: #0056b3;
         }
-        
+
         .resizable-table th .column-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
         }
-        
+
         .resizable-table th .column-title {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .resizable-table th .resize-icon {
             opacity: 0;
             transition: opacity 0.2s ease;
             font-size: 12px;
             color: #6c757d;
         }
-        
+
         .resizable-table th:hover .resize-icon {
             opacity: 1;
         }
-        
+
         .resizable-table th .drag-handle {
             opacity: 0;
             transition: opacity 0.2s ease;
@@ -598,23 +601,23 @@ $activeLinks = count(array_filter($links, function($link) {
             color: #6c757d;
             cursor: grab;
         }
-        
+
         .resizable-table th:hover .drag-handle {
             opacity: 1;
         }
-        
+
         .resizable-table th .drag-handle:active {
             cursor: grabbing;
         }
-        
+
         .resizable-table td {
             cursor: help;
         }
-        
+
         .resizable-table td:hover {
             background-color: #f8f9fa;
         }
-        
+
         /* URL cell styling */
         .url-cell {
             overflow: hidden;
@@ -624,11 +627,11 @@ $activeLinks = count(array_filter($links, function($link) {
             color: #007bff;
             transition: color 0.2s ease;
         }
-        
+
         .url-cell:hover {
             color: #0056b3;
         }
-        
+
         /* Tooltip styles */
         .table-tooltip {
             position: absolute;
@@ -644,11 +647,11 @@ $activeLinks = count(array_filter($links, function($link) {
             opacity: 0;
             transition: opacity 0.2s ease;
         }
-        
+
         .table-tooltip.show {
             opacity: 1;
         }
-        
+
         .table-tooltip::after {
             content: '';
             position: absolute;
@@ -659,7 +662,7 @@ $activeLinks = count(array_filter($links, function($link) {
             border-style: solid;
             border-color: #333 transparent transparent transparent;
         }
-        
+
         /* Row Expansion Styles */
         .expand-btn {
             transition: all 0.3s ease;
@@ -671,57 +674,58 @@ $activeLinks = count(array_filter($links, function($link) {
             align-items: center;
             justify-content: center;
         }
-        
+
         .expand-btn:hover {
             background-color: #007bff;
             color: white;
             border-color: #007bff;
         }
-        
+
         .expand-btn.expanded {
             background-color: #007bff;
             color: white;
             border-color: #007bff;
         }
-        
+
         .expand-btn.expanded i {
             transform: rotate(180deg);
         }
-        
+
         .expand-btn i {
             transition: transform 0.3s ease;
             font-size: 12px;
         }
-        
+
         .row-actions {
             margin-top: 0.5rem;
             animation: slideDown 0.3s ease;
         }
-        
+
         @keyframes slideDown {
             from {
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .row-actions.hidden {
             display: none !important;
         }
-        
+
         .btn-group-vertical .btn {
             margin-bottom: 0.25rem;
         }
-        
+
         .btn-group-vertical .btn:last-child {
             margin-bottom: 0;
         }
     </style>
-    
+
     <script>
         function copyToClipboard(text) {
             // Try modern clipboard API first
@@ -737,7 +741,7 @@ $activeLinks = count(array_filter($links, function($link) {
                 fallbackCopyToClipboard(text);
             }
         }
-        
+
         function fallbackCopyToClipboard(text) {
             const textArea = document.createElement('textarea');
             textArea.value = text;
@@ -747,7 +751,7 @@ $activeLinks = count(array_filter($links, function($link) {
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
+
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
@@ -759,37 +763,37 @@ $activeLinks = count(array_filter($links, function($link) {
                 console.error('Fallback copy failed:', err);
                 showCopyError();
             }
-            
+
             document.body.removeChild(textArea);
         }
-        
+
         function showCopySuccess() {
             // Create toast notification
             const toast = document.createElement('div');
             toast.className = 'toast-notification toast-success';
             toast.innerHTML = '<i class="fas fa-check-circle"></i> URL copied to clipboard!';
             document.body.appendChild(toast);
-            
+
             // Show toast
             setTimeout(() => toast.classList.add('show'), 100);
-            
+
             // Remove toast after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => document.body.removeChild(toast), 300);
             }, 3000);
         }
-        
+
         function showCopyError() {
             // Create toast notification
             const toast = document.createElement('div');
             toast.className = 'toast-notification toast-error';
             toast.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to copy to clipboard';
             document.body.appendChild(toast);
-            
+
             // Show toast
             setTimeout(() => toast.classList.add('show'), 100);
-            
+
             // Remove toast after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
@@ -802,13 +806,13 @@ $activeLinks = count(array_filter($links, function($link) {
             document.getElementById('modalOriginalUrl').value = originalUrl;
             new bootstrap.Modal(document.getElementById('linkDetailsModal')).show();
         }
-        
+
         // Resizable Table Columns Functionality
         function initResizableTables() {
             console.log('initResizableTables called');
             const tables = document.querySelectorAll('.resizable-table');
             console.log('Found tables:', tables.length);
-            
+
             tables.forEach((table, tableIndex) => {
                 console.log(`Processing table ${tableIndex}:`, table);
                 const headers = table.querySelectorAll('th');
@@ -817,16 +821,16 @@ $activeLinks = count(array_filter($links, function($link) {
                 let currentHeader = null;
                 let startX = 0;
                 let startWidth = 0;
-                
+
                 // Create tooltip element
                 const tooltip = document.createElement('div');
                 tooltip.className = 'table-tooltip';
                 document.body.appendChild(tooltip);
-                
+
                 headers.forEach((header, index) => {
                     const resizeHandle = header.querySelector('.resize-handle');
                     console.log(`Header ${index}:`, header, 'Resize handle:', resizeHandle);
-                    
+
                     if (resizeHandle) {
                         // Mouse down on resize handle
                         resizeHandle.addEventListener('mousedown', (e) => {
@@ -835,26 +839,26 @@ $activeLinks = count(array_filter($links, function($link) {
                             currentHeader = header;
                             startX = e.clientX;
                             startWidth = header.offsetWidth;
-                            
+
                             header.classList.add('active');
                             document.body.style.cursor = 'col-resize';
                             document.body.style.userSelect = 'none';
-                            
+
                             e.preventDefault();
                         });
                     }
-                    
+
                     // Mouse move during resize
                     document.addEventListener('mousemove', (e) => {
                         if (!isResizing || !currentHeader) return;
-                        
+
                         const newWidth = startWidth + (e.clientX - startX);
                         const minWidth = 50; // Minimum column width
                         const maxWidth = 600; // Increased maximum column width
-                        
+
                         if (newWidth >= minWidth && newWidth <= maxWidth) {
                             currentHeader.style.width = newWidth + 'px';
-                            
+
                             // Update all cells in this column
                             const columnIndex = Array.from(headers).indexOf(currentHeader);
                             const cells = table.querySelectorAll(`td:nth-child(${columnIndex + 1})`);
@@ -863,7 +867,7 @@ $activeLinks = count(array_filter($links, function($link) {
                             });
                         }
                     });
-                    
+
                     // Mouse up to end resize
                     document.addEventListener('mouseup', () => {
                         if (isResizing && currentHeader) {
@@ -871,15 +875,15 @@ $activeLinks = count(array_filter($links, function($link) {
                             isResizing = false;
                             currentHeader.classList.remove('active');
                             currentHeader = null;
-                            
+
                             document.body.style.cursor = '';
                             document.body.style.userSelect = '';
-                            
+
                             // Save column widths to localStorage
                             saveColumnWidths(table);
                         }
                     });
-                    
+
                     // Add tooltip functionality to table cells
                     const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
                     cells.forEach(cell => {
@@ -888,7 +892,7 @@ $activeLinks = count(array_filter($links, function($link) {
                             const urlCell = cell.querySelector('.url-cell');
                             let tooltipText = '';
                             let shouldShowTooltip = false;
-                            
+
                             if (urlCell && urlCell.hasAttribute('data-full-url')) {
                                 // This is a URL cell - always show the full URL
                                 tooltipText = urlCell.getAttribute('data-full-url');
@@ -899,44 +903,44 @@ $activeLinks = count(array_filter($links, function($link) {
                                 const cellText = cell.textContent.trim();
                                 const cellWidth = cell.offsetWidth;
                                 const textWidth = getTextWidth(cellText, '14px Inter, sans-serif');
-                                
+
                                 console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
-                                
+
                                 if (textWidth > cellWidth || cellText.includes('http')) {
                                     tooltipText = cellText;
                                     shouldShowTooltip = true;
                                 }
                             }
-                            
+
                             if (shouldShowTooltip) {
                                 tooltip.textContent = tooltipText;
                                 tooltip.classList.add('show');
-                                
+
                                 // Position tooltip
                                 const rect = cell.getBoundingClientRect();
                                 const tooltipWidth = Math.min(tooltip.offsetWidth, 500);
                                 let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-                                
+
                                 // Keep tooltip within viewport
                                 if (left < 10) left = 10;
                                 if (left + tooltipWidth > window.innerWidth - 10) {
                                     left = window.innerWidth - tooltipWidth - 10;
                                 }
-                                
+
                                 tooltip.style.left = left + 'px';
                                 tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
                                 tooltip.style.maxWidth = '500px';
-                                
+
                                 console.log('Tooltip shown:', tooltipText);
                             }
                         });
-                        
+
                         cell.addEventListener('mouseleave', () => {
                             tooltip.classList.remove('show');
                         });
                     });
                 });
-                
+
                 // Drag and Drop functionality
                 headers.forEach((header, index) => {
                     // Drag start
@@ -948,7 +952,7 @@ $activeLinks = count(array_filter($links, function($link) {
                         e.dataTransfer.effectAllowed = 'move';
                         e.dataTransfer.setData('text/html', header.outerHTML);
                     });
-                    
+
                     // Drag end
                     header.addEventListener('dragend', (e) => {
                         console.log('Drag ended');
@@ -958,48 +962,48 @@ $activeLinks = count(array_filter($links, function($link) {
                         draggedColumn = null;
                         draggedIndex = -1;
                     });
-                    
+
                     // Drag over
                     header.addEventListener('dragover', (e) => {
                         e.preventDefault();
                         e.dataTransfer.dropEffect = 'move';
-                        
+
                         if (draggedColumn && draggedColumn !== header) {
                             header.classList.add('drag-over');
                         }
                     });
-                    
+
                     // Drag leave
                     header.addEventListener('dragleave', (e) => {
                         header.classList.remove('drag-over');
                     });
-                    
+
                     // Drop
                     header.addEventListener('drop', (e) => {
                         e.preventDefault();
                         header.classList.remove('drag-over');
-                        
+
                         if (draggedColumn && draggedColumn !== header) {
                             const targetIndex = index;
                             const sourceIndex = draggedIndex;
-                            
+
                             console.log(`Moving column from ${sourceIndex} to ${targetIndex}`);
-                            
+
                             // Reorder columns
                             reorderColumns(table, sourceIndex, targetIndex);
-                            
+
                             // Save column order
                             saveColumnOrder(table);
                         }
                     });
                 });
-                
+
                 // Load saved column widths and order
                 loadColumnWidths(table);
                 loadColumnOrder(table);
             });
         }
-        
+
         // Helper function to get text width
         function getTextWidth(text, font) {
             const canvas = document.createElement('canvas');
@@ -1007,39 +1011,39 @@ $activeLinks = count(array_filter($links, function($link) {
             context.font = font;
             return context.measureText(text).width;
         }
-        
+
         // Save column widths to localStorage
         function saveColumnWidths(table) {
             const tableId = table.id || 'default-table';
             const widths = [];
             const headers = table.querySelectorAll('th');
-            
+
             headers.forEach(header => {
                 widths.push(header.style.width || header.offsetWidth + 'px');
             });
-            
+
             localStorage.setItem(`table-widths-${tableId}`, JSON.stringify(widths));
         }
-        
+
         // Load column widths from localStorage
         function loadColumnWidths(table) {
             const tableId = table.id || 'default-table';
             const savedWidths = localStorage.getItem(`table-widths-${tableId}`);
-            
+
             if (savedWidths) {
                 const widths = JSON.parse(savedWidths);
                 const headers = table.querySelectorAll('th');
-                
+
                 headers.forEach((header, index) => {
                     if (widths[index]) {
                         header.style.width = widths[index];
-                        
+
                         // Apply width to all cells in this column
                         const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
                         cells.forEach(cell => {
                             cell.style.width = widths[index];
                         });
-                        
+
                         // Also apply to any nested elements that might affect width
                         const expandBtns = table.querySelectorAll(`td:nth-child(${index + 1}) .expand-btn`);
                         expandBtns.forEach(btn => {
@@ -1050,14 +1054,14 @@ $activeLinks = count(array_filter($links, function($link) {
                 });
             }
         }
-        
+
         // Reorder columns function
         function reorderColumns(table, sourceIndex, targetIndex) {
             const headers = table.querySelectorAll('th');
             const rows = table.querySelectorAll('tr');
-            
+
             if (sourceIndex === targetIndex) return;
-            
+
             // Get the source elements
             const sourceHeader = headers[sourceIndex];
             const sourceCells = [];
@@ -1067,17 +1071,17 @@ $activeLinks = count(array_filter($links, function($link) {
                     sourceCells.push(cells[sourceIndex]);
                 }
             });
-            
+
             // Remove source elements
             sourceHeader.remove();
             sourceCells.forEach(cell => cell.remove());
-            
+
             // Insert at target position
             if (targetIndex > sourceIndex) {
                 // Moving right - insert after target
                 const targetHeader = headers[targetIndex - 1];
                 targetHeader.insertAdjacentElement('afterend', sourceHeader);
-                
+
                 rows.forEach((row, rowIndex) => {
                     const cells = row.querySelectorAll('th, td');
                     const targetCell = cells[targetIndex - 1];
@@ -1089,7 +1093,7 @@ $activeLinks = count(array_filter($links, function($link) {
                 // Moving left - insert before target
                 const targetHeader = headers[targetIndex];
                 targetHeader.insertAdjacentElement('beforebegin', sourceHeader);
-                
+
                 rows.forEach((row, rowIndex) => {
                     const cells = row.querySelectorAll('th, td');
                     const targetCell = cells[targetIndex];
@@ -1098,14 +1102,14 @@ $activeLinks = count(array_filter($links, function($link) {
                     }
                 });
             }
-            
+
             // Update data-column attributes
             const newHeaders = table.querySelectorAll('th');
             newHeaders.forEach((header, index) => {
                 header.setAttribute('data-column', index);
             });
         }
-        
+
         // Save column order to localStorage
         function saveColumnOrder(table) {
             const tableId = table.id || 'default-table';
@@ -1113,34 +1117,34 @@ $activeLinks = count(array_filter($links, function($link) {
             const order = Array.from(headers).map(header => header.getAttribute('data-column'));
             localStorage.setItem(`table-order-${tableId}`, JSON.stringify(order));
         }
-        
+
         // Load column order from localStorage
         function loadColumnOrder(table) {
             const tableId = table.id || 'default-table';
             const savedOrder = localStorage.getItem(`table-order-${tableId}`);
-            
+
             if (savedOrder) {
                 const order = JSON.parse(savedOrder);
                 const headers = table.querySelectorAll('th');
-                
+
                 // Only reorder if the order is different
                 const currentOrder = Array.from(headers).map(header => header.getAttribute('data-column'));
                 if (JSON.stringify(currentOrder) !== JSON.stringify(order)) {
                     // Reorder columns based on saved order
                     const headerArray = Array.from(headers);
                     const reorderedHeaders = order.map(index => headerArray.find(h => h.getAttribute('data-column') === index.toString()));
-                    
+
                     // Clear the table header
                     const thead = table.querySelector('thead tr');
                     thead.innerHTML = '';
-                    
+
                     // Add reordered headers
                     reorderedHeaders.forEach(header => {
                         if (header) {
                             thead.appendChild(header);
                         }
                     });
-                    
+
                     // Reorder data rows
                     const tbody = table.querySelector('tbody');
                     if (tbody) {
@@ -1148,7 +1152,7 @@ $activeLinks = count(array_filter($links, function($link) {
                         rows.forEach(row => {
                             const cells = Array.from(row.querySelectorAll('td'));
                             const reorderedCells = order.map(index => cells.find(c => c.parentNode.children[Array.from(c.parentNode.children).indexOf(c)] === cells[parseInt(index)]));
-                            
+
                             // Clear and reorder cells
                             row.innerHTML = '';
                             reorderedCells.forEach(cell => {
@@ -1161,12 +1165,12 @@ $activeLinks = count(array_filter($links, function($link) {
                 }
             }
         }
-        
+
         // Row expansion functionality
         function toggleRowActions(button) {
             const rowActions = button.nextElementSibling;
             const isExpanded = button.classList.contains('expanded');
-            
+
             // Close all other expanded rows
             document.querySelectorAll('.expand-btn.expanded').forEach(btn => {
                 if (btn !== button) {
@@ -1174,7 +1178,7 @@ $activeLinks = count(array_filter($links, function($link) {
                     btn.nextElementSibling.style.display = 'none';
                 }
             });
-            
+
             // Toggle current row
             if (isExpanded) {
                 button.classList.remove('expanded');
@@ -1184,13 +1188,13 @@ $activeLinks = count(array_filter($links, function($link) {
                 rowActions.style.display = 'block';
             }
         }
-        
+
         // Force column auto-adjustment
         function forceColumnAdjustment(table) {
             const headers = table.querySelectorAll('th');
             headers.forEach((header, index) => {
                 const currentWidth = header.style.width || header.offsetWidth + 'px';
-                
+
                 // Apply to all cells in this column
                 const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
                 cells.forEach(cell => {
@@ -1198,13 +1202,13 @@ $activeLinks = count(array_filter($links, function($link) {
                 });
             });
         }
-        
+
         // Initialize resizable tables when page loads
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing resizable tables...');
             try {
                 initResizableTables();
-                
+
                 // Force column adjustment after initialization
                 setTimeout(() => {
                     const tables = document.querySelectorAll('.resizable-table');
@@ -1212,13 +1216,14 @@ $activeLinks = count(array_filter($links, function($link) {
                         forceColumnAdjustment(table);
                     });
                 }, 100);
-                
+
                 console.log('Resizable tables initialized successfully');
             } catch (error) {
                 console.error('Error initializing resizable tables:', error);
             }
         });
     </script>
-    
+
 </body>
+
 </html>

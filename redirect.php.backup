@@ -2,7 +2,7 @@
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
-require_once 'includes/enhanced_geolocation.php';
+require_once 'includes/classes/geolocation.php';
 
 // Initialize database connection
 $db = new Database();
@@ -43,8 +43,7 @@ $target_data = [
 ];
 
 // Initialize enhanced geolocation system
-$enhanced_geo = new EnhancedGeolocation();
-$enhanced_geo->__init($conn);
+$enhanced_geo = new EnhancedGeolocation($conn);
 
 // Get enhanced geolocation data with multiple sources
 $additional_data = [

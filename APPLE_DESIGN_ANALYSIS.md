@@ -97,7 +97,7 @@
 #### **1. Accessibility Enhancements**
 
 ```css
-/* Add to apple-design-system.css */
+/* Add to pearlight.css */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

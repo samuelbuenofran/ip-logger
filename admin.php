@@ -27,12 +27,12 @@ if (isset($_SESSION[$lockout_key]) && $_SESSION[$lockout_key] > time()) {
     // Handle admin login
     if (isset($_POST['admin_login'])) {
         $password = $_POST['admin_password'];
-        
+
         // Initialize attempt counter
         if (!isset($_SESSION['admin_attempts'])) {
             $_SESSION['admin_attempts'] = 0;
         }
-        
+
         if ($password === $admin_password) {
             $_SESSION['admin_authenticated'] = true;
             $_SESSION['admin_attempts'] = 0; // Reset attempts on success
@@ -59,9 +59,10 @@ if (isset($_GET['logout'])) {
 
 // Show login form if not authenticated
 if (!$is_authenticated) {
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="en">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,6 +70,7 @@ if (!$is_authenticated) {
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     </head>
+
     <body class="bg-light">
         <div class="container mt-5">
             <div class="row justify-content-center">
@@ -103,8 +105,9 @@ if (!$is_authenticated) {
             </div>
         </div>
     </body>
+
     </html>
-    <?php
+<?php
     exit;
 }
 
@@ -117,7 +120,7 @@ if (isset($_POST['action'])) {
             $stmt->execute([$link_id]);
             redirectWithMessage('admin.php', 'Link deleted successfully!', 'success');
             break;
-            
+
         case 'toggle_expiry':
             $link_id = (int)$_POST['link_id'];
             $current_expiry = $_POST['current_expiry'];
@@ -126,7 +129,7 @@ if (isset($_POST['action'])) {
             $stmt->execute([$new_expiry, $link_id]);
             redirectWithMessage('admin.php', 'Link expiry updated successfully!', 'success');
             break;
-            
+
         case 'regenerate_tracking':
             $link_id = (int)$_POST['link_id'];
             $new_tracking_code = generateRandomString(12);
@@ -151,8 +154,8 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get overall statistics
 $total_links = count($links);
-$active_links = count(array_filter($links, function($link) { 
-    return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time(); 
+$active_links = count(array_filter($links, function ($link) {
+    return $link['expiry_date'] === NULL || strtotime($link['expiry_date']) > time();
 }));
 $total_clicks = array_sum(array_column($links, 'click_count'));
 $total_visitors = array_sum(array_column($links, 'unique_visitors'));
@@ -160,12 +163,13 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Admin Panel - IP Logger</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
@@ -177,7 +181,8 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
     <!-- Apple Fonts -->
     <link rel="stylesheet" href="assets/css/apple-fonts.css">
     <!-- Apple Design System -->
-    <link rel="stylesheet" href="assets/css/apple-design-system.css">
+    <link rel="stylesheet" href="assets/css/pearlight.css">
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -191,11 +196,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 transition: left 0.3s ease;
                 overflow-y: auto;
             }
-            
+
             .sidebar.show {
                 left: 0;
             }
-            
+
             .sidebar-overlay {
                 position: fixed;
                 top: 0;
@@ -206,15 +211,15 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 z-index: 1040;
                 display: none;
             }
-            
+
             .sidebar-overlay.show {
                 display: block;
             }
-            
+
             .main-content {
                 margin-left: 0 !important;
             }
-            
+
             .mobile-header {
                 display: block;
                 background: var(--apple-bg-primary);
@@ -224,33 +229,33 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 z-index: 1030;
                 border-bottom: 1px solid var(--apple-gray-5);
             }
-            
+
             .mobile-header .navbar-brand {
                 color: var(--apple-text-primary);
                 font-weight: 600;
             }
-            
+
             .mobile-header .btn {
                 color: var(--apple-text-primary);
                 border-color: var(--apple-gray-4);
             }
-            
+
             .mobile-header .btn:hover {
                 background-color: var(--apple-gray-6);
                 border-color: var(--apple-gray-3);
             }
         }
-        
+
         @media (min-width: 768px) {
             .mobile-header {
                 display: none;
             }
-            
+
             .sidebar-overlay {
                 display: none !important;
             }
         }
-        
+
         /* Desktop sidebar adjustments */
         @media (min-width: 768px) {
             .main-content {
@@ -258,12 +263,12 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             }
         }
     </style>
-    
+
     <style>
         .admin-content {
             padding: 2rem;
         }
-        
+
         .stats-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -271,25 +276,25 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
-        
+
         .stats-card h3 {
             font-size: 2.5rem;
             font-weight: 700;
             margin: 0;
         }
-        
+
         .stats-card p {
             margin: 0;
             opacity: 0.9;
         }
-        
+
         .link-table {
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         .link-table th {
             background: #f8f9fa;
             border: none;
@@ -297,57 +302,57 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             font-weight: 600;
             color: #495057;
         }
-        
+
         .link-table td {
             padding: 1rem;
             vertical-align: middle;
             border-top: 1px solid #dee2e6;
         }
-        
+
         .link-url {
             max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        
+
         .status-badge {
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 500;
         }
-        
+
         .status-active {
             background: #d4edda;
             color: #155724;
         }
-        
+
         .status-expired {
             background: #f8d7da;
             color: #721c24;
         }
-        
+
         .status-expiring {
             background: #fff3cd;
             color: #856404;
         }
-        
+
         .action-buttons {
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
         }
-        
+
         .btn-sm {
             padding: 0.25rem 0.5rem;
             font-size: 0.8rem;
         }
-        
+
         .password-field {
             position: relative;
         }
-        
+
         .password-toggle {
             position: absolute;
             right: 0.5rem;
@@ -358,23 +363,23 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             color: #6c757d;
             cursor: pointer;
         }
-        
+
         .search-box {
             background: white;
             border-radius: 8px;
             padding: 1rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .generated-urls {
             min-width: 300px;
         }
-        
+
         .url-item {
             margin-bottom: 0.5rem;
         }
-        
+
         .url-label {
             font-size: 0.75rem;
             font-weight: 600;
@@ -382,7 +387,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             margin-bottom: 0.25rem;
             display: block;
         }
-        
+
         .url-display {
             display: flex;
             align-items: center;
@@ -391,7 +396,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             padding: 0.5rem;
             border: 1px solid #dee2e6;
         }
-        
+
         .url-text {
             flex: 1;
             font-size: 0.8rem;
@@ -402,19 +407,19 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             border: 1px solid #dee2e6;
             word-break: break-all;
         }
-        
+
         .url-display .btn {
             flex-shrink: 0;
             padding: 0.25rem 0.5rem;
             font-size: 0.7rem;
         }
-        
+
         /* Resizable Table Columns */
         .resizable-table {
             table-layout: fixed;
             width: 100%;
         }
-        
+
         .resizable-table th,
         .resizable-table td {
             position: relative;
@@ -423,17 +428,17 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             white-space: nowrap;
             padding: 8px 12px;
         }
-        
+
         .resizable-table th {
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
             user-select: none;
         }
-        
+
         .resizable-table th:hover {
             background-color: #e9ecef;
         }
-        
+
         .resizable-table th .resize-handle {
             position: absolute;
             top: 0;
@@ -444,47 +449,47 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             cursor: col-resize;
             transition: background-color 0.2s ease;
         }
-        
+
         .resizable-table th .resize-handle:hover {
             background-color: #007bff;
         }
-        
+
         .resizable-table th .resize-handle.active {
             background-color: #0056b3;
         }
-        
+
         .resizable-table th .column-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
         }
-        
+
         .resizable-table th .column-title {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .resizable-table th .resize-icon {
             opacity: 0;
             transition: opacity 0.2s ease;
             font-size: 12px;
             color: #6c757d;
         }
-        
+
         .resizable-table th:hover .resize-icon {
             opacity: 1;
         }
-        
+
         .resizable-table td {
             cursor: help;
         }
-        
+
         .resizable-table td:hover {
             background-color: #f8f9fa;
         }
-        
+
         /* Tooltip styles */
         .table-tooltip {
             position: absolute;
@@ -500,11 +505,11 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             opacity: 0;
             transition: opacity 0.2s ease;
         }
-        
+
         .table-tooltip.show {
             opacity: 1;
         }
-        
+
         .table-tooltip::after {
             content: '';
             position: absolute;
@@ -517,11 +522,12 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
         }
     </style>
 </head>
+
 <body class="bg-light">
-    <?php echo generateMobileHeader(); ?>\n    <?php echo generateSidebarOverlay(); ?>
+    <?php echo generateMobileHeader(); ?>\n <?php echo generateSidebarOverlay(); ?>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->\n            <?php echo generateSidebar(); ?>
+            <!-- Sidebar -->\n <?php echo generateSidebar(); ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
@@ -556,7 +562,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-xl-3 col-md-6">
                             <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-green) 0%, var(--apple-green-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
@@ -570,7 +576,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-xl-3 col-md-6">
                             <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-orange) 0%, var(--apple-orange-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
@@ -584,7 +590,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-xl-3 col-md-6">
                             <div class="apple-card mb-3" style="background: linear-gradient(135deg, var(--apple-purple) 0%, var(--apple-purple-dark) 100%); color: white;">
                                 <div class="d-flex justify-content-between align-items-center p-3">
@@ -710,93 +716,93 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                                 </thead>
                                 <tbody>
                                     <?php foreach ($links as $link): ?>
-                                    <tr>
-                                        <td><?php echo $link['id']; ?></td>
-                                        <td>
-                                            <code><?php echo $link['short_code']; ?></code>
-                                        </td>
-                                        <td>
-                                            <div class="generated-urls">
-                                                <div class="url-item mb-2">
-                                                    <label class="url-label">Short URL:</label>
-                                                    <div class="url-display">
-                                                        <code class="url-text"><?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?></code>
-                                                        <button class="apple-btn apple-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?>')" title="Copy Short URL">
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
+                                        <tr>
+                                            <td><?php echo $link['id']; ?></td>
+                                            <td>
+                                                <code><?php echo $link['short_code']; ?></code>
+                                            </td>
+                                            <td>
+                                                <div class="generated-urls">
+                                                    <div class="url-item mb-2">
+                                                        <label class="url-label">Short URL:</label>
+                                                        <div class="url-display">
+                                                            <code class="url-text"><?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?></code>
+                                                            <button class="apple-btn apple-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['short_code'] . ($link['extension'] ?: ''); ?>')" title="Copy Short URL">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="url-item">
+                                                        <label class="url-label">Tracking URL:</label>
+                                                        <div class="url-display">
+                                                            <code class="url-text"><?php echo BASE_URL . $link['tracking_code']; ?></code>
+                                                            <button class="apple-btn apple-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['tracking_code']; ?>')" title="Copy Tracking URL">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="url-item">
-                                                    <label class="url-label">Tracking URL:</label>
-                                                    <div class="url-display">
-                                                        <code class="url-text"><?php echo BASE_URL . $link['tracking_code']; ?></code>
-                                                        <button class="apple-btn apple-btn-secondary ms-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="copyToClipboard('<?php echo BASE_URL . $link['tracking_code']; ?>')" title="Copy Tracking URL">
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-                                                    </div>
+                                            </td>
+                                            <td>
+                                                <div class="link-url" title="<?php echo htmlspecialchars($link['original_url']); ?>">
+                                                    <a href="<?php echo htmlspecialchars($link['original_url']); ?>" target="_blank">
+                                                        <?php echo htmlspecialchars($link['original_url']); ?>
+                                                    </a>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="link-url" title="<?php echo htmlspecialchars($link['original_url']); ?>">
-                                                <a href="<?php echo htmlspecialchars($link['original_url']); ?>" target="_blank">
-                                                    <?php echo htmlspecialchars($link['original_url']); ?>
-                                                </a>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="password-field">
-                                                <input type="password" class="apple-input" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;" value="<?php echo $link['password']; ?>" readonly>
-                                                <button class="password-toggle" onclick="togglePassword(this)">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <code><?php echo $link['tracking_code']; ?></code>
-                                        </td>
-                                        <td>
-                                            <?php 
-                                            if ($link['expiry_date'] === NULL) {
-                                                echo '<span class="status-badge status-active">Active</span>';
-                                            } else {
-                                                $expiry = strtotime($link['expiry_date']);
-                                                if ($expiry > time()) {
-                                                    if ($expiry < strtotime('+7 days')) {
-                                                        echo '<span class="status-badge status-expiring">Expiring Soon</span>';
-                                                    } else {
-                                                        echo '<span class="status-badge status-active">Active</span>';
-                                                    }
+                                            </td>
+                                            <td>
+                                                <div class="password-field">
+                                                    <input type="password" class="apple-input" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;" value="<?php echo $link['password']; ?>" readonly>
+                                                    <button class="password-toggle" onclick="togglePassword(this)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <code><?php echo $link['tracking_code']; ?></code>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                if ($link['expiry_date'] === NULL) {
+                                                    echo '<span class="status-badge status-active">Active</span>';
                                                 } else {
-                                                    echo '<span class="status-badge status-expired">Expired</span>';
+                                                    $expiry = strtotime($link['expiry_date']);
+                                                    if ($expiry > time()) {
+                                                        if ($expiry < strtotime('+7 days')) {
+                                                            echo '<span class="status-badge status-expiring">Expiring Soon</span>';
+                                                        } else {
+                                                            echo '<span class="status-badge status-active">Active</span>';
+                                                        }
+                                                    } else {
+                                                        echo '<span class="status-badge status-expired">Expired</span>';
+                                                    }
                                                 }
-                                            }
-                                            ?>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info"><?php echo $link['click_count']; ?></span>
-                                            <?php if ($link['unique_visitors'] > 0): ?>
-                                                <small class="text-muted d-block"><?php echo $link['unique_visitors']; ?> unique</small>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?php echo date('M j, Y', strtotime($link['created_at'])); ?></td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="apple-btn apple-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" title="View Targets">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <button class="apple-btn apple-btn-warning" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="toggleExpiry(<?php echo $link['id']; ?>, '<?php echo $link['expiry_date']; ?>')" title="Toggle Expiry">
-                                                    <i class="fas fa-clock"></i>
-                                                </button>
-                                                <button class="apple-btn apple-btn-info" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="regenerateTracking(<?php echo $link['id']; ?>)" title="Regenerate Tracking Code">
-                                                    <i class="fas fa-sync"></i>
-                                                </button>
-                                                <button class="apple-btn apple-btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="deleteLink(<?php echo $link['id']; ?>)" title="Delete Link">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info"><?php echo $link['click_count']; ?></span>
+                                                <?php if ($link['unique_visitors'] > 0): ?>
+                                                    <small class="text-muted d-block"><?php echo $link['unique_visitors']; ?> unique</small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo date('M j, Y', strtotime($link['created_at'])); ?></td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="view_targets.php?link_id=<?php echo $link['id']; ?>" class="apple-btn apple-btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" title="View Targets">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <button class="apple-btn apple-btn-warning" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="toggleExpiry(<?php echo $link['id']; ?>, '<?php echo $link['expiry_date']; ?>')" title="Toggle Expiry">
+                                                        <i class="fas fa-clock"></i>
+                                                    </button>
+                                                    <button class="apple-btn apple-btn-info" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="regenerateTracking(<?php echo $link['id']; ?>)" title="Regenerate Tracking Code">
+                                                        <i class="fas fa-sync"></i>
+                                                    </button>
+                                                    <button class="apple-btn apple-btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="deleteLink(<?php echo $link['id']; ?>)" title="Delete Link">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -811,28 +817,28 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
     <script>
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
             const rows = document.querySelectorAll('tbody tr');
-            
+
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         });
-        
+
         // Status filter
         document.getElementById('statusFilter').addEventListener('change', function() {
             const filterValue = this.value;
             const rows = document.querySelectorAll('tbody tr');
-            
+
             rows.forEach(row => {
                 const statusCell = row.querySelector('td:nth-child(7)');
                 const status = statusCell.textContent.trim();
-                
+
                 if (filterValue === '' || status.toLowerCase().includes(filterValue)) {
                     row.style.display = '';
                 } else {
@@ -840,12 +846,12 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 }
             });
         });
-        
+
         // Password toggle
         function togglePassword(button) {
             const input = button.previousElementSibling;
             const icon = button.querySelector('i');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.className = 'fas fa-eye-slash';
@@ -854,7 +860,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 icon.className = 'fas fa-eye';
             }
         }
-        
+
         // Copy to clipboard
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
@@ -864,7 +870,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 btn.innerHTML = '<i class="fas fa-check"></i>';
                 btn.classList.remove('btn-outline-secondary');
                 btn.classList.add('btn-success');
-                
+
                 setTimeout(function() {
                     btn.innerHTML = originalHTML;
                     btn.classList.remove('btn-success');
@@ -872,7 +878,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 }, 2000);
             });
         }
-        
+
         // Admin actions
         function deleteLink(linkId) {
             if (confirm('Are you sure you want to delete this link? This action cannot be undone.')) {
@@ -886,7 +892,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 form.submit();
             }
         }
-        
+
         function toggleExpiry(linkId, currentExpiry) {
             const action = currentExpiry ? 'remove expiry' : 'set expiry';
             if (confirm(`Are you sure you want to ${action} for this link?`)) {
@@ -901,7 +907,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 form.submit();
             }
         }
-        
+
         function regenerateTracking(linkId) {
             if (confirm('Are you sure you want to regenerate the tracking code? This will invalidate the old tracking URL.')) {
                 const form = document.createElement('form');
@@ -914,17 +920,17 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 form.submit();
             }
         }
-        
+
         // Export to CSV
         function exportToCSV() {
             const rows = document.querySelectorAll('tbody tr');
             let csv = 'ID,Short Code,Generated URLs,Original URL,Password,Tracking Code,Status,Clicks,Created\n';
-            
+
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
                     const cells = row.querySelectorAll('td');
                     const rowData = [];
-                    
+
                     cells.forEach((cell, index) => {
                         if (index < 9) { // Exclude actions column
                             let text = cell.textContent.trim();
@@ -934,12 +940,14 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                             rowData.push(text);
                         }
                     });
-                    
+
                     csv += rowData.join(',') + '\n';
                 }
             });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
+
+            const blob = new Blob([csv], {
+                type: 'text/csv'
+            });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -947,13 +955,13 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             a.click();
             window.URL.revokeObjectURL(url);
         }
-        
+
         // Resizable Table Columns Functionality
         function initResizableTables() {
             console.log('initResizableTables called');
             const tables = document.querySelectorAll('.resizable-table');
             console.log('Found tables:', tables.length);
-            
+
             tables.forEach((table, tableIndex) => {
                 console.log(`Processing table ${tableIndex}:`, table);
                 const headers = table.querySelectorAll('th');
@@ -962,16 +970,16 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 let currentHeader = null;
                 let startX = 0;
                 let startWidth = 0;
-                
+
                 // Create tooltip element
                 const tooltip = document.createElement('div');
                 tooltip.className = 'table-tooltip';
                 document.body.appendChild(tooltip);
-                
+
                 headers.forEach((header, index) => {
                     const resizeHandle = header.querySelector('.resize-handle');
                     console.log(`Header ${index}:`, header, 'Resize handle:', resizeHandle);
-                    
+
                     if (resizeHandle) {
                         // Mouse down on resize handle
                         resizeHandle.addEventListener('mousedown', (e) => {
@@ -980,28 +988,28 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                             currentHeader = header;
                             startX = e.clientX;
                             startWidth = header.offsetWidth;
-                            
+
                             header.classList.add('active');
                             document.body.style.cursor = 'col-resize';
                             document.body.style.userSelect = 'none';
-                            
+
                             e.preventDefault();
                         });
                     }
-                    
+
                     // Mouse move during resize
                     document.addEventListener('mousemove', (e) => {
                         if (!isResizing || !currentHeader) return;
-                        
+
                         const newWidth = startWidth + (e.clientX - startX);
                         const minWidth = 50; // Minimum column width
                         const maxWidth = 400; // Maximum column width
-                        
+
                         if (newWidth >= minWidth && newWidth <= maxWidth) {
                             currentHeader.style.width = newWidth + 'px';
                         }
                     });
-                    
+
                     // Mouse up to end resize
                     document.addEventListener('mouseup', () => {
                         if (isResizing && currentHeader) {
@@ -1009,15 +1017,15 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                             isResizing = false;
                             currentHeader.classList.remove('active');
                             currentHeader = null;
-                            
+
                             document.body.style.cursor = '';
                             document.body.style.userSelect = '';
-                            
+
                             // Save column widths to localStorage
                             saveColumnWidths(table);
                         }
                     });
-                    
+
                     // Add tooltip functionality to table cells
                     const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
                     cells.forEach(cell => {
@@ -1025,34 +1033,34 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                             const cellText = cell.textContent.trim();
                             const cellWidth = cell.offsetWidth;
                             const textWidth = getTextWidth(cellText, '12px Inter, sans-serif');
-                            
+
                             console.log(`Cell text: "${cellText}", cellWidth: ${cellWidth}, textWidth: ${textWidth}`);
-                            
+
                             // Only show tooltip if text is truncated
                             if (textWidth > cellWidth) {
                                 tooltip.textContent = cellText;
                                 tooltip.classList.add('show');
-                                
+
                                 // Position tooltip
                                 const rect = cell.getBoundingClientRect();
                                 tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
                                 tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
-                                
+
                                 console.log('Tooltip shown');
                             }
                         });
-                        
+
                         cell.addEventListener('mouseleave', () => {
                             tooltip.classList.remove('show');
                         });
                     });
                 });
-                
+
                 // Load saved column widths
                 loadColumnWidths(table);
             });
         }
-        
+
         // Helper function to get text width
         function getTextWidth(text, font) {
             const canvas = document.createElement('canvas');
@@ -1060,29 +1068,29 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
             context.font = font;
             return context.measureText(text).width;
         }
-        
+
         // Save column widths to localStorage
         function saveColumnWidths(table) {
             const tableId = table.id || 'default-table';
             const widths = [];
             const headers = table.querySelectorAll('th');
-            
+
             headers.forEach(header => {
                 widths.push(header.style.width || header.offsetWidth + 'px');
             });
-            
+
             localStorage.setItem(`table-widths-${tableId}`, JSON.stringify(widths));
         }
-        
+
         // Load column widths from localStorage
         function loadColumnWidths(table) {
             const tableId = table.id || 'default-table';
             const savedWidths = localStorage.getItem(`table-widths-${tableId}`);
-            
+
             if (savedWidths) {
                 const widths = JSON.parse(savedWidths);
                 const headers = table.querySelectorAll('th');
-                
+
                 headers.forEach((header, index) => {
                     if (widths[index]) {
                         header.style.width = widths[index];
@@ -1090,7 +1098,7 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
                 });
             }
         }
-        
+
         // Initialize resizable tables when page loads
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing resizable tables...');
@@ -1103,5 +1111,6 @@ $total_visitors = array_sum(array_column($links, 'unique_visitors'));
         });
     </script>
 
-    </body>
+</body>
+
 </html>

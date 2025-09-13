@@ -12,11 +12,12 @@ $conn = $db->getConnection();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - IP Logger</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
@@ -28,7 +29,8 @@ $conn = $db->getConnection();
     <!-- Apple Fonts -->
     <link rel="stylesheet" href="assets/css/apple-fonts.css">
     <!-- Apple Design System -->
-    <link rel="stylesheet" href="assets/css/apple-design-system.css">
+    <link rel="stylesheet" href="assets/css/pearlight.css">
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -42,11 +44,11 @@ $conn = $db->getConnection();
                 transition: left 0.3s ease;
                 overflow-y: auto;
             }
-            
+
             .sidebar.show {
                 left: 0;
             }
-            
+
             .sidebar-overlay {
                 position: fixed;
                 top: 0;
@@ -57,15 +59,15 @@ $conn = $db->getConnection();
                 z-index: 1040;
                 display: none;
             }
-            
+
             .sidebar-overlay.show {
                 display: block;
             }
-            
+
             .main-content {
                 margin-left: 0 !important;
             }
-            
+
             .mobile-header {
                 display: block;
                 background: var(--apple-bg-primary);
@@ -75,33 +77,33 @@ $conn = $db->getConnection();
                 z-index: 1030;
                 border-bottom: 1px solid var(--apple-gray-5);
             }
-            
+
             .mobile-header .navbar-brand {
                 color: var(--apple-text-primary);
                 font-weight: 600;
             }
-            
+
             .mobile-header .btn {
                 color: var(--apple-text-primary);
                 border-color: var(--apple-gray-4);
             }
-            
+
             .mobile-header .btn:hover {
                 background-color: var(--apple-gray-6);
                 border-color: var(--apple-gray-3);
             }
         }
-        
+
         @media (min-width: 768px) {
             .mobile-header {
                 display: none;
             }
-            
+
             .sidebar-overlay {
                 display: none !important;
             }
         }
-        
+
         /* Desktop sidebar adjustments */
         @media (min-width: 768px) {
             .main-content {
@@ -110,11 +112,12 @@ $conn = $db->getConnection();
         }
     </style>
 </head>
+
 <body>
-    <?php echo generateMobileHeader(); ?>\n    <?php echo generateSidebarOverlay(); ?>
+    <?php echo generateMobileHeader(); ?>\n <?php echo generateSidebarOverlay(); ?>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->\n            <?php echo generateSidebar(); ?>
+            <!-- Sidebar -->\n <?php echo generateSidebar(); ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
@@ -131,12 +134,12 @@ $conn = $db->getConnection();
                     <div class="apple-card-body">
                         <h3 class="apple-title-2">Privacy Policy for IP Logger</h3>
                         <p class="text-muted">Last updated: <?php echo date('F j, Y'); ?></p>
-                        
+
                         <div class="privacy-notice">
                             <i class="fas fa-info-circle"></i>
                             <strong>Important:</strong> This tool is designed to respect user privacy and comply with applicable data protection laws.
                         </div>
-                        
+
                         <h4>1. Information We Collect</h4>
                         <p>When you click on a shortened link created through IP Logger, we may collect the following information:</p>
                         <ul>
@@ -146,7 +149,7 @@ $conn = $db->getConnection();
                             <li><strong>Referrer:</strong> The website that linked to our service</li>
                             <li><strong>Timestamp:</strong> When the link was clicked</li>
                         </ul>
-                        
+
                         <h4>2. How We Use Information</h4>
                         <p>The information we collect is used solely for:</p>
                         <ul>
@@ -154,7 +157,7 @@ $conn = $db->getConnection();
                             <li>Improving our service functionality</li>
                             <li>Preventing abuse and ensuring security</li>
                         </ul>
-                        
+
                         <h4>3. Data Protection</h4>
                         <p>We implement appropriate security measures to protect your information:</p>
                         <ul>
@@ -163,7 +166,7 @@ $conn = $db->getConnection();
                             <li>We do not sell, rent, or share your personal information</li>
                             <li>Data is automatically deleted after the retention period</li>
                         </ul>
-                        
+
                         <h4>4. Data Retention</h4>
                         <p>We retain your information for a limited period:</p>
                         <ul>
@@ -171,7 +174,7 @@ $conn = $db->getConnection();
                             <li>Expired links are automatically removed</li>
                             <li>You can request data deletion at any time</li>
                         </ul>
-                        
+
                         <h4>5. Your Rights</h4>
                         <p>Under applicable privacy laws, you have the right to:</p>
                         <ul>
@@ -181,7 +184,7 @@ $conn = $db->getConnection();
                             <li><strong>Portability:</strong> Receive your data in a structured format</li>
                             <li><strong>Objection:</strong> Object to processing of your data</li>
                         </ul>
-                        
+
                         <h4>6. Third-Party Services</h4>
                         <p>We may use third-party services for:</p>
                         <ul>
@@ -189,7 +192,7 @@ $conn = $db->getConnection();
                             <li><strong>Maps:</strong> Google Maps for location visualization</li>
                         </ul>
                         <p>These services have their own privacy policies.</p>
-                        
+
                         <h4>7. Cookies</h4>
                         <p>We use minimal cookies for:</p>
                         <ul>
@@ -197,23 +200,23 @@ $conn = $db->getConnection();
                             <li>Security purposes</li>
                             <li>Service functionality</li>
                         </ul>
-                        
+
                         <h4>8. Children's Privacy</h4>
                         <p>Our service is not intended for children under 13. We do not knowingly collect personal information from children under 13.</p>
-                        
+
                         <h4>9. International Transfers</h4>
                         <p>Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place.</p>
-                        
+
                         <h4>10. Changes to This Policy</h4>
                         <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
-                        
+
                         <h4>11. Contact Information</h4>
                         <p>If you have any questions about this privacy policy or our data practices, please contact us:</p>
                         <ul>
                             <li>Email: privacy@yourdomain.com</li>
                             <li>Address: [Your Business Address]</li>
                         </ul>
-                        
+
                         <h4>12. Legal Basis</h4>
                         <p>We process your personal data based on:</p>
                         <ul>
@@ -221,12 +224,12 @@ $conn = $db->getConnection();
                             <li><strong>Consent:</strong> When you click on a shortened link</li>
                             <li><strong>Legal Obligation:</strong> Complying with applicable laws</li>
                         </ul>
-                        
+
                         <div class="alert alert-info mt-4">
                             <h5><i class="fas fa-shield-alt"></i> GDPR Compliance</h5>
                             <p>This service is designed to comply with the General Data Protection Regulation (GDPR) and other applicable privacy laws. We are committed to protecting your privacy and ensuring transparency in our data practices.</p>
                         </div>
-                        
+
                         <div class="alert alert-warning mt-3">
                             <h5><i class="fas fa-exclamation-triangle"></i> Disclaimer</h5>
                             <p>This tool is for legitimate tracking purposes only. Users are responsible for complying with applicable privacy laws and regulations in their jurisdiction. The developers are not responsible for misuse of this software.</p>
@@ -244,5 +247,6 @@ $conn = $db->getConnection();
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
 
-    </body>
+</body>
+
 </html>

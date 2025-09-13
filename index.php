@@ -5,6 +5,7 @@ require_once 'config/database.php';
 require_once 'includes/functions.php';
 require_once 'includes/sidebar_helper.php';
 require_once 'includes/create_link_functions.php';
+require_once 'includes/classes/qr_generator.php';
 
 // Initialize database connection
 $db = new Database();
@@ -32,7 +33,8 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Default Global CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Pearlight Design System -->
-    <link rel="stylesheet" href="assets/css/apple-design-system.css">
+    <link rel="stylesheet" href="assets/css/pearlight.css">
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
 
     <style>
         /* Desktop sidebar adjustments */

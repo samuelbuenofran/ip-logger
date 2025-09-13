@@ -6,11 +6,12 @@ require_once 'includes/sidebar_helper.php';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Cookies - IP Logger</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
@@ -22,7 +23,8 @@ require_once 'includes/sidebar_helper.php';
     <!-- Apple Fonts -->
     <link rel="stylesheet" href="assets/css/apple-fonts.css">
     <!-- Apple Design System -->
-    <link rel="stylesheet" href="assets/css/apple-design-system.css">
+    <link rel="stylesheet" href="assets/css/pearlight.css">
+    <link rel="stylesheet" href="assets/css/pearlight-fonts.css">
     <style>
         /* Mobile Navigation Styles */
         @media (max-width: 767.98px) {
@@ -36,11 +38,11 @@ require_once 'includes/sidebar_helper.php';
                 transition: left 0.3s ease;
                 overflow-y: auto;
             }
-            
+
             .sidebar.show {
                 left: 0;
             }
-            
+
             .sidebar-overlay {
                 position: fixed;
                 top: 0;
@@ -51,15 +53,15 @@ require_once 'includes/sidebar_helper.php';
                 z-index: 1040;
                 display: none;
             }
-            
+
             .sidebar-overlay.show {
                 display: block;
             }
-            
+
             .main-content {
                 margin-left: 0 !important;
             }
-            
+
             .mobile-header {
                 display: block;
                 background: var(--apple-bg-primary);
@@ -69,33 +71,33 @@ require_once 'includes/sidebar_helper.php';
                 z-index: 1030;
                 border-bottom: 1px solid var(--apple-gray-5);
             }
-            
+
             .mobile-header .navbar-brand {
                 color: var(--apple-text-primary);
                 font-weight: 600;
             }
-            
+
             .mobile-header .btn {
                 color: var(--apple-text-primary);
                 border-color: var(--apple-gray-4);
             }
-            
+
             .mobile-header .btn:hover {
                 background-color: var(--apple-gray-6);
                 border-color: var(--apple-gray-3);
             }
         }
-        
+
         @media (min-width: 768px) {
             .mobile-header {
                 display: none;
             }
-            
+
             .sidebar-overlay {
                 display: none !important;
             }
         }
-        
+
         /* Desktop sidebar adjustments */
         @media (min-width: 768px) {
             .main-content {
@@ -103,70 +105,70 @@ require_once 'includes/sidebar_helper.php';
             }
         }
     </style>
-    
+
     <style>
         .cookies-content {
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
         .cookies-section {
             margin-bottom: 2rem;
         }
-        
+
         .cookies-section h3 {
             color: #333;
             border-bottom: 2px solid #007bff;
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
         }
-        
+
         .cookies-section h4 {
             color: #555;
             margin-top: 1.5rem;
             margin-bottom: 0.75rem;
         }
-        
+
         .cookies-section p {
             line-height: 1.6;
             margin-bottom: 1rem;
         }
-        
+
         .cookies-section ul {
             margin-bottom: 1rem;
             padding-left: 1.5rem;
         }
-        
+
         .cookies-section li {
             margin-bottom: 0.5rem;
         }
-        
+
         .cookie-table {
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin: 1rem 0;
         }
-        
+
         .cookie-table th {
             background: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
             padding: 1rem;
             font-weight: 600;
         }
-        
+
         .cookie-table td {
             padding: 1rem;
             border-bottom: 1px solid #dee2e6;
             vertical-align: top;
         }
-        
+
         .cookie-table tr:last-child td {
             border-bottom: none;
         }
-        
+
         .cookie-type {
             display: inline-block;
             padding: 0.25rem 0.5rem;
@@ -174,27 +176,27 @@ require_once 'includes/sidebar_helper.php';
             font-size: 0.8rem;
             font-weight: 500;
         }
-        
+
         .cookie-type.essential {
             background: #d4edda;
             color: #155724;
         }
-        
+
         .cookie-type.functional {
             background: #cce5ff;
             color: #004085;
         }
-        
+
         .cookie-type.analytics {
             background: #fff3cd;
             color: #856404;
         }
-        
+
         .cookie-type.marketing {
             background: #f8d7da;
             color: #721c24;
         }
-        
+
         .highlight-box {
             background: #f8f9fa;
             border-left: 4px solid #007bff;
@@ -202,7 +204,7 @@ require_once 'includes/sidebar_helper.php';
             margin: 1rem 0;
             border-radius: 0 4px 4px 0;
         }
-        
+
         .warning-box {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -210,7 +212,7 @@ require_once 'includes/sidebar_helper.php';
             margin: 1rem 0;
             border-radius: 0 4px 4px 0;
         }
-        
+
         .info-box {
             background: #d1ecf1;
             border-left: 4px solid #17a2b8;
@@ -218,7 +220,7 @@ require_once 'includes/sidebar_helper.php';
             margin: 1rem 0;
             border-radius: 0 4px 4px 0;
         }
-        
+
         .last-updated {
             background: #e9ecef;
             padding: 0.5rem 1rem;
@@ -227,7 +229,7 @@ require_once 'includes/sidebar_helper.php';
             color: #666;
             margin-bottom: 2rem;
         }
-        
+
         .browser-info {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -235,18 +237,19 @@ require_once 'includes/sidebar_helper.php';
             padding: 1rem;
             margin: 1rem 0;
         }
-        
+
         .browser-info h5 {
             color: #495057;
             margin-bottom: 0.5rem;
         }
     </style>
 </head>
+
 <body class="bg-light">
-    <?php echo generateMobileHeader(); ?>\n    <?php echo generateSidebarOverlay(); ?>
+    <?php echo generateMobileHeader(); ?>\n <?php echo generateSidebarOverlay(); ?>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->\n            <?php echo generateSidebar(); ?>
+            <!-- Sidebar -->\n <?php echo generateSidebar(); ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
@@ -268,7 +271,7 @@ require_once 'includes/sidebar_helper.php';
                     <div class="cookies-section">
                         <h3>1. What Are Cookies?</h3>
                         <p>Cookies are small text files that are stored on your device (computer, tablet, or mobile phone) when you visit a website. They help websites remember information about your visit, such as your preferred language and other settings that can make your next visit easier and the site more useful to you.</p>
-                        
+
                         <div class="highlight-box">
                             <strong>Important:</strong> IP Logger uses cookies to enhance your experience and provide essential functionality. We are committed to transparency about our cookie usage and respect your privacy choices.
                         </div>
@@ -289,7 +292,7 @@ require_once 'includes/sidebar_helper.php';
                     <!-- Types of Cookies -->
                     <div class="cookies-section">
                         <h3>3. Types of Cookies We Use</h3>
-                        
+
                         <div class="cookie-table">
                             <table class="table table-borderless mb-0">
                                 <thead>
@@ -341,28 +344,28 @@ require_once 'includes/sidebar_helper.php';
                     <!-- Cookie Categories -->
                     <div class="cookies-section">
                         <h3>4. Cookie Categories</h3>
-                        
+
                         <h4>4.1 Essential Cookies</h4>
                         <p>These cookies are necessary for the website to function properly. They cannot be disabled and are typically set in response to actions you take, such as logging in or filling out forms.</p>
                         <ul>
                             <li><strong>PHPSESSID:</strong> Maintains your session while you browse our site</li>
                             <li><strong>CSRF Token:</strong> Protects against cross-site request forgery attacks</li>
                         </ul>
-                        
+
                         <h4>4.2 Functional Cookies</h4>
                         <p>These cookies enable enhanced functionality and personalization. They may be set by us or third-party providers whose services we use.</p>
                         <ul>
                             <li><strong>User Preferences:</strong> Remember your interface settings and choices</li>
                             <li><strong>Language Settings:</strong> Store your preferred language</li>
                         </ul>
-                        
+
                         <h4>4.3 Analytics Cookies</h4>
                         <p>These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.</p>
                         <ul>
                             <li><strong>Usage Analytics:</strong> Track page views and user behavior</li>
                             <li><strong>Performance Monitoring:</strong> Monitor site performance and errors</li>
                         </ul>
-                        
+
                         <div class="warning-box">
                             <strong>Note:</strong> We do not use marketing or advertising cookies that track you across websites for advertising purposes.
                         </div>
@@ -372,16 +375,16 @@ require_once 'includes/sidebar_helper.php';
                     <div class="cookies-section">
                         <h3>5. Third-Party Cookies</h3>
                         <p>Our service may use third-party services that set their own cookies:</p>
-                        
+
                         <h4>5.1 Google Fonts</h4>
                         <p>We use Google Fonts to display custom fonts. Google may set cookies to track font usage.</p>
-                        
+
                         <h4>5.2 FontAwesome</h4>
                         <p>We use FontAwesome for icons. FontAwesome may set cookies for CDN performance.</p>
-                        
+
                         <h4>5.3 Bootstrap CDN</h4>
                         <p>We use Bootstrap CDN for styling. Bootstrap may set cookies for CDN optimization.</p>
-                        
+
                         <div class="info-box">
                             <strong>Important:</strong> We have minimized our use of third-party services to reduce tracking and improve privacy.
                         </div>
@@ -391,22 +394,22 @@ require_once 'includes/sidebar_helper.php';
                     <div class="cookies-section">
                         <h3>6. Browser Anti-Tracking Features</h3>
                         <p>Modern browsers have implemented anti-tracking features that may affect cookie functionality:</p>
-                        
+
                         <div class="browser-info">
                             <h5><i class="fab fa-firefox"></i> Firefox</h5>
                             <p>Firefox blocks third-party cookies by default and includes Enhanced Tracking Protection that may block tracking cookies.</p>
                         </div>
-                        
+
                         <div class="browser-info">
                             <h5><i class="fab fa-chrome"></i> Chrome</h5>
                             <p>Chrome has phased out third-party cookies and implements Privacy Sandbox features to replace traditional tracking.</p>
                         </div>
-                        
+
                         <div class="browser-info">
                             <h5><i class="fab fa-safari"></i> Safari</h5>
                             <p>Safari includes Intelligent Tracking Prevention that blocks cross-site tracking and limits cookie access.</p>
                         </div>
-                        
+
                         <div class="browser-info">
                             <h5><i class="fab fa-edge"></i> Edge</h5>
                             <p>Edge includes tracking prevention features and blocks known tracking domains.</p>
@@ -416,7 +419,7 @@ require_once 'includes/sidebar_helper.php';
                     <!-- Managing Cookies -->
                     <div class="cookies-section">
                         <h3>7. Managing Your Cookie Preferences</h3>
-                        
+
                         <h4>7.1 Browser Settings</h4>
                         <p>You can control cookies through your browser settings:</p>
                         <ul>
@@ -425,7 +428,7 @@ require_once 'includes/sidebar_helper.php';
                             <li><strong>Safari:</strong> Preferences → Privacy → Manage Website Data</li>
                             <li><strong>Edge:</strong> Settings → Cookies and site permissions → Cookies and site data</li>
                         </ul>
-                        
+
                         <h4>7.2 Our Cookie Consent</h4>
                         <p>When you first visit our site, you'll see a cookie consent banner that allows you to:</p>
                         <ul>
@@ -433,7 +436,7 @@ require_once 'includes/sidebar_helper.php';
                             <li>Accept only essential cookies</li>
                             <li>Customize your cookie preferences</li>
                         </ul>
-                        
+
                         <h4>7.3 Updating Preferences</h4>
                         <p>You can change your cookie preferences at any time by:</p>
                         <ul>
@@ -453,7 +456,7 @@ require_once 'includes/sidebar_helper.php';
                             <li><strong>Preferences:</strong> Your settings and preferences will not be remembered</li>
                             <li><strong>Security:</strong> Some security features may be limited</li>
                         </ul>
-                        
+
                         <div class="warning-box">
                             <strong>Recommendation:</strong> We recommend allowing essential cookies for the best user experience while maintaining your privacy preferences for optional cookies.
                         </div>
@@ -469,7 +472,7 @@ require_once 'includes/sidebar_helper.php';
                             <li><strong>Transparency:</strong> We clearly explain what data we collect and why</li>
                             <li><strong>User Control:</strong> You can manage and withdraw consent at any time</li>
                         </ul>
-                        
+
                         <p>For more information about how we protect your data, please see our <a href="privacy.php">Privacy Policy</a>.</p>
                     </div>
 
@@ -512,5 +515,6 @@ require_once 'includes/sidebar_helper.php';
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
 
-    </body>
+</body>
+
 </html>
