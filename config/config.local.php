@@ -1,6 +1,6 @@
 <?php
 // Local Database Configuration for Testing
-define('DB_HOST', 'https://localhost/');
+define('DB_HOST', 'localhost');
 define('DB_NAME', 'techeletric_ip_logger');
 define('DB_USER', 'root');
 define('DB_PASS', '123qwe');

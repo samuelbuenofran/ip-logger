@@ -1,0 +1,71 @@
+/* Mobile Navigation Styles */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100vh;
+        z-index: 1050;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: none;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .mobile-header {
+        display: block;
+        background: var(--apple-bg-primary);
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        border-bottom: 1px solid var(--apple-gray-5);
+    }
+
+    .mobile-header .navbar-brand {
+        color: var(--apple-text-primary);
+        font-weight: 600;
+    }
+
+    .mobile-header .btn {
+        color: var(--apple-text-primary);
+        border-color: var(--apple-gray-4);
+    }
+
+    .mobile-header .btn:hover {
+        background-color: var(--apple-gray-6);
+        border-color: var(--apple-gray-3);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-header {
+        display: none;
+    }
+
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
