@@ -31,7 +31,8 @@ function getDeviceType($userAgent = null)
         'kindle',
         'silk',
         'mobile safari',
-        'fennec'
+        'fennec',
+        'tor'
     ];
 
     foreach ($mobileKeywords as $keyword) {

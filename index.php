@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'config/config.local.php';
+require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 require_once 'includes/sidebar_helper.php';
@@ -22,7 +22,7 @@ $links = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Logger - URL Shortener & Tracker</title>
+    <title>IP Logger - Encurtador de URL & Rastreador</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
